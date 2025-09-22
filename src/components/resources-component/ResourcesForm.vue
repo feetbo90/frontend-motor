@@ -25,7 +25,7 @@
                         </div>
                     </div>
                     <!-- Aset dan Inventaris section -->
-                    <div class="form-group">
+                    <div class="form-group"  v-if="isCabangRole">
                         <h4 class="form-group-title">Aset dan Inventaris</h4>
                         <p>Data kontrak dan inventaris perusahaan</p>
                         <div class="form-group-content">
