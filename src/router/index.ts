@@ -7,6 +7,7 @@ import ProfitLostView from '@/views/ProfitLostView.vue'
 import ResidualValueReserveView from '@/views/ResidualValueReserveView.vue'
 import ResourcesView from '@/views/ResourcesView.vue'
 import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
+import ExportImportView from '@/views/ExportImportView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 
@@ -75,6 +76,12 @@ const routes = [
     name: 'satuan-pengukuran', 
     component: UnitOfMeasurementView,
     meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['pusat'] }
+  },
+  { 
+    path: '/export-import', 
+    name: 'export-import', 
+    component: ExportImportView,
+    meta: { title: 'Export / Import', requiresAuth: true, allowedRoles: ['pusat','cabang','unit'] }
   }
 ]
 

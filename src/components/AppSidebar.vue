@@ -9,6 +9,7 @@
     
     <div class="period-filter">
       <h4>Filter Periode</h4>
+      <div class="filter-year-month">
       <div class="filter-group">
         <label>Tahun:</label>
         <select v-model="selectedYear" class="form-select">
@@ -23,12 +24,20 @@
           </option>
         </select>
       </div>
+    </div>
      
       <div class="filter-group">
         <label>Cabang:</label>
         <select v-model="selectedCabang" class="form-select">
           <option value="">Pilih Cabang</option>
           <option v-for="cabang in cabangs" :key="cabang" :value="cabang">{{ cabang }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Unit:</label>
+        <select v-model="selectedUnit" class="form-select">
+          <option value="">Pilih Unit</option>
+          <option v-for="unit in units" :key="unit" :value="unit">{{ unit }}</option>
         </select>
       </div>
     </div>
@@ -98,13 +107,21 @@
             Satuan Pengukuran
           </router-link>
         </li>
+        
+        <!-- Export / Import - For all roles with access -->
+        <li v-if="canAccessRoute('/export-import')">
+          <router-link to="/export-import" class="nav-link" :class="{ active: $route.name === 'export-import' }">
+            <i class="fas fa-file-export"></i>
+            Ekspor / Impor
+          </router-link>
+        </li>
       </ul>
     </nav>
   </div>
 </template>
 
 <script setup lang="ts">
-import { selectedCabang, selectedMonth, selectedYear } from '@/stores/globalState'
+import { selectedCabang, selectedMonth, selectedYear, selectedUnit } from '@/stores/globalState'
 import { useRole } from '@/composables/useRole'
 import { getRouteAllowedRoles } from '@/router'
 
@@ -129,9 +146,18 @@ const cabangs = [
   'Cabang Kisaran', 'Cabang Aek Kanopan', 'Cabang Petatal'
 ]
 
+const units = [
+  'Unit A', 'Unit B', 'Unit C'
+]
+
 </script>
 
 <style scoped>
+.filter-year-month{
+  display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 1.5rem;
+}
 .sidebar {
   position: fixed;
   left: 0;

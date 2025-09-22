@@ -4,6 +4,7 @@ import { ref, computed } from 'vue'
 export const selectedYear = ref(new Date().getFullYear())
 export const selectedMonth = ref(new Date().getMonth() + 1)
 export const selectedCabang = ref('')
+export const selectedUnit = ref('')
 
 // Dummy User information
 export const userInfo = ref({
