@@ -160,8 +160,8 @@ const handleExport = () => {
         end: endDate.value || null
       },
       filters: {
-        year: selectedYear.value,
-        month: selectedMonth.value,
+        year: Number(selectedYear.value),
+        month: Number(selectedMonth.value),
         cabang: selectedCabang.value,
         unit: selectedUnit.value
       },

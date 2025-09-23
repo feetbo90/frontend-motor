@@ -1,80 +1,84 @@
 <template>
-    <div class="sections-grid">
-        <FormSection title="Data Kas & Keuangan" description="Informasi Kas Tunai Dan Rekening Bank">
+    <div>
+        <FormSection title="Data Sumber Daya Manusia (SDM)"
+            description="Informasi jumlah dan formasi karyawan, formasi tenaga, aset dan inventaris">
+            <!-- Slot untuk content -->
             <template #content>
-                <div class="section-form">
+                <div class="form-grid ">
+                    <div class="date-fields">
+                        <FormSelect id="tahun" label="Tahun" v-model="cashFlowData.tahun" placeholder="Pilih Tahun"
+                            :options="yearOptions" />
+                        <FormSelect id="bulan" label="Bulan" v-model="cashFlowData.bulan" placeholder="Pilih Bulan"
+                            :options="monthOptions" />
+                    </div>
                     <!-- Kas Tunai & Rekning Bank -->
                     <div class="form-group" style="margin-top: 0 !important;">
                         <h4 class="form-group-title">Detail Kas Tunai & Rekening Bank</h4>
                         <p>Informasi Data Kas Tunai & Rekening Bank</p>
                         <div class="form-group-content">
-                            <div class="section-form">
-                                <div class="field-form">
-                                    <FormField id="kas-tunai" label="Kas Tunai" type="number"
-                                        v-model="cashFlowData.kasTunai" placeholder="0" />
-                                    <FormField id="rekening-bank" label="Rekening Bank" type="number"
-                                        v-model="cashFlowData.rekeningBank" placeholder="0" />
-                                </div>
-                                <div class="calculated-field">
-                                    <label>Jumlah Kas Lancar:</label>
-                                    <span class="calculated-value">{{ formatCurrency(jumlahKasLancar) }}</span>
-                                </div>
-                            </div>
+                            <FormField id="kas-tunai" label="Kas Tunai" type="number" v-model="cashFlowData.kasTunai"
+                                placeholder="0" />
+                            <FormField id="rekening-bank" label="Rekening Bank" type="number"
+                                v-model="cashFlowData.rekeningBank" placeholder="0" />
+                            <FormField id="jlh-kas-lancar" label="Jumlah Kas Lancar" type="number"
+                                v-model="cashFlowData.jlh_kas_lancar" placeholder="0" />
                         </div>
                     </div>
                     <!-- BON Kas -->
-                    <div class="form-group">
+                    <div class="form-group" style="margin-top: 0 !important;">
                         <h4 class="form-group-title">BON KAS</h4>
                         <p>Informasi Data berbagai jenis BON kas perusahaan</p>
                         <div class="form-group-content">
-                            <div class="section-form">
-                                <div class="field-form">
-                                    <FormField id="bon-karyawan" label="BON Karyawan" type="number"
-                                        v-model="cashFlowData.bonKaryawan" placeholder="0" />
-                                    <FormField id="bin-pusat" label="BIN Pusat" type="number"
-                                        v-model="cashFlowData.binPusat" placeholder="0" />
-                                    <FormField id="bon-biaya-operasional" label="BON Biaya Operasional" type="number"
-                                        v-model="cashFlowData.bonBiayaOps" placeholder="0" />
-                                    <FormField id="bon-gantung" label="BON Gantung (BON Prive Karyawan)" type="number"
-                                        v-model="cashFlowData.bonGantung" placeholder="0" />
-                                </div>
-                                <div class="calculated-field">
-                                    <label>Jumlah Kas Macet:</label>
-                                    <span class="calculated-value">{{ formatCurrency(jumlahKasMacet) }}</span>
-                                </div>
-                            </div>
+                            <FormField id="bon-karyawan" label="BON Karyawan" type="number"
+                                v-model="cashFlowData.bonKaryawan" placeholder="0" />
+                            <FormField id="bon-pusat" label="BON Pusat" type="number" v-model="cashFlowData.bonPusat"
+                                placeholder="0" />
+                            <FormField id="bon-biaya-operasional" label="BON Biaya Operasional" type="number"
+                                v-model="cashFlowData.bonBiayaOps" placeholder="0" />
+                            <FormField id="bon-gantung" label="BON Gantung (BON Prive Karyawan)" type="number"
+                                v-model="cashFlowData.bonGantung" placeholder="0" />
+                            <FormField id="jlh-kas-macet" label="Jumlah Kas Macet" type="number"
+                                v-model="cashFlowData.jlh_kas_macet" placeholder="0" />
                         </div>
                     </div>
-                    <div class="total-summary">
-                        <span class="total-label">Total Saldo Akhir:</span>
-                        <span class="total-amount">{{ formatCurrency(totalSaldoAkhir) }}</span>
-                    </div>
+                    <FormField id="total-saldo-akhir" label="Total Saldo Akhir" type="number"
+                    v-model="cashFlowData.total_saldo_akhir" placeholder="0" />
                 </div>
             </template>
+
             <!-- Slot untuk footer -->
             <template #footer>
                 <div class="footer-btn">
-                    <button class="btn btn-outline"> <i class="fas fa-save"></i> Simpan</button>
-                    <button class="btn btn-reset"><i class="fas fa-times-circle"></i> Reset</button>
+                    <button class="btn btn-primary" @click="handleSave"> <i class="fas"
+                            :class="isEditing ? 'fa-save' : 'fa-plus'" /> {{ isEditing ? 'Simpan Perubahan' : 'Tambah ke Daftar'}}</button>
+                    <button class="btn btn-reset" @click="handleReset"><i class="fas fa-rotate-left"></i> Reset</button>
+                    <button v-if="isEditing" class="btn btn-outline" @click="cancelEdit"><i class="fas fa-ban"></i>
+                        Batal
+                        Edit</button>
                 </div>
+            </template>
+
+        </FormSection>
+
+        <FormSection title="Daftar SDM" description="Kumpulan item sumber daya manusia yang telah ditambahkan">
+            <template #content>
+                <CashFlowTable :entries="entries" @edit="editRow" @delete="deleteRow" />
             </template>
         </FormSection>
     </div>
 </template>
-<script setup lang="ts">
-import { computed } from 'vue';
-import FormField from '../FormField.vue';
-import FormSection from '../FormSection.vue';
-import { formatCurrency } from '@/stores/globalState';
 
-interface CashFlowData {
-    kasTunai: number,
-    rekeningBank: number,
-    bonKaryawan: number,
-    binPusat: number,
-    bonBiayaOps: number,
-    bonGantung: number
-}
+<script setup lang="ts">
+import FormField from '@/components/FormField.vue'
+import FormSection from '@/components/FormSection.vue'
+import FormSelect from '@/components/FormSelect.vue'
+import { useDate } from '@/composables/useDate'
+import type { CashFlowData } from '@/types/cash-flow.type'
+import { computed, ref } from 'vue'
+import CashFlowTable from './CashFlowTable.vue'
+
+
+type DataEntry = CashFlowData & { id: number }
 
 interface Props {
     modelValue: CashFlowData
@@ -92,262 +96,161 @@ const cashFlowData = computed({
     set: (value: CashFlowData) => emit('update:modelValue', value)
 })
 
-const jumlahKasLancar = computed(() => {
-    return Number(cashFlowData.value.kasTunai) + Number(cashFlowData.value.rekeningBank)
-})
+// Use date composable
+const { monthOptions, getYearOptions, getCurrentDate } = useDate()
+const yearOptions = getYearOptions(5) // Current year ± 5 years
+const currentDate = getCurrentDate()
 
-const jumlahKasMacet = computed(() => {
-    return Number(cashFlowData.value.bonKaryawan) +
-        Number(cashFlowData.value.binPusat) +
-        Number(cashFlowData.value.bonBiayaOps) +
-        Number(cashFlowData.value.bonGantung)
-})
-const totalSaldoAkhir = computed(() => {
-    return jumlahKasLancar.value + jumlahKasMacet.value
-})
+// Set default values for current date
+const defaultData = {
+    ...getCurrentDate(),
+    kasTunai: 0,
+    rekeningBank: 0,
+    bonKaryawan: 0,
+    bonPusat: 0,
+    bonBiayaOps: 0,
+    bonGantung: 0,
+    jlh_kas_lancar: 0,
+    jlh_kas_macet: 0,
+    total_saldo_akhir: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
+}
+
+// Local table state
+const entries = ref<DataEntry[]>([])
+const editingIndex = ref<number | null>(null)
+let autoId = 1
+
+const isEditing = computed(() => editingIndex.value !== null)
+
+function safeNumber(n: unknown): number {
+    const num = typeof n === 'number' ? n : Number(n)
+    return Number.isFinite(num) ? num : 0
+}
+
+function handleSave(): void {
+    const newItem: CashFlowData = {
+        tahun: safeNumber(cashFlowData.value.tahun),
+        bulan: safeNumber(cashFlowData.value.bulan),
+        kasTunai: safeNumber(cashFlowData.value.kasTunai),
+        rekeningBank: safeNumber(cashFlowData.value.rekeningBank),
+        bonKaryawan: safeNumber(cashFlowData.value.bonKaryawan),
+        bonPusat: safeNumber(cashFlowData.value.bonPusat),
+        bonBiayaOps: safeNumber(cashFlowData.value.bonBiayaOps),
+        bonGantung: safeNumber(cashFlowData.value.bonGantung),
+        jlh_kas_lancar: safeNumber(cashFlowData.value.jlh_kas_lancar),
+        jlh_kas_macet: safeNumber(cashFlowData.value.jlh_kas_macet),
+        total_saldo_akhir: safeNumber(cashFlowData.value.total_saldo_akhir),
+    }
+
+    if (isEditing.value && editingIndex.value !== null) {
+        const idx = editingIndex.value
+        entries.value[idx] = { ...entries.value[idx], ...newItem }
+        editingIndex.value = null
+    } else {
+        entries.value.push({ id: autoId++, ...newItem })
+    }
+
+    handleReset()
+}
+
+function handleReset(): void {
+    emit('update:modelValue', { ...defaultData })
+}
+
+function editRow(index: number): void {
+    const row = entries.value[index]
+    if (!row) return
+    editingIndex.value = index
+    emit('update:modelValue', {
+        tahun: row.tahun, bulan: row.bulan, kasTunai: row.kasTunai, rekeningBank: row.rekeningBank, bonKaryawan: row.bonKaryawan, bonPusat: row.bonPusat, bonBiayaOps: row.bonBiayaOps, bonGantung: row.bonGantung, jlh_kas_lancar: row.jlh_kas_lancar, jlh_kas_macet: row.jlh_kas_macet,total_saldo_akhir: row.total_saldo_akhir
+    })
+}
+
+function cancelEdit(): void {
+    editingIndex.value = null
+    handleReset()
+}
+
+function deleteRow(index: number): void {
+    const row = entries.value[index]
+    if (!row) return
+    const ok = window.confirm('Hapus item ini?')
+    if (!ok) return
+    entries.value.splice(index, 1)
+    if (editingIndex.value !== null && index === editingIndex.value) {
+        cancelEdit()
+    }
+}
 
 </script>
+
 <style scoped>
-.total-summary {
-    margin-top:1rem;
+.footer-btn {
     display: flex;
-    justify-content: space-between;
+    gap: 12px;
     align-items: center;
-    padding: var(--spacing-lg);
-    background: var(--primary);
-    color: white;
-    border-radius: var(--radius-md);
-    font-size: 1.125rem;
-}
-
-.total-label {
-    font-weight: 600;
-}
-
-.total-amount {
-    font-weight: 800;
-    font-size: 1.25rem;
-}
-
-.calculated-field {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    background: #f8fafc;
-    border-radius: 8px;
-    border-left: 4px solid #3b82f6;
-    margin-top: 1rem;
-    grid-column: 1 / -1;
-}
-
-.calculated-field label {
-    font-weight: 600;
-    color: #374151;
-}
-
-.calculated-value {
-    font-weight: 700;
-    color: #1e293b;
-    font-size: 1.125rem;
-}
-
-.section-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.field-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.form-group {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group p {
-    margin: 0;
-    color: #64748b;
-    font-size: 0.875rem;
-    border-bottom: 2px solid #e5e7eb;
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-}
-
-.form-group-title {
-    margin: 0 0 8px 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-    color: #374151;
-
-}
-
-.form-group-content {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.sections-grid {
-    display: grid;
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.summary-section {
-    margin-top: 2rem;
-}
-
-.summary-cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 3rem;
-}
-
-.summary-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.summary-card:hover {
-    transform: translateY(-2px);
-}
-
-.summary-card .card-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-}
-
-.employees .card-icon {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
-
-.shortage .card-icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.office .card-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.vehicle .card-icon {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-}
-
-.card-content h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.number {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.label {
-    font-size: 0.75rem;
-    color: #94a3b8;
-}
-
-.org-chart {
-    background: white;
-    padding: 2rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-}
-
-.org-chart h3 {
-    margin: 0 0 2rem 0;
-    font-size: 1.25rem;
-    font-weight: 600;
-    color: #1e293b;
-    text-align: center;
-}
-
-.org-structure {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2rem;
-}
-
-.org-level {
-    display: flex;
-    gap: 1.5rem;
     flex-wrap: wrap;
-    justify-content: center;
 }
 
-.org-position {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    text-align: center;
-    min-width: 120px;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
-}
-
-.org-position i {
-    display: block;
-    font-size: 1.5rem;
-    margin-bottom: 0.5rem;
-}
-
-.org-position span {
-    display: block;
-    font-weight: 500;
-    font-size: 0.875rem;
-}
-
-.org-position .count {
-    position: absolute;
-    top: -10px;
-    right: -10px;
-    background: #ef4444;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.75rem;
+.footer-btn .btn {
+    min-width: 140px;
     font-weight: 600;
-    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-@media (max-width: 768px) {
-    .org-level {
-        flex-direction: column;
-        align-items: center;
-    }
+.footer-btn .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.footer-btn .btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(100, 116, 139, 0.4);
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 116, 139, 0.6);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.btn-outline:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 </style>

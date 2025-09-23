@@ -6,7 +6,7 @@
     </div>
     
     <form @submit.prevent="handleLogin" class="form">
-      <div class="form-group">
+      <div class="form-group-login">
         <label for="email">Email</label>
         <input
           id="email"
@@ -19,7 +19,7 @@
         <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
       </div>
 
-      <div class="form-group">
+      <div class="form-group-login">
         <label for="password">Password</label>
         <div class="password-input">
           <input
@@ -192,19 +192,19 @@ const handleLogin = async () => {
   gap: 1.5rem;
 }
 
-.form-group {
+.form-group-login {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group label {
+.form-group-login label {
   color: #374151;
   font-weight: 500;
   font-size: 0.875rem;
 }
 
-.form-group input {
+.form-group-login input {
   padding: 0.75rem;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -212,13 +212,13 @@ const handleLogin = async () => {
   transition: all 0.2s ease;
 }
 
-.form-group input:focus {
+.form-group-login input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.form-group input.error {
+.form-group-login input.error {
   border-color: #ef4444;
 }
 

@@ -7,7 +7,11 @@
 </template>
 <script setup lang="ts">
 import ResourcesForm from '@/components/resources-component/ResourcesForm.vue';
+import { useDate } from '@/composables/useDate';
 import { ref } from 'vue';
+
+const { getCurrentDate } = useDate()
+const currentDate = getCurrentDate()
 
 const sumberDayaData = ref({
     jumlahKaryawan: 0,
@@ -21,6 +25,9 @@ const sumberDayaData = ref({
     sisaKontrakKantor: 0,
     inventarisMobil: 0,
     nilaiSisaInventaris: 0,
-    penyusutanPerBulan: 0
+    penyusutanPerBulan: 0,
+    tahun:currentDate.tahun,
+    bulan:currentDate.bulan
+
 })
 </script>

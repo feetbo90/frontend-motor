@@ -1,51 +1,64 @@
 <template>
-    <FormSection title="Data Cadangan dan Nilai Sisa"
-        description="Input data cadangan PH dan nilai sisa akumulasi penyusutan">
-        <template #content>
-            <div class="section-form">
-                <div class="field-form">
-                    <FormField id="cadangan-ph-piutang" label="Cadangan PH Piutang" type="number"
-                        v-model="residualValueReserveData.cadanganPHPiutang" placeholder="0" />
-                    <FormField id="macet-real" label="Macet Real" type="number"
-                        v-model="residualValueReserveData.macetReal" placeholder="0" />
-                    <FormField id="surplus-devisit" label="Surplus/Devisit" type="number"
-                        v-model="residualValueReserveData.surplusDevisit" placeholder="0" />
-                </div>
-                <!-- Form Group untuk Cadangan PH Stok dan Keterangan -->
-                <div class="form-group">
-                    <h4 class="form-group-title">Informasi PH Stok</h4>
-                    <div class="form-group-content">
+    <div>
+        <FormSection title="Data Cadangan dan Nilai Sisa"
+            description="Input data cadangan PH dan nilai sisa akumulasi penyusutan">
+            <!-- Slot untuk content -->
+            <template #content>
+                <div class="form-grid ">
+                    <div class="date-fields">
+                        <FormSelect id="tahun" label="Tahun" v-model="residualValueReserveData.tahun"
+                            placeholder="Pilih Tahun" :options="yearOptions" />
+                        <FormSelect id="bulan" label="Bulan" v-model="residualValueReserveData.bulan"
+                            placeholder="Pilih Bulan" :options="monthOptions" />
+                    </div>
+                    <div class="form-fields">
+                        <FormField id="cadangan-ph-piutang" label="Cadangan PH Piutang" type="number"
+                            v-model="residualValueReserveData.cadanganPHPiutang" placeholder="0" />
+                        <FormField id="macet-real" label="Macet Real" type="number"
+                            v-model="residualValueReserveData.macetReal" placeholder="0" />
+                        <FormField id="surplus-devisit" label="Surplus/Devisit" type="number"
+                            v-model="residualValueReserveData.surplusDevisit" placeholder="0" />
                         <FormField id="cadangan-ph-stok" label="Cadangan PH Stok" type="number"
                             v-model="residualValueReserveData.cadanganPHStok" placeholder="0" />
                         <FormField id="keterangan" label="Keterangan Cadangan PH Stok" type="textarea"
-                            v-model="residualValueReserveData.keterangan"
-                            placeholder="Masukkan keterangan..." />
+                            v-model="residualValueReserveData.keterangan" placeholder="Masukkan keterangan..." />
                     </div>
+
                 </div>
-            </div>
-        </template>
+            </template>
 
-        <!-- Slot untuk footer -->
-        <template #footer>
-            <div class="footer-btn">
-                <button class="btn btn-outline"> <i class="fas fa-save"></i> Simpan</button>
-                <button class="btn btn-reset"><i class="fas fa-times-circle"></i> Reset</button>
-            </div>
-        </template>
-    </FormSection>
+            <!-- Slot untuk footer -->
+            <template #footer>
+                <div class="footer-btn">
+                    <button class="btn btn-primary" @click="handleSave"> <i class="fas"
+                            :class="isEditing ? 'fa-save' : 'fa-plus'" /> {{ isEditing ? 'Simpan Perubahan' : 'Tambah ke Daftar'}}</button>
+                    <button class="btn btn-reset" @click="handleReset"><i class="fas fa-rotate-left"></i> Reset</button>
+                    <button v-if="isEditing" class="btn btn-outline" @click="cancelEdit"><i class="fas fa-ban"></i>
+                        Batal
+                        Edit</button>
+                </div>
+            </template>
+        </FormSection>
+
+        <FormSection title="Daftar Cadangan & Nilai Sisa" description="Kumpulan item cadangan dan nilai sisa yang telah ditambahkan">
+            <template #content>
+                <ResidualValueReserveTable :entries="entries" @edit="editRow" @delete="deleteRow" />
+            </template>
+        </FormSection>
+    </div>
 </template>
-<script setup lang="ts">
-import { computed } from 'vue';
-import FormSection from '../FormSection.vue';
-import FormField from '../FormField.vue';
 
-interface ResidualValueReserveData {
-    cadanganPHPiutang: number,
-    macetReal: number,
-    surplusDevisit: number,
-    cadanganPHStok: number,
-    keterangan: string
-}
+<script setup lang="ts">
+import FormField from '@/components/FormField.vue'
+import FormSection from '@/components/FormSection.vue'
+import FormSelect from '@/components/FormSelect.vue'
+import { useDate } from '@/composables/useDate'
+import { computed, ref } from 'vue'
+import type { ResidualValueReserveData } from '@/types/residual-value-reserve.type'
+import ResidualValueReserveTable from './ResidualValueReserveTable.vue'
+
+
+type DataEntry = ResidualValueReserveData & { id: number }
 
 interface Props {
     modelValue: ResidualValueReserveData
@@ -63,51 +76,150 @@ const residualValueReserveData = computed({
     set: (value: ResidualValueReserveData) => emit('update:modelValue', value)
 })
 
+// Use date composable
+const { monthOptions, getYearOptions, getCurrentDate } = useDate()
+const yearOptions = getYearOptions(5) // Current year ± 5 years
+const currentDate = getCurrentDate()
+
+// Set default values for current date
+const defaultData = {
+    ...getCurrentDate(),
+    cadanganPHPiutang: 0,
+    macetReal: 0,
+    surplusDevisit: 0,
+    cadanganPHStok: 0,
+    keterangan: '',
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
+}
+
+// Local table state
+const entries = ref<DataEntry[]>([])
+const editingIndex = ref<number | null>(null)
+let autoId = 1
+
+const isEditing = computed(() => editingIndex.value !== null)
+
+function safeNumber(n: unknown): number {
+    const num = typeof n === 'number' ? n : Number(n)
+    return Number.isFinite(num) ? num : 0
+}
+
+function handleSave(): void {
+    const newItem: ResidualValueReserveData = {
+        tahun: safeNumber(residualValueReserveData.value.tahun),
+        bulan: safeNumber(residualValueReserveData.value.bulan),
+        cadanganPHPiutang: safeNumber(residualValueReserveData.value.cadanganPHPiutang),
+        macetReal: safeNumber(residualValueReserveData.value.macetReal),
+        surplusDevisit: safeNumber(residualValueReserveData.value.surplusDevisit),
+        cadanganPHStok: safeNumber(residualValueReserveData.value.cadanganPHStok),
+        keterangan: residualValueReserveData.value.keterangan,
+    }
+
+    if (isEditing.value && editingIndex.value !== null) {
+        const idx = editingIndex.value
+        entries.value[idx] = { ...entries.value[idx], ...newItem }
+        editingIndex.value = null
+    } else {
+        entries.value.push({ id: autoId++, ...newItem })
+    }
+
+    handleReset()
+}
+
+function handleReset(): void {
+    emit('update:modelValue', { ...defaultData })
+}
+
+function editRow(index: number): void {
+    const row = entries.value[index]
+    if (!row) return
+    editingIndex.value = index
+    emit('update:modelValue', { tahun: row.tahun, bulan: row.bulan, cadanganPHPiutang: row.cadanganPHPiutang, macetReal: row.macetReal, surplusDevisit: row.surplusDevisit, cadanganPHStok: row.cadanganPHStok, keterangan: row.keterangan })
+}
+
+function cancelEdit(): void {
+    editingIndex.value = null
+    handleReset()
+}
+
+function deleteRow(index: number): void {
+    const row = entries.value[index]
+    if (!row) return
+    const ok = window.confirm('Hapus item ini?')
+    if (!ok) return
+    entries.value.splice(index, 1)
+    if (editingIndex.value !== null && index === editingIndex.value) {
+        cancelEdit()
+    }
+}
 </script>
+
 <style scoped>
-.section-form {
+.footer-btn {
     display: flex;
-    flex-direction: column;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
 }
 
-.field-form {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 1.5rem;
-}
-
-.form-group {
-    margin-top: 1.5rem;
-    padding: 1.5rem;
-    border: 1px solid #e5e7eb;
-    border-radius: 0.5rem;
-    /* background-color: #f9fafb; */
-    display: flex;
-    flex-direction: column;
-}
-
-.form-group-title {
-    margin: 0 0 1rem 0;
-    font-size: 1.125rem;
+.footer-btn .btn {
+    min-width: 140px;
     font-weight: 600;
-    color: #374151;
-    border-bottom: 2px solid #e5e7eb;
-    padding-bottom: 0.5rem;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
 }
 
-.form-group-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+.footer-btn .btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
 }
 
-@media (min-width: 768px) {
-    .form-group-content {
-        flex-direction: row;
-    }
+.footer-btn .btn:hover::before {
+    left: 100%;
+}
 
-    .form-group-content .form-field {
-        flex: 1;
-    }
+.btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    color: white;
+    box-shadow: 0 4px 15px rgba(100, 116, 139, 0.4);
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(100, 116, 139, 0.6);
+}
+
+.btn-outline {
+    background: transparent;
+    color: #667eea;
+    border: 2px solid #667eea;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+}
+
+.btn-outline:hover {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
 </style>

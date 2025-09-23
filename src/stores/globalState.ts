@@ -105,7 +105,9 @@ export const bebanData = ref({
   bebanPenyusutan: 0,
   cadanganPHPiutang: 0,
   cadanganPHStok: 0,
-  totalBeban: 0
+  totalBeban: 0,
+  tahun: currentDate.tahun,
+  bulan: currentDate.bulan
 })
 
 // Computed values
