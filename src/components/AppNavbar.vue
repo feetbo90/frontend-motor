@@ -4,7 +4,6 @@
       <div class="navbar-left">
         <div class="page-info">
           <h3>{{ pageTitle }}</h3>
-          <p class="page-subtitle">Periode {{ currentPeriod }}</p>
         </div>
       </div>
       
@@ -46,7 +45,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { currentPeriod } from '@/stores/globalState'
 import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()

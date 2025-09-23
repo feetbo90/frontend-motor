@@ -3,7 +3,7 @@
     <label :for="id" class="form-label">{{ label }}</label>
     <input :id="id" :type="type" :value="modelValue"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" class="form-input"
-      :placeholder="placeholder" :readonly="readonly"  />
+      :placeholder="placeholder" :readonly="readonly" :min="min" :max="max" />
   </div>
 </template>
 
@@ -15,6 +15,8 @@ defineProps<{
   placeholder?: string
   modelValue: string | number
   readonly?: boolean
+  min?: number
+  max?: number
 }>()
 
 defineEmits<{

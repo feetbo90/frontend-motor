@@ -13,12 +13,14 @@
       <div class="filter-group">
         <label>Tahun:</label>
         <select v-model="selectedYear" class="form-select">
+          <option disabled value="">Pilih Tahun</option>
           <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
         </select>
       </div>
       <div class="filter-group">
         <label>Bulan:</label>
         <select v-model="selectedMonth" class="form-select">
+          <option disabled value="">Pilih Bulan</option>
           <option v-for="(month, index) in months" :key="index" :value="index + 1">
             {{ month }}
           </option>
@@ -123,6 +125,7 @@
 <script setup lang="ts">
 import { selectedCabang, selectedMonth, selectedYear, selectedUnit } from '@/stores/globalState'
 import { useRole } from '@/composables/useRole'
+import { useDate } from '@/composables/useDate'
 import { getRouteAllowedRoles } from '@/router'
 
 // Role-based navigation
@@ -136,11 +139,10 @@ const canAccessRoute = (path: string): boolean => {
   return allowedRoles.some(role => hasRole(role))
 }
 
-const years = Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - 5 + i)
-const months = [
-  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-]
+// Use date composable
+const { monthOptions, getYearOptions } = useDate()
+const years = getYearOptions(5).map(option => option.value)
+const months = monthOptions.map(option => option.label)
 
 const cabangs = [
   'Cabang Kisaran', 'Cabang Aek Kanopan', 'Cabang Petatal'

@@ -1,8 +1,11 @@
 import { ref, computed } from 'vue'
+import { useDate } from '@/composables/useDate'
 
 // Global state untuk filter periode
-export const selectedYear = ref(new Date().getFullYear())
-export const selectedMonth = ref(new Date().getMonth() + 1)
+// export const selectedYear = ref(new Date().getFullYear())
+// export const selectedMonth = ref(new Date().getMonth() + 1)
+export const selectedYear = ref<string | number>('')
+export const selectedMonth = ref<string | number>('')
 export const selectedCabang = ref('')
 export const selectedUnit = ref('')
 
@@ -25,11 +28,16 @@ export const dashboardData = ref({
 })
 
 // Data untuk produksi
+const { getCurrentDate } = useDate()
+const currentDate = getCurrentDate()
+
 export const produksiData = ref({
   penjualan: {
     kontan: 0,
     kredit: 0,
-    leasing: 0
+    leasing: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   pendapatan: {
     markupKontan: 0,
@@ -37,14 +45,18 @@ export const produksiData = ref({
     realisasiBunga: 0,
     diskonBunga: 0,
     denda: 0,
-    administrasi: 0
+    administrasi: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   pendapatanLain: {
     penjualanPK: 0,
     komisi: 0,
     dendaKeterlambatan: 0,
     diskonDenda: 0,
-    jumlahPendapatanLain: 0
+    jumlahPendapatanLain: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   piutang: {
     saldoAwal: 0,
@@ -52,7 +64,9 @@ export const produksiData = ref({
     realisasiPokok: 0,
     realisasiBunga: 0,
     jumlahAngsuran: 0,
-    saldoAkhir: 0
+    saldoAkhir: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   sirkulasiPiutang: {
     lancar: 0,
@@ -60,19 +74,25 @@ export const produksiData = ref({
     raguRagu: 0,
     macetBaru: 0,
     macetLama: 0,
-    totalPiutang: 0
+    totalPiutang: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   sirkulasiStock: {
     unitAwal: 0,
     pembelianTambahan: 0,
     unitTerjual: 0,
-    unitStokAkhir: 0
+    unitStokAkhir: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   },
   barangPK: {
     unitAwal: 0,
     pkTambahan: 0,
     unitTerjual: 0,
-    unitPK: 0
+    unitPK: 0,
+    tahun: currentDate.tahun,
+    bulan: currentDate.bulan
   }
 })
 
@@ -90,9 +110,11 @@ export const bebanData = ref({
 
 // Computed values
 export const currentPeriod = computed(() => {
-  const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember']
-  return `${months[selectedMonth.value - 1]} ${selectedYear.value}`
+  const { getMonthName } = useDate()
+  const yearNumber = typeof selectedYear.value === 'string' ? Number(selectedYear.value) : selectedYear.value
+  const monthNumber = typeof selectedMonth.value === 'string' ? Number(selectedMonth.value) : selectedMonth.value
+  if (!yearNumber || !monthNumber) return 'Pilih periode'
+  return `${getMonthName(monthNumber)} ${yearNumber}`
 })
 // currency
 export const formatCurrency = (amount: number) => {

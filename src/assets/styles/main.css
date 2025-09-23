@@ -75,7 +75,15 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
-
+.grid {
+  display: grid;
+}
+.grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.gap-16 {
+  gap: 16px;
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -192,7 +200,51 @@ button:focus-visible {
   margin:2rem;
   height: 100%;
 }
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.form-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+.date-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
 
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-grid {
+    gap: 1.5rem;
+  }
+
+  .date-fields,
+  .sales-fields {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .footer-btn {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .footer-btn .btn {
+    min-width: auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .section-title {
+    font-size: 1rem;
+  }
+
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
