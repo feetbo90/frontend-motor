@@ -46,6 +46,7 @@
 import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { logoutApi } from '@/services/authService'
 
 const route = useRoute()
 const router = useRouter()
@@ -87,7 +88,13 @@ const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
 
-const logout = () => {
+const logout = async () => {
+  try {
+    await logoutApi()
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  } catch (e) {
+    // Optional: handle error, e.g. network error, but tetap lanjut logout lokal
+  }
   authStore.logout()
   router.push('/login')
   showUserMenu.value = false
