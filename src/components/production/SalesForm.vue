@@ -26,7 +26,7 @@
         <div class="footer-btn">
           <button class="btn btn-primary" @click="handleSave"> <i class="fas"
               :class="isEditing ? 'fa-save' : 'fa-plus'" /> {{ isEditing ? 'Simpan Perubahan' : 'Tambah ke Daftar'
-            }}</button>
+              }}</button>
           <button class="btn btn-reset" @click="handleReset"><i class="fas fa-rotate-left"></i> Reset</button>
           <button v-if="isEditing" class="btn btn-outline" @click="cancelEdit"><i class="fas fa-ban"></i> Batal
             Edit</button>
@@ -99,6 +99,7 @@ const isEditing = computed(() => editingIndex.value !== null)
 const authStore = useAuthStore()
 
 onMounted(async () => {
+  if (!authStore.user?.value) return
   isGlobalLoading.value = true
   try {
     const user = authStore.user.value
@@ -258,5 +259,4 @@ function deleteRow(index: number): void {
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
 }
-
 </style>

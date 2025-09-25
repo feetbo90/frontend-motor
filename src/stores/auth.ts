@@ -53,6 +53,10 @@ export const useAuthStore = () => {
       localStorage.setItem('user_data', JSON.stringify(user.value))
     }
   }
+  const updateToken = (newToken: Partial<string>) => {
+      token.value = newToken
+      localStorage.setItem('auth_token', newToken)
+  }
 
   return {
     // State
@@ -67,7 +71,8 @@ export const useAuthStore = () => {
     login,
     logout,
     checkAuth,
-    updateUser
+    updateUser,
+    updateToken
   }
 }
 

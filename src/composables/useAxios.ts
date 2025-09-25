@@ -2,9 +2,8 @@ import axios, { AxiosError } from 'axios';
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
 
 import { useAuthStore } from '../stores/auth';
-
-// Ganti dengan URL endpoint refresh token API Anda
-const REFRESH_TOKEN_URL = '/auth/refresh-token';
+const baseURL = import.meta.env.VITE_API_URL // ambil dari .env
+const REFRESH_TOKEN_URL = `${baseURL}/auth/refresh-token`;
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -66,15 +65,21 @@ export function useAxios(): AxiosInstance {
         try {
           // Ganti dengan cara Anda mendapatkan refresh token
           const refreshToken = localStorage.getItem('refresh_token');
+          const token = authStore.token.value;
           if (!refreshToken) throw new Error('No refresh token');
-          const { data } = await axios.post(REFRESH_TOKEN_URL, { refreshToken });
+          const { data } = await axios.post(REFRESH_TOKEN_URL, { refresh_token:refreshToken },{
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
           const newToken = data.token;
+          const { updateToken } = useAuthStore();
+          updateToken(newToken)
           // Tidak bisa assign ke readonly, update lewat localStorage saja (store akan sync di reload)
-          localStorage.setItem('auth_token', newToken);
-          processQueue(null, newToken);
           if (originalRequest.headers) {
             originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
           }
+          processQueue(null, newToken);
           return instance(originalRequest);
         } catch (err) {
           processQueue(err as unknown, null);
