@@ -12,7 +12,7 @@ export const selectedUnit = ref('')
 // Dummy User information
 export const userInfo = ref({
   name: 'Admin Pandu Motor',
-  role: 'unit',//role yang tersedia [unit, cabang, pusat]
+  role: 'UNIT',//role yang tersedia [unit, cabang, pusat]
   email: 'admin@pandumotor.com',
   avatar: null,
   lastLogin: new Date().toLocaleDateString('id-ID')
@@ -109,6 +109,9 @@ export const bebanData = ref({
   tahun: currentDate.tahun,
   bulan: currentDate.bulan
 })
+
+// Global loading state
+export const isGlobalLoading = ref(false)
 
 // Computed values
 export const currentPeriod = computed(() => {

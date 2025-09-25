@@ -5,3 +5,35 @@ export interface SalesData {
     kredit: number
     leasing: number
   }
+  export interface SalesPayload{
+    branch_id: number,
+    period_id: number,
+    kontan: number,
+    kredit: number,
+    leasing: number,
+    jumlah: number
+  }
+  export interface SalesResponse {
+  id: string;
+  branch_id: string;
+  period_id: string;
+  kontan: number;
+  kredit: number;
+  leasing: number;
+  jumlah: number;
+  created_at: string;
+  updated_at: string;
+  year: number | null;
+  month: number | null;
+  version: number;
+  is_active: boolean;
+}
+
+export interface SalesListResponse {
+  message: string;
+  period_id: string | null;
+  data: SalesResponse[];
+  total: number;
+  totalPages: number;
+  currentPage: number;
+}

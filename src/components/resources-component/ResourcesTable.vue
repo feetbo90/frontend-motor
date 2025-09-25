@@ -73,7 +73,7 @@ interface Props {
 const { getMonthName } = useDate()
 // Role-based access control
 const { hasRole } = useRole()
-const isCabangRole = computed(() => hasRole('cabang'))
+const isCabangRole = computed(() => hasRole('CABANG'))
 const props = withDefaults(defineProps<Props>(), {
     showIndex: true,
     showFooterTotal: true,

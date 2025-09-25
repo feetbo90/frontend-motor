@@ -10,6 +10,7 @@ import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
 import ExportImportView from '@/views/ExportImportView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import type { User } from '@/types/auth-login.type'
 
 // Type definition untuk route meta
 declare module 'vue-router' {
@@ -33,55 +34,55 @@ const routes = [
     path: '/', 
     name: 'dashboard', 
     component: DashboardView,
-    meta: { title: 'Dashboard', requiresAuth: true, allowedRoles: ['unit', 'cabang', 'pusat'] }
+    meta: { title: 'Dashboard', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
   },
   { 
     path: '/komponen-produksi', 
     name: 'komponen-produksi', 
     component: ProductionComponentView,
-    meta: { title: 'Komponen Produksi', requiresAuth: true, allowedRoles: ['unit'] }
+    meta: { title: 'Komponen Produksi', requiresAuth: true, allowedRoles: ['UNIT'] }
   },
   { 
     path: '/komponen-beban', 
     name: 'komponen-beban', 
     component: LoadComponentsView,
-    meta: { title: 'Komponen Beban', requiresAuth: true, allowedRoles: ['cabang','unit'] }
+    meta: { title: 'Komponen Beban', requiresAuth: true, allowedRoles: ['CABANG','UNIT'] }
   },
   { 
     path: '/laba-rugi', 
     name: 'laba-rugi', 
     component: ProfitLostView,
-    meta: { title: 'Laba / Rugi / Surplus Devisit', requiresAuth: true, allowedRoles: ['cabang'] }
+    meta: { title: 'Laba / Rugi / Surplus Devisit', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
   { 
     path: '/cadangan-nilai-sisa', 
     name: 'cadangan-nilai-sisa', 
     component: ResidualValueReserveView,
-    meta: { title: 'Cadangan & Nilai Sisa ACC Penyusutan', requiresAuth: true, allowedRoles: ['cabang'] }
+    meta: { title: 'Cadangan & Nilai Sisa ACC Penyusutan', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
   { 
     path: '/sumber-daya', 
     name: 'sumber-daya', 
     component: ResourcesView,
-    meta: { title: 'Sumber Daya', requiresAuth: true, allowedRoles: ['unit','cabang'] }
+    meta: { title: 'Sumber Daya', requiresAuth: true, allowedRoles: ['UNIT','CABANG'] }
   },
   { 
     path: '/kas-keuangan', 
     name: 'kas-keuangan', 
     component: CashFlowView,
-    meta: { title: 'Kas & Keuangan', requiresAuth: true, allowedRoles: ['cabang'] }
+    meta: { title: 'Kas & Keuangan', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
   { 
     path: '/satuan-pengukuran', 
     name: 'satuan-pengukuran', 
     component: UnitOfMeasurementView,
-    meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['pusat'] }
+    meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['PUSAT'] }
   },
   { 
     path: '/export-import', 
     name: 'export-import', 
     component: ExportImportView,
-    meta: { title: 'Export / Import', requiresAuth: true, allowedRoles: ['pusat','cabang','unit'] }
+    meta: { title: 'Export / Import', requiresAuth: true, allowedRoles: ['PUSAT','CABANG','UNIT'] }
   }
 ]
 
@@ -96,8 +97,8 @@ const getUserRole = (): string | null => {
   const userData = localStorage.getItem('user_data')
   if (userData) {
     try {
-      const user = JSON.parse(userData)
-      return user?.role || null
+      const user:User = JSON.parse(userData)
+      return user?.entity_type || null
     } catch (error) {
       console.error('Error parsing user data:', error)
       return null

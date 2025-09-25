@@ -43,13 +43,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import FormSection from '@/components/FormSection.vue'
 import FormField from '@/components/FormField.vue'
+import FormSection from '@/components/FormSection.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import SalesTable from '@/components/production/SalesTable.vue'
 import { useDate } from '@/composables/useDate'
-import type { SalesData } from '@/types/sales.type'
+import { getSales, postSales } from '@/services/salesService'
+import { useAuthStore } from '@/stores/auth'
+import { isGlobalLoading } from '@/stores/globalState'
+import type { SalesData, SalesResponse } from '@/types/sales.type'
+import { computed, onMounted, ref } from 'vue'
 
 
 type SalesEntry = SalesData & { id: number }
@@ -75,6 +78,7 @@ const { monthOptions, getYearOptions, getCurrentDate } = useDate()
 const yearOptions = getYearOptions(5) // Current year ± 5 years
 const currentDate = getCurrentDate()
 
+
 // Set default values for current date
 const defaultSalesData = {
   ...getCurrentDate(),
@@ -92,12 +96,39 @@ let autoId = 1
 
 const isEditing = computed(() => editingIndex.value !== null)
 
+const authStore = useAuthStore()
+
+onMounted(async () => {
+  isGlobalLoading.value = true
+  try {
+    const user = authStore.user.value
+    const branchId = user?.entity_id
+    // getSales expects an object, not just branchId
+    const apiData = await getSales({ branch_id: branchId })
+    // apiData may not be an array, so ensure we access the correct property
+    const items = Array.isArray(apiData?.data) ? apiData.data : []
+    entries.value = items.map((item: SalesResponse) => ({
+      id: Number(item.id),
+      tahun: item.year ?? 0,
+      bulan: item.month ?? 0,
+      kontan: item.kontan,
+      kredit: item.kredit,
+      leasing: item.leasing
+    }))
+    autoId = entries.value.length > 0 ? Math.max(...entries.value.map(e => e.id)) + 1 : 1
+  } catch {
+    // Optional: alert('Gagal mengambil data penjualan!')
+  } finally {
+    isGlobalLoading.value = false
+  }
+})
+
 function safeNumber(n: unknown): number {
   const num = typeof n === 'number' ? n : Number(n)
   return Number.isFinite(num) ? num : 0
 }
 
-function handleSave(): void {
+async function handleSave(): Promise<void> {
   const newItem: SalesData = {
     tahun: safeNumber(salesData.value.tahun),
     bulan: safeNumber(salesData.value.bulan),
@@ -105,16 +136,31 @@ function handleSave(): void {
     kredit: safeNumber(salesData.value.kredit),
     leasing: safeNumber(salesData.value.leasing)
   }
-
-  if (isEditing.value && editingIndex.value !== null) {
-    const idx = editingIndex.value
-    entries.value[idx] = { ...entries.value[idx], ...newItem }
-    editingIndex.value = null
-  } else {
-    entries.value.push({ id: autoId++, ...newItem })
+  isGlobalLoading.value = true
+  try {
+    const user = authStore.user.value
+    const payload = {
+      branch_id: Number(user?.entity_id ?? 0),
+      period_id: 1,
+      kontan: newItem.kontan,
+      kredit: newItem.kredit,
+      leasing: newItem.leasing,
+      jumlah: newItem.kontan + newItem.kredit + newItem.leasing
+    }
+    await postSales(payload)
+    if (isEditing.value && editingIndex.value !== null) {
+      const idx = editingIndex.value
+      entries.value[idx] = { ...entries.value[idx], ...newItem }
+      editingIndex.value = null
+    } else {
+      entries.value.push({ id: autoId++, ...newItem })
+    }
+    handleReset()
+  } catch {
+    alert('Gagal menyimpan data penjualan!')
+  } finally {
+    isGlobalLoading.value = false
   }
-
-  handleReset()
 }
 
 function handleReset(): void {

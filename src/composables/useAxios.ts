@@ -1,0 +1,92 @@
+import axios, { AxiosError } from 'axios';
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse, InternalAxiosRequestConfig } from "axios";
+
+import { useAuthStore } from '../stores/auth';
+
+// Ganti dengan URL endpoint refresh token API Anda
+const REFRESH_TOKEN_URL = '/auth/refresh-token';
+
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: string | null) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+function processQueue(error: unknown, token: string | null = null) {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
+export function useAxios(): AxiosInstance {
+  const authStore = useAuthStore();
+
+  const instance = axios.create({
+    baseURL: import.meta.env.VITE_API_URL, // ambil dari .env
+    timeout: 10000,
+  });
+
+  // Request Interceptor
+  instance.interceptors.request.use(
+    (config: InternalAxiosRequestConfig) => {
+      const token = authStore.token.value;
+      if (token && config.headers) {
+        config.headers['Authorization'] = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => Promise.reject(error)
+  );
+
+  // Response Interceptor
+  instance.interceptors.response.use(
+    (response: AxiosResponse) => response,
+    async (error: AxiosError) => {
+      const originalRequest = error.config as AxiosRequestConfig & { _retry?: boolean };
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((token) => {
+              if (originalRequest.headers && token) {
+                originalRequest.headers['Authorization'] = `Bearer ${token}`;
+              }
+              return instance(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
+        }
+        originalRequest._retry = true;
+        isRefreshing = true;
+        try {
+          // Ganti dengan cara Anda mendapatkan refresh token
+          const refreshToken = localStorage.getItem('refresh_token');
+          if (!refreshToken) throw new Error('No refresh token');
+          const { data } = await axios.post(REFRESH_TOKEN_URL, { refreshToken });
+          const newToken = data.token;
+          // Tidak bisa assign ke readonly, update lewat localStorage saja (store akan sync di reload)
+          localStorage.setItem('auth_token', newToken);
+          processQueue(null, newToken);
+          if (originalRequest.headers) {
+            originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          }
+          return instance(originalRequest);
+        } catch (err) {
+          processQueue(err as unknown, null);
+          authStore.logout();
+          return Promise.reject(err);
+        } finally {
+          isRefreshing = false;
+        }
+      }
+      return Promise.reject(error);
+    }
+  );
+
+  return instance;
+}

@@ -13,11 +13,13 @@
       <div class="login-content">
         <div class="login-brand">
           <div class="brand-logo">
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <!-- <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M12 2L2 7l10 5 10-5-10-5z"/>
               <path d="M2 17l10 5 10-5"/>
               <path d="M2 12l10 5 10-5"/>
-            </svg>
+            </svg> -->
+            <!-- <i  class="fas fa-trash"></i> -->
+            <i class="fa-solid fa-motorcycle motorcycle-icon"></i>
           </div>
           <h1 class="brand-title">CV Pandu Motor</h1>
           <p class="brand-subtitle">Sistem Manajemen Keuangan</p>
@@ -268,6 +270,11 @@ import LoginForm from '@/components/LoginForm.vue'
   .shape {
     display: none;
   }
+}
+
+.motorcycle-icon {
+  font-size: 50px;
+  color: white;
 }
 </style>
 

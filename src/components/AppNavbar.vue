@@ -73,7 +73,7 @@ const userInfo = computed(() => {
   if (user) {
     return {
       ...user,
-      role: formatRole(user.role)
+      role: formatRole(user.entity_type)
     }
   }
   return {

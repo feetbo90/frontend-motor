@@ -6,7 +6,7 @@ export function useRole() {
 
   // Get current user role
   const userRole = computed(() => {
-    return authStore.user.value?.role || null
+    return authStore.user.value?.entity_type || null
   })
 
   // Check if user has specific role
@@ -30,14 +30,14 @@ export function useRole() {
     if (!role) return false
 
     const routeMap: Record<string, string[]> = {
-      '/': ['unit', 'cabang', 'pusat'],
-      '/komponen-produksi': ['unit'],
-      '/komponen-beban': ['cabang'],
-      '/laba-rugi': ['pusat'],
-      '/cadangan-nilai-sisa': ['pusat'],
-      '/sumber-daya': ['pusat'],
-      '/kas-keuangan': ['pusat'],
-      '/satuan-pengukuran': ['pusat']
+      '/': ['UNIT', 'CABANG', 'PUSAT'],
+      '/komponen-produksi': ['UNIT'],
+      '/komponen-beban': ['CABANG'],
+      '/laba-rugi': ['PUSAT'],
+      '/cadangan-nilai-sisa': ['PUSAT'],
+      '/sumber-daya': ['PUSAT'],
+      '/kas-keuangan': ['PUSAT'],
+      '/satuan-pengukuran': ['PUSAT']
     }
 
     const allowedRoles = routeMap[path]

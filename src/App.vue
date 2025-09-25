@@ -8,11 +8,12 @@
         <router-view />
       </main>
     </template>
-    
+
     <!-- Tampilkan halaman login jika belum login -->
     <template v-else>
       <router-view />
     </template>
+    <LoadingCard v-if="isGlobalLoading" />
   </div>
 </template>
 
@@ -22,6 +23,8 @@ import { useRouter } from 'vue-router'
 import AppSidebar from './components/AppSidebar.vue'
 import AppNavbar from './components/AppNavbar.vue'
 import { useAuthStore, initializeAuth } from './stores/auth'
+import LoadingCard from './components/LoadingCard.vue'
+import { isGlobalLoading } from './stores/globalState'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -32,13 +35,16 @@ const isAuthenticated = computed(() => {
 })
 
 // Initialize authentication state dan redirect
-onMounted(() => {
-  initializeAuth()
-  
+onMounted(async() => {
+  isGlobalLoading.value = true; 
+  await initializeAuth()
+
   // Redirect ke login jika tidak authenticated
   if (!isAuthenticated.value && router.currentRoute.value.path !== '/login') {
     router.push('/login')
   }
+
+  isGlobalLoading.value = false; 
 })
 </script>
 
@@ -95,13 +101,13 @@ body {
   #app {
     flex-direction: column;
   }
-  
+
   .main-content {
     margin-left: 0;
     margin-top: 130px;
     min-height: calc(100vh - 130px);
   }
-  
+
   .sidebar {
     width: 100%;
     max-width: 100%;
@@ -113,7 +119,9 @@ body {
 }
 
 /* Form Styles */
-input, select, textarea {
+input,
+select,
+textarea {
   font-family: inherit;
 }
 
@@ -128,6 +136,7 @@ button {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

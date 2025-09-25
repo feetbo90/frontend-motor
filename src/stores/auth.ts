@@ -1,17 +1,5 @@
+import type { User } from '@/types/auth-login.type'
 import { ref, computed, readonly } from 'vue'
-
-interface User {
-  email: string
-  name: string
-  role: string
-  avatar?: string
-}
-
-interface LoginCredentials {
-  email: string
-  password: string
-  rememberMe?: boolean
-}
 
 // State
 const isAuthenticated = ref(false)
@@ -23,15 +11,18 @@ export const useAuthStore = () => {
   const isLoggedIn = computed(() => isAuthenticated.value && user.value !== null)
 
   // Actions
-  const login = (userData: User) => {
+  const login = (userData: User & { token?: string; refreshToken?: string }) => {
     isAuthenticated.value = true
     user.value = userData
-    
     // Simpan token ke localStorage
-    const authToken = 'mock_token_' + Date.now()
-    token.value = authToken
-    localStorage.setItem('auth_token', authToken)
+    if (userData.token) {
+      token.value = userData.token
+      localStorage.setItem('auth_token', userData.token)
+    }
     localStorage.setItem('user_data', JSON.stringify(userData))
+    if (userData.refreshToken) {
+      localStorage.setItem('refresh_token', userData.refreshToken)
+    }
   }
 
   const logout = () => {
@@ -42,6 +33,7 @@ export const useAuthStore = () => {
     // Hapus data dari localStorage
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
+    localStorage.removeItem('refresh_token')
   }
 
   const checkAuth = () => {

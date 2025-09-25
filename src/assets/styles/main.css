@@ -246,7 +246,6 @@ button:focus-visible {
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
 }
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .form-grid {

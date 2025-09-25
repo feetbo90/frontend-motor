@@ -81,6 +81,8 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
+import { loginApi } from '@/services/authService';
+import type { AxiosError } from 'axios';
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -129,32 +131,37 @@ const validateForm = () => {
 }
 
 const handleLogin = async () => {
-  if (!validateForm()) return
-
-  isLoading.value = true
-  
+  if (!validateForm()) return;
+  isLoading.value = true;
+  errors.email = '';
+  errors.password = '';
   try {
-    // Simulasi login (entar ganti dengan API call yang sebenarnya)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    // Simulasi validasi sederhana
-    if (formData.email === 'admin@pandumotor.com' && formData.password === 'admin123') {
-      authStore.login({
-        email: formData.email,
-        name: 'Admin Pandu Motor',
-        role: 'unit'//cabang, unit, pusat
-      })
-      
-      router.push('/')
-    } else {
-      errors.email = 'Email atau password salah'
-      errors.password = 'Email atau password salah'
-    }
+    const response = await loginApi({
+      email: formData.email,
+      password: formData.password
+    });
+    localStorage.setItem('auth_token', response.token);
+    localStorage.setItem('refresh_token', response.refreshToken);
+    localStorage.setItem('user_data', JSON.stringify(response.user));
+    authStore.login({ ...response.user, token: response.token, refreshToken: response.refreshToken });
+    router.push('/');
   } catch (error) {
-    console.error('Login error:', error)
-    errors.email = 'Terjadi kesalahan saat login'
+    const err = error as AxiosError<{ message?: string }>;
+    if (err.response) {
+      if (err.response.status === 401) {
+        errors.email = 'Email atau password salah';
+        errors.password = 'Email atau password salah';
+      } else if (err.response.data && err.response.data.message) {
+        errors.email = err.response.data.message;
+      } else {
+        errors.email = 'Terjadi kesalahan saat login';
+      }
+    } else {
+      errors.email = 'Terjadi kesalahan saat login';
+    }
+    console.error('Login error:', error);
   } finally {
-    isLoading.value = false
+    isLoading.value = false;
   }
 }
 </script>

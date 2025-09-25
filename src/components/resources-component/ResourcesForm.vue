@@ -111,7 +111,7 @@ const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 // Role-based access control
 const { hasRole } = useRole()
-const isCabangRole = computed(() => hasRole('cabang'))
+const isCabangRole = computed(() => hasRole('CABANG'))
 
 const { getMonthName } = useDate()
 
