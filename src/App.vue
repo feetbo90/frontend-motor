@@ -6,7 +6,12 @@
       <AppNavbar />
       <main class="main-content">
         <router-view />
+        <AlertNotification 
+        :notifications="notifications" 
+        @close="(i: number) => notifications.splice(i, 1)" 
+      />
       </main>
+     
     </template>
 
     <!-- Tampilkan halaman login jika belum login -->
@@ -25,10 +30,12 @@ import AppNavbar from './components/AppNavbar.vue'
 import { useAuthStore, initializeAuth } from './stores/auth'
 import LoadingCard from './components/LoadingCard.vue'
 import { isGlobalLoading } from './stores/globalState'
+import { useNotification } from './composables/useNotification'
+import AlertNotification from './components/ui/AlertNotification.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
-
+const { notifications } = useNotification()
 // Computed property untuk mengecek status authentication
 const isAuthenticated = computed(() => {
   return authStore.isLoggedIn.value

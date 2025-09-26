@@ -18,16 +18,15 @@
           <td :colspan="showIndex ? 7 : 6" class="empty">Belum ada data. Tambahkan data penjualan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td>{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td>{{ item.row.year }}</td>
+          <td>{{ getMonthName(Number(item.row.month)) }}</td>
           <td>{{ format(item.row.kontan) }}</td>
           <td>{{ format(item.row.kredit) }}</td>
           <td>{{ format(item.row.leasing) }}</td>
-          <!-- <td>{{ format(item.row.kontan + item.row.kredit + item.row.leasing) }}</td> -->
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -49,13 +48,13 @@
 
 <script setup lang="ts">
 import { useDate } from '@/composables/useDate'
-import type { SalesData } from '@/types/sales.type'
+import type { SalesResponse } from '@/types/sales.type'
 import { computed } from 'vue'
 
-type SalesEntry = SalesData & { id: number }
-
 interface Props {
-  entries: SalesEntry[]
+  entries: SalesResponse[]
+  currentPage:number,
+  pageSize:number,
   showIndex?: boolean
   showFooterTotal?: boolean
   numberFormatLocale?: string
@@ -77,8 +76,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })
