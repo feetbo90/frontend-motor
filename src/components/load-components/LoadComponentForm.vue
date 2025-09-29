@@ -105,8 +105,8 @@ const defaultData = {
     cadanganPHPiutang: 0,
     cadanganPHStok: 0,
     totalBeban: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 // Local table state

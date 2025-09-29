@@ -87,8 +87,8 @@ const defaultData = {
   dendaKeterlambatan: 0,
   diskonDenda: 0,
   jumlahPendapatanLain: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 // Local table state

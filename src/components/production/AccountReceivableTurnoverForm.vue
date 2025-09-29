@@ -90,8 +90,8 @@ const defaultData = {
   macetBaru: 0,
   macetLama: 0,
   totalPiutang: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 // Local table state

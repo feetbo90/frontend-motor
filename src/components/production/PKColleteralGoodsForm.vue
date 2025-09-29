@@ -84,8 +84,8 @@ const defaultData = {
   pkTambahan: 0,
   unitTerjual: 0,
   unitPK: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 // Local table state

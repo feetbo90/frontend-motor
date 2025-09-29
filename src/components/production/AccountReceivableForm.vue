@@ -91,8 +91,8 @@ const defaultData = {
   realisasiBunga: 0,
   jumlahAngsuran: 0,
   saldoAkhir: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 // Local table state
