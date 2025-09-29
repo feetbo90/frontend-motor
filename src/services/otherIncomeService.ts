@@ -1,18 +1,18 @@
 import { isAxiosError, useAxios } from '@/composables/useAxios';
 import { useNotification } from '@/composables/useNotification';
-import type { AddIncome, DeleteIncome, GetIncomeList, ParamIncomeList, UpdateIncome } from '@/types/income.type';
+import type { AddOtherIncome, DeleteOtherIncome, GetOtherIncomeList, ParamOtherIncomeList, UpdateOtherIncome } from '@/types/other-income.type';
 import type { DeleteSalesResponse, SalesPayload, SalesResponse } from '@/types/sales.type';
 
-export const getIncomeList: GetIncomeList = async (
-    params: ParamIncomeList
+export const getOtherIncomeList: GetOtherIncomeList = async (
+    params: ParamOtherIncomeList
 ) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/pendapatan', { params });
+        const { data } = await axios.get('/pendapatan-lain', { params });
         return data
     } catch (error: unknown) {
-        let message = 'Gagal mendapatkan data pendapatan.'
+        let message = 'Gagal mendapatkan data pendapatan lain.'
         if (isAxiosError(error)) {
             message =
                 error.response?.data?.message ??
@@ -23,15 +23,15 @@ export const getIncomeList: GetIncomeList = async (
         throw error
     }
 }
-export const postIncome: AddIncome = async (payload) => {
+export const postOtherIncome: AddOtherIncome = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/pendapatan', payload)
-        notifySuccess({ title: 'Success Message', msg: data.message || 'Data pendapatan berhasil diubah' })
+        const { data } = await axios.post('/pendapatan-lain', payload)
+        notifySuccess({ title: 'Success Message', msg: data.message || 'Data pendapatan lain berhasil ditambah' })
         return data
     } catch (error: unknown) {
-        let message = 'Gagal menyimpan data pendapatan.'
+        let message = 'Gagal menyimpan data pendapatan lain.'
         if (isAxiosError(error)) {
             message =
                 error.response?.data?.message ??
@@ -42,15 +42,15 @@ export const postIncome: AddIncome = async (payload) => {
         throw error
     }
 }
-export const putIncome: UpdateIncome = async (id, payload) => {
+export const putOtherIncome: UpdateOtherIncome = async (id, payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.put(`/pendapatan/${id}`, payload)
-        notifySuccess({ title: 'Success Message', msg: data.message || 'Data pendapatan berhasil diubah' })
+        const { data } = await axios.put(`/pendapatan-lain/${id}`, payload)
+        notifySuccess({ title: 'Success Message', msg: data.message || 'Data pendapatan lain berhasil diubah' })
         return data
     } catch (error: unknown) {
-        let message = 'Gagal mengubah data pendapatan.'
+        let message = 'Gagal mengubah data pendapatan lain.'
         if (isAxiosError(error)) {
             message =
                 error.response?.data?.message ??
@@ -61,14 +61,14 @@ export const putIncome: UpdateIncome = async (id, payload) => {
         throw error
     }
 }
-export const deleteIncome: DeleteIncome = async (id) => {
+export const deleteOtherIncome: DeleteOtherIncome = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/pendapatan/${id}`)
+        const { data } = await axios.delete(`/pendapatan-lain/${id}`)
         return data
     } catch (error: unknown) {
-        let message = 'Gagal menghapus data pendapatan.'
+        let message = 'Gagal menghapus data pendapatan lain.'
         if (isAxiosError(error)) {
             message =
                 error.response?.data?.message ??

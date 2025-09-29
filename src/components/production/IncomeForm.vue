@@ -218,11 +218,9 @@ async function handleSave(): Promise<void> {
      ...formData.value
     }
     if (isEditing.value && idSelected.value !== null) {
-      notifySuccess({ title: 'Success Message', msg: 'Data penjualan berhasil diubah' })
       await putIncome(idSelected.value, payload)
     } else {
       await postIncome(payload)
-      notifySuccess({ title: 'Success Message', msg: 'Data penjualan berhasil disimpan' })
     }
     fetchList(currentPage.value) // refresh table
   } catch {

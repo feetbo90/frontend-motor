@@ -22,7 +22,7 @@
 
         <!-- Pendapatan Lain-lain -->
         <div v-if="activeTab === 'pendapatan-lain'" :key="activeTab">
-          <OtherIncomeForm v-model="produksiData.pendapatanLain" />
+          <OtherIncomeForm/>
         </div>
 
         <!-- Piutang & Pembiayaan -->

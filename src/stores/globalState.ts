@@ -52,13 +52,13 @@ export const produksiData = ref({
     month: currentDate.month
   },
   pendapatanLain: {
-    penjualanPK: 0,
+    penjualan_pk: 0,
     komisi: 0,
-    dendaKeterlambatan: 0,
-    diskonDenda: 0,
-    jumlahPendapatanLain: 0,
-    tahun: currentDate.year,
-    bulan: currentDate.month
+    denda_keterlambatan: 0,
+    diskon_denda: 0,
+    jumlah_pendapatan_lain: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   piutang: {
     saldoAwal: 0,
