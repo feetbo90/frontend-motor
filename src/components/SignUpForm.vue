@@ -1,12 +1,23 @@
 <template>
-  <div class="login-form">
-    <div class="login-header">
+  <div class="signup-form">
+    <div class="signup-header">
       <h1>Selamat Datang di App</h1>
-      <p>Silakan masuk ke akun Anda</p>
+      <p>Silakan daftarkan ke akun Anda</p>
     </div>
     
     <form @submit.prevent="handleLogin" class="form">
-      <div class="form-group-login">
+      <div class="form-group-signup">
+        <label for="name">Name</label>
+        <input
+          id="name"
+          v-model="formData.name"
+          placeholder="Please insert your name"
+          required
+          :class="{ 'error': errors.email }"
+        />
+        <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+      </div>
+      <div class="form-group-signup">
         <label for="email">Email</label>
         <input
           id="email"
@@ -18,8 +29,7 @@
         />
         <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
       </div>
-
-      <div class="form-group-login">
+      <div class="form-group-signup">
         <label for="password">Password</label>
         <div class="password-input">
           <input
@@ -48,33 +58,32 @@
         </div>
         <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
       </div>
-
-      <div class="form-options">
-        <label class="checkbox-container">
-          <input
-            v-model="formData.rememberMe"
-            type="checkbox"
-          />
-          <span class="checkmark"></span>
-          Ingat saya
-        </label>
-        <a href="#" class="forgot-password">Lupa password?</a>
+      <div class="form-group-signup">
+        <!-- <label for="type">Tipe</label>
+        <select v-model="formData.type" class="form-select">
+          <option disabled value="">Pilih Tipe</option>
+          <option v-for="(type, index) in optionsType" :key="index" :value="index + 1">
+            {{ type }}
+          </option>
+        </select> -->
+        <FormSelect id="type" label="Tipe" v-model="formData.type" placeholder="Pilih Tipe"
+        :options="optionsType" />
+        <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
       </div>
-
       <button
         type="submit"
-        class="login-button"
+        class="signup-button"
         :disabled="isLoading"
       >
         <span v-if="isLoading" class="loading-spinner"></span>
-        {{ isLoading ? 'Memproses...' : 'Masuk' }}
+        {{ isLoading ? 'Memproses...' : 'Daftar' }}
       </button>
     </form>
 
-    <div class="login-footer">
-      <p>Belum punya akun? 
-        <router-link to="/auth/signup" class="register-link" >
-          Daftar di sini
+    <div class="signup-footer">
+      <p>Sudah punya akun? 
+        <router-link to="/auth/login" class="register-link" >
+          Login 
           </router-link>
       </p>
     </div>
@@ -82,19 +91,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { loginApi } from '@/services/authService';
+import { getEntities } from '@/services/entitiesService';
+import { useAuthStore } from '@/stores/auth';
 import type { AxiosError } from 'axios';
+import { onMounted, reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import FormSelect, { type SelectOption } from './FormSelect.vue';
 
 const router = useRouter()
 const authStore = useAuthStore()
 
 const formData = reactive({
+  name: '',
   email: '',
   password: '',
-  rememberMe: false
+  type: '',
 })
 
 const errors = reactive({
@@ -104,6 +116,24 @@ const errors = reactive({
 
 const showPassword = ref(false)
 const isLoading = ref(false)
+const optionsType = ref<SelectOption[]>([])
+
+onMounted(async () => {
+  fetchEntities()
+})
+
+const fetchEntities = async () => {
+  try {
+    const apiData = await getEntities()//TODO: jangan lupa dari BE harusnya tidak pakai token (authorization)
+    const items = Array.isArray(apiData) ? apiData : []
+    optionsType.value = items.map((item) => ({
+      label:item.entity_type,
+      value:item.id
+    }))
+  } catch(error) {
+    console.log(error)
+  } 
+};
 
 const togglePassword = () => {
   showPassword.value = !showPassword.value
@@ -171,7 +201,28 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-.login-form {
+
+.form-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  font-size: 0.875rem;
+}
+
+.form-select:focus {
+  outline: none;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.form-select option {
+  background: #4a5568;
+  color: white;
+}
+
+.signup-form {
   max-width: 450px;
   width: 100%;
   background: white;
@@ -180,19 +231,19 @@ const handleLogin = async () => {
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
-.login-header {
+.signup-header {
   text-align: left;
   margin-bottom: 2rem;
 }
 
-.login-header h1 {
+.signup-header h1 {
   color: #1e293b;
   font-size: 1.875rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
 }
 
-.login-header p {
+.signup-header p {
   color: #64748b;
   font-size: 0.875rem;
 }
@@ -203,19 +254,19 @@ const handleLogin = async () => {
   gap: 1.5rem;
 }
 
-.form-group-login {
+.form-group-signup {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.form-group-login label {
+.form-group-signup label {
   color: #374151;
   font-weight: 500;
   font-size: 0.875rem;
 }
 
-.form-group-login input {
+.form-group-signup input {
   padding: 0.75rem;
   border: 2px solid #e5e7eb;
   border-radius: 8px;
@@ -223,13 +274,13 @@ const handleLogin = async () => {
   transition: all 0.2s ease;
 }
 
-.form-group-login input:focus {
+.form-group-signup input:focus {
   outline: none;
   border-color: #3b82f6;
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-.form-group-login input.error {
+.form-group-signup input.error {
   border-color: #ef4444;
 }
 
@@ -301,7 +352,7 @@ const handleLogin = async () => {
   text-decoration: underline;
 }
 
-.login-button {
+.signup-button {
   background: #3b82f6;
   color: white;
   border: none;
@@ -317,12 +368,12 @@ const handleLogin = async () => {
   gap: 0.5rem;
 }
 
-.login-button:hover:not(:disabled) {
+.signup-button:hover:not(:disabled) {
   background: #2563eb;
   transform: translateY(-1px);
 }
 
-.login-button:disabled {
+.signup-button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
   transform: none;
@@ -343,14 +394,14 @@ const handleLogin = async () => {
   }
 }
 
-.login-footer {
+.signup-footer {
   text-align: center;
   margin-top: 1.5rem;
   padding-top: 1.5rem;
   border-top: 1px solid #e5e7eb;
 }
 
-.login-footer p {
+.signup-footer p {
   color: #6b7280;
   font-size: 0.875rem;
 }
@@ -367,7 +418,7 @@ const handleLogin = async () => {
 
 /* Responsive */
 @media (max-width: 480px) {
-  .login-form {
+  .signup-form {
     padding: 1.5rem;
     margin: 1rem;
   }

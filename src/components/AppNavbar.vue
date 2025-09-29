@@ -96,7 +96,7 @@ const logout = async () => {
     // Optional: handle error, e.g. network error, but tetap lanjut logout lokal
   }
   authStore.logout()
-  router.push('/login')
+  router.push('/auth/login')
   showUserMenu.value = false
 }
 

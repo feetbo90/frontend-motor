@@ -23,9 +23,9 @@
 </template>
 
 <script setup lang="ts">
-interface SelectOption {
+export interface SelectOption {
   value: string | number
-  label: string
+  label: string | number
 }
 
 defineProps<{

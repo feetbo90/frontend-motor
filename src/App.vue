@@ -47,8 +47,8 @@ onMounted(async() => {
   await initializeAuth()
 
   // Redirect ke login jika tidak authenticated
-  if (!isAuthenticated.value && router.currentRoute.value.path !== '/login') {
-    router.push('/login')
+  if (!isAuthenticated.value && router.currentRoute.value.path !== '/auth/login') {
+    router.push('/auth/login')
   }
 
   isGlobalLoading.value = false; 

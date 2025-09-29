@@ -57,8 +57,8 @@ export function useDate() {
    * @returns Object with current year and month
    */
   const getCurrentDate = () => ({
-    tahun: currentYear,
-    bulan: currentMonth
+    year: currentYear,
+    month: currentMonth
   })
 
   /**

@@ -36,18 +36,20 @@ export const produksiData = ref({
     kontan: 0,
     kredit: 0,
     leasing: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   pendapatan: {
-    markupKontan: 0,
-    markupKredit: 0,
-    realisasiBunga: 0,
-    diskonBunga: 0,
+    markup_kontan: 0,
+    markup_kredit: 0,
+    markup_jumlah: 0,
+    realisasi_bunga: 0,
+    diskon_bunga: 0,
     denda: 0,
     administrasi: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    jumlah_pendapatan: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   pendapatanLain: {
     penjualanPK: 0,
@@ -55,8 +57,8 @@ export const produksiData = ref({
     dendaKeterlambatan: 0,
     diskonDenda: 0,
     jumlahPendapatanLain: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   piutang: {
     saldoAwal: 0,
@@ -65,8 +67,8 @@ export const produksiData = ref({
     realisasiBunga: 0,
     jumlahAngsuran: 0,
     saldoAkhir: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   sirkulasiPiutang: {
     lancar: 0,
@@ -75,24 +77,24 @@ export const produksiData = ref({
     macetBaru: 0,
     macetLama: 0,
     totalPiutang: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   sirkulasiStock: {
     unitAwal: 0,
     pembelianTambahan: 0,
     unitTerjual: 0,
     unitStokAkhir: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   barangPK: {
     unitAwal: 0,
     pkTambahan: 0,
     unitTerjual: 0,
     unitPK: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   }
 })
 
@@ -106,8 +108,8 @@ export const bebanData = ref({
   cadanganPHPiutang: 0,
   cadanganPHStok: 0,
   totalBeban: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 })
 
 // Global loading state

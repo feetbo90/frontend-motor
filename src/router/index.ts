@@ -1,16 +1,15 @@
+import type { User } from '@/types/auth-login.type'
+import AuthView from '@/views/AuthView.vue'
 import CashFlowView from '@/views/CashFlowView.vue'
 import DashboardView from '@/views/DashboardView.vue'
+import ExportImportView from '@/views/ExportImportView.vue'
 import LoadComponentsView from '@/views/LoadComponentsView.vue'
-import LoginView from '@/views/LoginView.vue'
 import ProductionComponentView from '@/views/ProductionComponentView.vue'
 import ProfitLostView from '@/views/ProfitLostView.vue'
 import ResidualValueReserveView from '@/views/ResidualValueReserveView.vue'
 import ResourcesView from '@/views/ResourcesView.vue'
 import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
-import ExportImportView from '@/views/ExportImportView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
-import type { User } from '@/types/auth-login.type'
 
 // Type definition untuk route meta
 declare module 'vue-router' {
@@ -24,11 +23,22 @@ declare module 'vue-router' {
 }
 
 const routes = [
-  { 
-    path: '/login', 
-    name: 'login', 
-    component: LoginView,
-    meta: { title: 'Login', requiresAuth: false }
+  // { 
+  //   path: '/login', 
+  //   name: 'login', 
+  //   component: AuthView,
+  //   meta: { title: 'Login', requiresAuth: false }
+  // },
+  // { 
+  //   path: '/signup', 
+  //   name: 'signup', 
+  //   component: AuthView,
+  //   meta: { title: 'Sign', requiresAuth: false }
+  // },
+  {
+    path: '/auth/:mode?',
+    name: 'auth',
+    component: AuthView,
   },
   { 
     path: '/', 
@@ -115,8 +125,8 @@ router.beforeEach((to, from, next) => {
 
   if (requiresAuth && !isAuthenticated) {
     // Redirect ke halaman login jika memerlukan auth tapi belum login
-    next('/login')
-  } else if (to.path === '/login' && isAuthenticated) {
+    next('/auth/login')
+  } else if (to.path === '/auth/login' && isAuthenticated) {
     // Redirect ke dashboard jika sudah login tapi mencoba akses halaman login
     next('/')
   } else if (requiresAuth && isAuthenticated) {
@@ -141,6 +151,6 @@ const getRouteAllowedRoles = (path: string): string[] | null => {
 }
 
 // Export helper functions untuk digunakan di komponen lain
-export { getUserRole, getRouteAllowedRoles }
+export { getRouteAllowedRoles, getUserRole }
 
 export default router

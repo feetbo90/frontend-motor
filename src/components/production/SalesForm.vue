@@ -109,8 +109,8 @@ const defaultSalesData = {
   kontan: 0,
   kredit: 0,
   leasing: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  tahun: currentDate.year,
+  bulan: currentDate.month
 }
 
 const errors = ref<Record<keyof SalesSchema, string>>({
