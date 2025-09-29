@@ -85,8 +85,8 @@ const defaultData = {
     labaRugiKumulatif: 0,
     penarikanLaba: 0,
     jumlahModal: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
 }
 
 // Local table state

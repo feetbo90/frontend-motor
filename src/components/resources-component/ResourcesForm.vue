@@ -140,8 +140,8 @@ const defaultData = {
     inventarisMobil: 0,
     nilaiSisaInventaris: 0,
     penyusutanPerBulan: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
 }
 
 // Local table state

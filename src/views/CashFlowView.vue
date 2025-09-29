@@ -23,7 +23,7 @@ const cashFlowData = ref({
     jlh_kas_lancar:0,
     jlh_kas_macet:0,
     total_saldo_akhir:0,
-    tahun:currentDate.tahun,
-    bulan:currentDate.bulan
+    tahun:currentDate.year,
+    bulan:currentDate.month
 })
 </script>

@@ -89,8 +89,8 @@ const defaultData = {
     surplusDevisit: 0,
     cadanganPHStok: 0,
     keterangan: '',
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
 }
 
 // Local table state
