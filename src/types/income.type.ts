@@ -52,3 +52,7 @@ export type UpdateIncome = (
   id: number,
   payload: IncomePayload
 ) => Promise<ResponseData<IncomeData>>;
+
+export type DeleteIncome = (
+  id: number,
+) => Promise<ResponseData<string>>;

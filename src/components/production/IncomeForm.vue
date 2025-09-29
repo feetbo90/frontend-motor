@@ -84,8 +84,7 @@ import FormSelect from '@/components/FormSelect.vue'
 import { useDate } from '@/composables/useDate'
 import { useNotification } from '@/composables/useNotification'
 import { incomeSchema, type IncomeSchema } from '@/schemas/incomeSchema'
-import { getIncomeList, postIncome, putIncome } from '@/services/incomeService'
-import { deleteSales } from '@/services/salesService'
+import { deleteIncome, getIncomeList, postIncome, putIncome } from '@/services/incomeService'
 import { useAuthStore } from '@/stores/auth'
 import { isGlobalLoading, produksiData } from '@/stores/globalState'
 import type { IncomeData, IncomeFrm, IncomePayload } from '@/types/income.type'
@@ -295,8 +294,8 @@ function deleteRow(id: number): void {
 async function handleConfirmDelete(): Promise<void> {
   if (idSelected.value !== null) {
     try {
-      const data = await deleteSales(idSelected.value)
-      notifySuccess({ title: 'Success Message', msg: data.message })
+      const data = await deleteIncome(idSelected.value)
+      notifySuccess({ title: 'Success Message', msg: data.message||'' })
       fetchList(currentPage.value) // refresh table
     } catch {
       isGlobalLoading.value = false
