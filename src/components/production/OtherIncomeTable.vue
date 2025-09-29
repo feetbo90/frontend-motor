@@ -21,12 +21,12 @@
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
           <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
           <td align="center">{{ item.row.year }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.penjualanPK) }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(item.row.penjualan_pk) }}</td>
           <td>{{ format(item.row.komisi) }}</td>
-          <td>{{ format(item.row.dendaKeterlambatan) }}</td>
-          <td>{{ format(item.row.diskonDenda) }}</td>
-          <td>{{ format(item.row.jumlahPendapatanLain) }}</td>
+          <td>{{ format(item.row.denda_keterlambatan) }}</td>
+          <td>{{ format(item.row.diskon_denda) }}</td>
+          <td>{{ format(item.row.jumlah_pendapatan_lain) }}</td>
           <td class="actions">
             <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
             <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
