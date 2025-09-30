@@ -31,9 +31,9 @@
           <td>{{ format(item.row.macet_lama) }}</td>
           <td>{{ format(item.row.total_piutang) }}</td>
           <td class="actions">
-            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
                 class="fas fa-pen"></i> Ubah</button>
-            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
                 class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>

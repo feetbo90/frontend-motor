@@ -38,9 +38,9 @@
                     <td>{{ format(item.row.total_saldo_akhir) }}</td>
                    
                     <td class="actions">
-                        <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i
+                        <button class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
                                 class="fas fa-pen"></i> Ubah</button>
-                        <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i
+                        <button class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
                                 class="fas fa-trash"></i> Hapus</button>
                     </td>
                 </tr>

@@ -18,34 +18,35 @@
                         piutang dan pembiayaan di atas.</td>
                 </tr>
                 <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-                    <td v-if="showIndex">{{ idx + 1 }}</td>
-                    <td align="center">{{ item.row.tahun }}</td>
-                    <td>{{ getMonthName(item.row.bulan) }}</td>
-                    <td v-if="!isCabangRole">{{ format(item.row.jumlahKaryawan) }}</td>
+                    <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+                    <td align="center">{{ item.row.year }}</td>
+                    <td>{{ getMonthName(item.row.month) }}</td>
+                    <td v-if="!isCabangRole">{{ format(item.row.jumlah_karyawan) }}</td>
                     <td v-if="!isCabangRole">
                         <div class="formasi-grouping">
-                            <div><strong>Jumlah Karyawan:</strong> {{ format(item.row.jumlahKaryawan) }}</div>
-                            <div><strong>Pimpinan:</strong> {{ format(item.row.formasi.pimpinan) }}</div>
-                            <div><strong>Kasir:</strong> {{ format(item.row.formasi.kasir) }}</div>
-                            <div><strong>Administrasi:</strong> {{ format(item.row.formasi.administrasi) }}</div>
-                            <div><strong>PDL:</strong> {{ format(item.row.formasi.pdl) }}</div>
-                            <div><strong>Formasi Tenaga Kurang:</strong> {{ format(item.row.formasi.formasiKurang) }}
-                            </div>
+                            <div><strong>Jumlah Karyawan:</strong> {{ format(item.row.jumlah_karyawan) }}</div>
+                            <div><strong>Pimpinan:</strong> {{ format(item.row.pimpinan) }}</div>
+                            <div><strong>Kasir:</strong> {{ format(item.row.kasir) }}</div>
+                            <div><strong>Administrasi:</strong> {{ format(item.row.administrasi) }}</div>
+                            <div><strong>PDL:</strong> {{ format(item.row.pdl) }}</div>
+                            <div><strong>Formasi Tenaga:</strong> {{ format(item.row.formasi_tenaga) }}</div>
+                            <div><strong>Formasi Tenaga Kurang:</strong> {{ format(item.row.formasi_kurang) }}</div>
                         </div>
                     </td>
                     <td v-if="isCabangRole">
                         <div class="formasi-grouping">
-                            <div><strong>Sisa Kontrak Kantor:</strong> {{ format(item.row.sisaKontrakKantor) }}</div>
-                            <div><strong>Inventaris Mobil:</strong> {{ format(item.row.inventarisMobil) }}</div>
-                            <div><strong>Sisa Inventaris Pendirian:</strong> {{ format(item.row.nilaiSisaInventaris) }}
+                            <div><strong>Sisa Kontrak Kantor:</strong> {{ format(item.row.kontrak_kantor) }}</div>
+                            <div><strong>Inventaris Mobil:</strong> {{ format(item.row.inventaris_mobil) }}</div>
+                            <div><strong>Keterangan Inventaris Mobil:</strong> {{ item.row.inventaris_mobil_ket }}</div>
+                            <div><strong>Sisa Inventaris Pendirian:</strong> {{ format(item.row.sisa_inventaris_pendirian) }}
                             </div>
-                            <div><strong>Nilai Penyusutan:</strong> {{ format(item.row.penyusutanPerBulan) }}</div>
+                            <div><strong>Nilai Penyusutan:</strong> {{ format(item.row.penyusutan_bulan) }}</div>
                         </div>
                     </td>
                     <td class="actions">
-                        <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i
+                        <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
                                 class="fas fa-pen"></i> Ubah</button>
-                        <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i
+                        <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
                                 class="fas fa-trash"></i> Hapus</button>
                     </td>
                 </tr>
@@ -60,11 +61,12 @@ import { useRole } from '@/composables/useRole'
 import type { ResourcesData } from '@/types/resource.type'
 import { computed } from 'vue'
 
-type DataEntry = ResourcesData & { id: number }
 
 interface Props {
-    entries: DataEntry[]
+    entries: ResourcesData[]
     showIndex?: boolean
+    currentPage: number
+  pageSize: number
     showFooterTotal?: boolean
     numberFormatLocale?: string
     filterYear?: number | string | null
@@ -88,8 +90,8 @@ const visibleEntries = computed(() => {
     return props.entries
         .map((row, index) => ({ row, originalIndex: index }))
         .filter(({ row }) => {
-            const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-            const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+            const matchYear = yearFilter === null || Number(row.year) === yearFilter
+            const matchMonth = monthFilter === null || Number(row.month) === monthFilter
             return matchYear && matchMonth
         })
 })

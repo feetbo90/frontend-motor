@@ -122,6 +122,47 @@ export const bebanData = ref({
   month: currentDate.month
 })
 
+// Data untuk laba rugi
+export const labaRugiData = ref({
+  kumulatif: 0,
+  penarikan: 0,
+  modal: 0,
+  year:currentDate.year,
+  month:currentDate.month
+})
+
+// Data untuk cadangan
+export const cadanganData = ref({
+  cadangan_piutang: 0,
+  macet_real: 0,
+  surplus_devist: 0,
+  cadangan_stock: 0,
+  cadangan_stock_data: 0,
+  year:currentDate.year,
+  month:currentDate.month
+})
+
+// Data untuk sumber daya
+
+export const sumberDayaData = ref({
+  jumlah_karyawan: 0,
+  formasi_tenaga:0,
+  pimpinan:0,
+  kasir: 0,
+  administrasi: 0,
+  pdl: 0,
+  formasi_kurang: 0,
+  kontrak_kantor:0,
+  inventaris_mobil:0,
+  inventaris_mobil_ket:'',
+  sisa_inventaris_pendirian:0,
+  penyusutan_bulan:0,
+  year:currentDate.year,
+  month:currentDate.month
+
+})
+
+
 // Global loading state
 export const isGlobalLoading = ref(false)
 

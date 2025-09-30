@@ -34,8 +34,8 @@
           <td>{{ format(item.row.jumlah_pk) }}</td>
           <td>{{ format(item.row.jumlah_pk_data) }}</td>
           <td class="actions">
-            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
