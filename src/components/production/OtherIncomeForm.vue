@@ -79,8 +79,7 @@ import FormSelect from '@/components/FormSelect.vue'
 import { useDate } from '@/composables/useDate'
 import { useNotification } from '@/composables/useNotification'
 import { otherIncomeSchema, type OtherIncomeSchema } from '@/schemas/incomeOtherSchema'
-import { deleteIncome } from '@/services/incomeService'
-import { getOtherIncomeList, postOtherIncome, putOtherIncome } from '@/services/otherIncomeService'
+import { deleteOtherIncome, getOtherIncomeList, postOtherIncome, putOtherIncome } from '@/services/otherIncomeService'
 import { useAuthStore } from '@/stores/auth'
 import { isGlobalLoading, produksiData } from '@/stores/globalState'
 import type { OtherIncomeData, OtherIncomeFrm, OtherIncomePayload } from '@/types/other-income.type'
@@ -275,7 +274,7 @@ function deleteRow(id: number): void {
 async function handleConfirmDelete(): Promise<void> {
   if (idSelected.value !== null) {
     try {
-      const data = await deleteIncome(idSelected.value)
+      const data = await deleteOtherIncome(idSelected.value)
       notifySuccess({ title: 'Success Message', msg: data.message || '' })
       fetchList(currentPage.value) // refresh table
     } catch {

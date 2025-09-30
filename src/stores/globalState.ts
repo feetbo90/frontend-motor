@@ -61,14 +61,14 @@ export const produksiData = ref({
     month: currentDate.month
   },
   piutang: {
-    saldoAwal: 0,
+    saldo_awal: 0,
     tambahan: 0,
-    realisasiPokok: 0,
-    realisasiBunga: 0,
-    jumlahAngsuran: 0,
-    saldoAkhir: 0,
-    tahun: currentDate.year,
-    bulan: currentDate.month
+    realisasi_pokok: 0,
+    realisasi_bunga: 0,
+    jumlah_angsuran: 0,
+    saldo_akhir: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   sirkulasiPiutang: {
     lancar: 0,

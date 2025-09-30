@@ -27,7 +27,7 @@
 
         <!-- Piutang & Pembiayaan -->
         <div v-if="activeTab === 'piutang'" :key="activeTab">
-          <AccountReceivableForm v-model="produksiData.piutang" />
+          <AccountReceivableForm />
         </div>
 
         <!-- Sirkulasi Piutang -->
