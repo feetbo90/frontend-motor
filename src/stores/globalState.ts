@@ -81,12 +81,18 @@ export const produksiData = ref({
     month: currentDate.month
   },
   sirkulasiStock: {
-    unitAwal: 0,
-    pembelianTambahan: 0,
-    unitTerjual: 0,
-    unitStokAkhir: 0,
-    tahun: currentDate.year,
-    bulan: currentDate.month
+    unit_awal: 0,
+    unit_awal_data: 0,
+    pembelian_tambahan: 0,
+    pembelian_tambahan_data: 0,
+    mutasi_masuk: 0,
+    mutasi_keluar: 0,
+    terjual: 0,
+    terjual_data: 0,
+    unit_akhir: 0,
+    unit_akhir_data: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   barangPK: {
     unitAwal: 0,

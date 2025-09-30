@@ -37,7 +37,7 @@
 
         <!-- Sirkulasi Stock dan PK -->
         <div v-if="activeTab === 'sirkulasi-stock'" :key="activeTab">
-          <StockCirculationForm v-model="produksiData.sirkulasiStock" />
+          <StockCirculationForm />
         </div>
 
         <!-- Barang PK Jaminan -->
