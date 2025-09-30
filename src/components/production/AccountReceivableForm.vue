@@ -176,7 +176,7 @@ function safeNumber(n: unknown): number {
 }
 
 function validateForm(): boolean {
-  Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
+  // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
 
   const result = accountReceivableSchema.safeParse({
     saldoAwal: safeNumber(formData.value.saldo_awal),

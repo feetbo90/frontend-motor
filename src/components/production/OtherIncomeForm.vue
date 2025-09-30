@@ -172,7 +172,7 @@ function safeNumber(n: unknown): number {
 }
 
 function validateForm(): boolean {
-  Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
+  // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
 
   const result = otherIncomeSchema.safeParse({
     penjualanPk: safeNumber(formData.value.penjualan_pk),

@@ -7,33 +7,35 @@
           <th>Tahun</th>
           <th>Bulan</th>
           <th>Gaji/Insentif/Bonus</th>
-          <th>Beban Umum Administrasi</th>
-          <th>Beban Operasional</th>
-          <th>Jlh Beban Umum dan Operasional</th>
-          <th>Beban Penyusutan Aktiva</th>
-          <th>Cadangan PH Stok</th>
-          <th>Cadangan PH Piutang</th>
+          <th>Administrasi</th>
+          <th>Operasional</th>
+          <th>Beban Umum dan Operasional</th>
+          <th>Penyusutan Aktiva</th>
+          <th>Cadangan Piutang</th>
+          <th>Cadangan Stock</th>
+          <th>Total</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="visibleEntries.length === 0">
-          <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
+          <td :colspan="showIndex ? 10 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td align="center">{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.gajiInsentif) }}</td>
-          <td>{{ format(item.row.bebanUmum) }}</td>
-          <td>{{ format(item.row.bebanOperasional) }}</td>
-          <td>{{ format(item.row.jumlahBebanUmumOps) }}</td>
-          <td>{{ format(item.row.bebanPenyusutan) }}</td>
-          <td>{{ format(item.row.cadanganPHStok) }}</td>
-          <td>{{ format(item.row.cadanganPHPiutang) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td align="center">{{ item.row.year }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(item.row.gaji) }}</td>
+          <td>{{ format(item.row.admin) }}</td>
+          <td>{{ format(item.row.operasional) }}</td>
+          <td>{{ format(item.row.beban_umum_operasional) }}</td>
+          <td>{{ format(item.row.penyusutan_aktiva) }}</td>
+          <td>{{ format(item.row.cadangan_piutang) }}</td>
+          <td>{{ format(item.row.cadangan_stock) }}</td>
+          <td>{{ format(item.row.total) }}</td>
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -46,11 +48,11 @@ import { useDate } from '@/composables/useDate'
 import type { LoadComponentData } from '@/types/load-component.type'
 import { computed } from 'vue'
 
-type DataEntry = LoadComponentData & { id: number }
-
 interface Props {
-  entries: DataEntry[]
+  entries: LoadComponentData[]
   showIndex?: boolean
+  currentPage:number
+  pageSize:number
   showFooterTotal?: boolean
   numberFormatLocale?: string
   filterYear?: number | string | null
@@ -71,8 +73,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })

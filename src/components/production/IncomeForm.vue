@@ -183,7 +183,7 @@ function safeNumber(n: unknown): number {
 }
 
 function validateForm(): boolean {
-  Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
+  // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
 
   const result = incomeSchema.safeParse({
     markupKontan: safeNumber(formData.value.markup_kontan),

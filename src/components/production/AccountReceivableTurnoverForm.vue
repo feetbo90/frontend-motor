@@ -175,7 +175,7 @@ function safeNumber(n: unknown): number {
 }
 
 function validateForm(): boolean {
-  Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
+  // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
 
   const result = accountReceivableTurnOverSchema.safeParse({
     lancar: safeNumber(formData.value.lancar),

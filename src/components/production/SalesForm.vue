@@ -183,7 +183,7 @@ function safeNumber(n: unknown): number {
 }
 
 function validateForm(): boolean {
-  Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
+  // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
 
   const result = salesSchema.safeParse({
     kontan: safeNumber(salesData.value.kontan),

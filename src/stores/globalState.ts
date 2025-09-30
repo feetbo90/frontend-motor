@@ -110,16 +110,16 @@ export const produksiData = ref({
 
 // Data untuk beban
 export const bebanData = ref({
-  gajiInsentif: 0,
-  bebanUmum: 0,
-  bebanOperasional: 0,
-  jumlahBebanUmumOps: 0,
-  bebanPenyusutan: 0,
-  cadanganPHPiutang: 0,
-  cadanganPHStok: 0,
-  totalBeban: 0,
-  tahun: currentDate.year,
-  bulan: currentDate.month
+  gaji: 0,
+  admin: 0,
+  operasional: 0,
+  beban_umum_operasional: 0,
+  penyusutan_aktiva: 0,
+  cadangan_piutang: 0,
+  cadangan_stock: 0,
+  total: 0,
+  year: currentDate.year,
+  month: currentDate.month
 })
 
 // Global loading state
