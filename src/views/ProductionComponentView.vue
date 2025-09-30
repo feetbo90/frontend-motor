@@ -32,7 +32,7 @@
 
         <!-- Sirkulasi Piutang -->
         <div v-if="activeTab === 'sirkulasi-piutang'" :key="activeTab">
-          <AccountReceivableTurnoverForm v-model="produksiData.sirkulasiPiutang" />
+          <AccountReceivableTurnoverForm />
         </div>
 
         <!-- Sirkulasi Stock dan PK -->

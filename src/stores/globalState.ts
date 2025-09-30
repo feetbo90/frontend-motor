@@ -72,13 +72,13 @@ export const produksiData = ref({
   },
   sirkulasiPiutang: {
     lancar: 0,
-    kurangLancar: 0,
-    raguRagu: 0,
-    macetBaru: 0,
-    macetLama: 0,
-    totalPiutang: 0,
-    tahun: currentDate.year,
-    bulan: currentDate.month
+    kurang_lancar: 0,
+    ragu_ragu: 0,
+    macet_baru: 0,
+    macet_lama: 0,
+    total_piutang: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   sirkulasiStock: {
     unitAwal: 0,
