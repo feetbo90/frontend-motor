@@ -42,7 +42,7 @@
 
         <!-- Barang PK Jaminan -->
         <div v-if="activeTab === 'barang-pk'" :key="activeTab">
-          <PKColleteralGoodsForm v-model="produksiData.barangPK" />
+          <PKColleteralGoodsForm />
         </div>
       </div>
     </div>

@@ -95,12 +95,16 @@ export const produksiData = ref({
     month: currentDate.month
   },
   barangPK: {
-    unitAwal: 0,
-    pkTambahan: 0,
-    unitTerjual: 0,
-    unitPK: 0,
-    tahun: currentDate.year,
-    bulan: currentDate.month
+    unit_awal: 0,
+    unit_awal_data: 0,
+    pk_tambahan: 0,
+    pk_tambahan_data: 0,
+    terjual: 0,
+    terjual_data: 0,
+    jumlah_pk: 0,
+    jumlah_pk_data: 0,
+    year: currentDate.year,
+    month: currentDate.month
   }
 })
 
