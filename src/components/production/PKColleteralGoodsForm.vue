@@ -18,7 +18,7 @@
             <div class="form-fields">
               <FormField id="unit-awal" label="Unit Awal" type="number" v-model="formData.unit_awal" placeholder="0"
                 :error="errors.unitAwal" />
-              <FormField id="unit-awal-data" label="Unit Awal Data" type="number" v-model="formData.unit_awal"
+              <FormField id="unit-awal-data" label="Unit Awal Data" type="number" v-model="formData.unit_awal_data"
                 placeholder="0" :error="errors.unitAwalData" />
               <FormField id="pk-tambahan" label="PK Tambahan" type="number" v-model="formData.pk_tambahan"
                 placeholder="0" :error="errors.pkTambahan" />

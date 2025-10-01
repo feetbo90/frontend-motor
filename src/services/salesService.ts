@@ -18,11 +18,11 @@ export async function postSales(payload: SalesPayload): Promise<SalesResponse> {
                 error.message ??
                 message
         }
-        notifyError({title:'Error Message',msg:message})
+        notifyError({ title: 'Error Message', msg: message })
         throw error
     }
 }
-export async function putSales(id: number|null, payload: SalesPayload): Promise<SalesResponse> {
+export async function putSales(id: number | null, payload: SalesPayload): Promise<SalesResponse> {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
@@ -36,7 +36,7 @@ export async function putSales(id: number|null, payload: SalesPayload): Promise<
                 error.message ??
                 message
         }
-        notifyError({title:'Error Message',msg:message})
+        notifyError({ title: 'Error Message', msg: message })
         throw error
     }
 }
@@ -55,12 +55,12 @@ export async function deleteSales(id: number): Promise<DeleteSalesResponse> {
                 error.message ??
                 message
         }
-        notifyError({title:'Error Message',msg:message})
+        notifyError({ title: 'Error Message', msg: message })
         throw error
     }
 }
 
-export async function getSales(params?: { page?: number; branch_id?: string | number; limit?: number }): Promise<SalesListResponse> {
+export async function getSales(params?: { year?: number | undefined, month?: number | undefined, page?: number; branch_id?: string | number; limit?: number }): Promise<SalesListResponse> {
     const axios = useAxios();
     const { data } = await axios.get<SalesListResponse>('/penjualan', { params });
     return data;
