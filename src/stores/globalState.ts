@@ -162,6 +162,20 @@ export const sumberDayaData = ref({
 
 })
 
+// Data untuk kas/keuangan
+export const cashFlowData = ref({
+  kas_tunai: 0,
+  rekening_bank: 0,
+  bon_karyawan: 0,
+  bon_pusat: 0,
+  bon_operasional: 0,
+  bon_gantung: 0,
+  jumlah_kas_lancar:0,
+  jumlah_kas_macet:0,
+  saldo_akhir:0,
+  year:currentDate.year,
+  month:currentDate.month
+})
 
 // Global loading state
 export const isGlobalLoading = ref(false)
