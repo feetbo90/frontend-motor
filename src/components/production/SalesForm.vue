@@ -78,9 +78,9 @@ import { useNotification } from '@/composables/useNotification'
 import { salesSchema, type SalesSchema } from '@/schemas/salesSchema'
 import { deleteSales, getSales, postSales, putSales } from '@/services/salesService'
 import { useAuthStore } from '@/stores/auth'
-import { isGlobalLoading } from '@/stores/globalState'
+import { isGlobalLoading, selectedCabang, selectedMonth, selectedUnit, selectedYear } from '@/stores/globalState'
 import type { SalesData, SalesResponse } from '@/types/sales.type'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ConfirmModal from '../ui/ConfirmModal.vue'
 
 interface Props {
@@ -132,12 +132,12 @@ const authStore = useAuthStore()
 const { notifySuccess } = useNotification()
 const showConfirmModal = ref(false)
 
-const fetchSales = async (page = 1) => {
+const fetchSales = async (page = 1, year: number | undefined = undefined, month: number | undefined = undefined) => {
   try {
     const user = authStore.user.value
     const branchId = user?.entity_id
-    // getSales expects an object, not just branchId
-    const apiData = await getSales({ page, branch_id: branchId })
+    // bikin object params
+    const apiData = await getSales({ page, year, month, branch_id: branchId })
     // apiData may not be an array, so ensure we access the correct property
     const items = Array.isArray(apiData?.data) ? apiData.data : []
     entries.value = items.map((item) => ({
@@ -164,6 +164,14 @@ const fetchSales = async (page = 1) => {
     isGlobalLoading.value = false
   }
 };
+
+watch([selectedYear, selectedMonth, selectedCabang, selectedUnit], () => {
+  const year = selectedYear.value !== '' ? Number(selectedYear.value) : undefined
+  const month = selectedMonth.value !== '' ? Number(selectedMonth.value) : undefined
+  // const cabang = selectedCabang.value !== '' ? selectedCabang.value : undefined
+  // const unit = selectedUnit.value !== '' ? selectedUnit.value : undefined
+  fetchSales(currentPage.value, year, month)
+})
 
 onMounted(async () => {
   if (!authStore.user?.value) return
@@ -251,7 +259,7 @@ function handleReset(): void {
 
 function editRow(id: number): void {
   if (!id) return // jaga-jaga id tidak valid
-  const row = entries.value.find(item => Number(item.id) ===  Number(id) );
+  const row = entries.value.find(item => Number(item.id) === Number(id));
   if (!row) return;
   isEditing.value = true
   idSelected.value = id
@@ -288,7 +296,7 @@ function cancelEdit(): void {
 
 function deleteRow(id: number): void {
   if (!id) return // jaga-jaga id tidak valid
-  const row = entries.value.find(item =>  Number(item.id) ===  Number(id) );
+  const row = entries.value.find(item => Number(item.id) === Number(id));
   if (!row) return;
   idSelected.value = id
   showConfirmModal.value = true

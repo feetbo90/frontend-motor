@@ -16,13 +16,12 @@
           <th>Terjual Data</th>
           <th>Unit Akhir</th>
           <th>Unit Akhir Data</th>
-          <th>Jumlah Unit Stok Akhir</th>
           <th>Aksi</th>
         </tr>
       </thead>
       <tbody>
         <tr v-if="visibleEntries.length === 0">
-          <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
+          <td :colspan="showIndex ? 14 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
           <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
