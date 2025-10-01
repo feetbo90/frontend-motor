@@ -24,23 +24,23 @@
                         piutang dan pembiayaan di atas.</td>
                 </tr>
                 <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-                    <td v-if="showIndex">{{ idx + 1 }}</td>
-                    <td align="center">{{ item.row.tahun }}</td>
-                    <td>{{ getMonthName(item.row.bulan) }}</td>
-                    <td>{{ format(item.row.kasTunai) }}</td>
-                    <td>{{ format(item.row.rekeningBank) }}</td>
-                    <td>{{ format(item.row.jlh_kas_lancar) }}</td>
-                    <td>{{ format(item.row.bonKaryawan) }}</td>
-                    <td>{{ format(item.row.bonPusat) }}</td>
-                    <td>{{ format(item.row.bonBiayaOps) }}</td>
-                    <td>{{ format(item.row.bonGantung) }}</td>
-                    <td>{{ format(item.row.jlh_kas_macet) }}</td>
-                    <td>{{ format(item.row.total_saldo_akhir) }}</td>
+                    <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+                    <td align="center">{{ item.row.year }}</td>
+                    <td>{{ getMonthName(item.row.month) }}</td>
+                    <td>{{ format(item.row.kas_tunai) }}</td>
+                    <td>{{ format(item.row.rekening_bank) }}</td>
+                    <td>{{ format(item.row.jumlah_kas_lancar) }}</td>
+                    <td>{{ format(item.row.bon_karyawan) }}</td>
+                    <td>{{ format(item.row.bon_pusat) }}</td>
+                    <td>{{ format(item.row.bon_operasional) }}</td>
+                    <td>{{ format(item.row.bon_gantung) }}</td>
+                    <td>{{ format(item.row.jumlah_kas_macet) }}</td>
+                    <td>{{ format(item.row.saldo_akhir) }}</td>
                    
                     <td class="actions">
-                        <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i
+                        <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
                                 class="fas fa-pen"></i> Ubah</button>
-                        <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i
+                        <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
                                 class="fas fa-trash"></i> Hapus</button>
                     </td>
                 </tr>
@@ -54,11 +54,12 @@ import { useDate } from '@/composables/useDate'
 import type { CashFlowData } from '@/types/cash-flow.type'
 import { computed } from 'vue'
 
-type DataEntry = CashFlowData & { id: number }
 
 interface Props {
-    entries: DataEntry[]
+    entries: CashFlowData[]
     showIndex?: boolean
+    currentPage: number
+    pageSize: number
     showFooterTotal?: boolean
     numberFormatLocale?: string
     filterYear?: number | string | null
@@ -81,8 +82,8 @@ const visibleEntries = computed(() => {
     return props.entries
         .map((row, index) => ({ row, originalIndex: index }))
         .filter(({ row }) => {
-            const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-            const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+            const matchYear = yearFilter === null || Number(row.year) === yearFilter
+            const matchMonth = monthFilter === null || Number(row.month) === monthFilter
             return matchYear && matchMonth
         })
 })

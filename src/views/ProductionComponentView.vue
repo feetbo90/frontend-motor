@@ -1,48 +1,48 @@
 <template>
   <div class="section-content">
-    
+
     <div class="content-card">
       <div class="tabs">
-        <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key"
-          :class="['tab-button', { active: activeTab === tab.key }]">
+        <button v-for="tab in tabs" :key="tab.key" :class="['tab-button', { active: activeTab === tab.key }]"
+          @click="setTab(tab.key)">
           <i :class="tab.icon"></i>
           {{ tab.label }}
         </button>
       </div>
       <div class="tab-content">
         <!-- Penjualan -->
-        <div v-if="activeTab === 'penjualan'">
+        <div v-if="activeTab === 'penjualan'" :key="activeTab">
           <SalesForm v-model="produksiData.penjualan" />
         </div>
 
         <!-- Pendapatan -->
-        <div v-if="activeTab === 'pendapatan'">
-          <IncomeForm v-model="produksiData.pendapatan" />
+        <div v-if="activeTab === 'pendapatan'" :key="activeTab">
+          <IncomeForm />
         </div>
 
         <!-- Pendapatan Lain-lain -->
-        <div v-if="activeTab === 'pendapatan-lain'">
-          <OtherIncomeForm v-model="produksiData.pendapatanLain" />
+        <div v-if="activeTab === 'pendapatan-lain'" :key="activeTab">
+          <OtherIncomeForm/>
         </div>
 
         <!-- Piutang & Pembiayaan -->
-        <div v-if="activeTab === 'piutang'">
-          <AccountReceivableForm v-model="produksiData.piutang" />
+        <div v-if="activeTab === 'piutang'" :key="activeTab">
+          <AccountReceivableForm />
         </div>
 
         <!-- Sirkulasi Piutang -->
-        <div v-if="activeTab === 'sirkulasi-piutang'">
-          <AccountReceivableTurnoverForm v-model="produksiData.sirkulasiPiutang" />
+        <div v-if="activeTab === 'sirkulasi-piutang'" :key="activeTab">
+          <AccountReceivableTurnoverForm />
         </div>
 
         <!-- Sirkulasi Stock dan PK -->
-        <div v-if="activeTab === 'sirkulasi-stock'">
-          <StockCirculationForm v-model="produksiData.sirkulasiStock" />
+        <div v-if="activeTab === 'sirkulasi-stock'" :key="activeTab">
+          <StockCirculationForm />
         </div>
 
         <!-- Barang PK Jaminan -->
-        <div v-if="activeTab === 'barang-pk'">
-          <PKColleteralGoodsForm v-model="produksiData.barangPK" />
+        <div v-if="activeTab === 'barang-pk'" :key="activeTab">
+          <PKColleteralGoodsForm />
         </div>
       </div>
     </div>
@@ -58,9 +58,13 @@ import PKColleteralGoodsForm from '@/components/production/PKColleteralGoodsForm
 import SalesForm from '@/components/production/SalesForm.vue'
 import StockCirculationForm from '@/components/production/StockCirculationForm.vue'
 import { produksiData } from '@/stores/globalState'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 
-const activeTab = ref('penjualan')
+const route = useRoute()
+const router = useRouter()
+
+// const activeTab = ref('penjualan')
 
 const tabs = [
   { key: 'penjualan', label: 'Penjualan', icon: 'fas fa-shopping-cart' },
@@ -71,6 +75,27 @@ const tabs = [
   { key: 'sirkulasi-stock', label: 'Sirkulasi Stock', icon: 'fas fa-boxes' },
   { key: 'barang-pk', label: 'Barang PK', icon: 'fas fa-warehouse' }
 ]
+
+// --- Ambil query param
+const activeTab = ref(route.query.tab?.toString() || 'penjualan')
+
+// --- Watch route supaya kalau query berubah, tab ikut berubah
+watch(
+  () => route.query.tab,
+  (newTab) => {
+    if (newTab && typeof newTab === 'string') {
+      activeTab.value = newTab
+    }
+  }
+)
+
+// --- Function klik tab -> update query param
+function setTab(tabKey: string) {
+  activeTab.value = tabKey
+  router.replace({
+    query: { ...route.query, tab: tabKey }
+  })
+}
 </script>
 
 <style scoped>

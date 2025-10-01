@@ -18,14 +18,13 @@
               <path d="M2 17l10 5 10-5"/>
               <path d="M2 12l10 5 10-5"/>
             </svg> -->
-            <!-- <i  class="fas fa-trash"></i> -->
             <i class="fa-solid fa-motorcycle motorcycle-icon"></i>
           </div>
           <h1 class="brand-title">CV Pandu Motor</h1>
           <p class="brand-subtitle">Sistem Manajemen Keuangan</p>
         </div>
         <div class="login-form-container">
-          <LoginForm />
+          <component :is="currentForm" />
         </div>
       </div>
     </div>
@@ -33,7 +32,23 @@
 </template>
 
 <script setup lang="ts">
-import LoginForm from '@/components/LoginForm.vue'
+import LoginForm from '@/components/LoginForm.vue';
+import SignUpForm from '@/components/SignUpForm.vue';
+import { computed } from 'vue';
+import { useRoute } from 'vue-router';
+
+const route = useRoute()
+// const router = useRouter()
+
+// Ambil mode dari route
+const mode = computed(() => route.params.mode || 'login')
+// Pilih form berdasarkan mode
+const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : LoginForm))
+
+// Toggle route
+// function toggleForm() {
+//   router.push(`/auth/${mode.value === 'signup' ? 'login' : 'signup'}`)
+// }
 </script>
 
 <style scoped>

@@ -17,13 +17,15 @@
         {{ option.label }}
       </option>
     </select>
+    <p v-if="error" class="error-text">{{ error }}</p>
+
   </div>
 </template>
 
 <script setup lang="ts">
-interface SelectOption {
+export interface SelectOption {
   value: string | number
-  label: string
+  label: string | number
 }
 
 defineProps<{
@@ -33,6 +35,7 @@ defineProps<{
   modelValue: string | number
   options: SelectOption[]
   disabled?: boolean
+  error?: string
 }>()
 
 defineEmits<{
@@ -101,5 +104,14 @@ defineEmits<{
 .form-select option:checked {
   background: #3b82f6;
   color: white;
+}
+.form-input.has-error {
+  border-color: #dc2626;
+  background: #fff1f2;
+}
+.error-text {
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 4px;
 }
 </style>

@@ -20,18 +20,18 @@
           <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td align="center">{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.saldoAwal) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td align="center">{{ item.row.year }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(item.row.saldo_awal) }}</td>
           <td>{{ format(item.row.tambahan) }}</td>
-          <td>{{ format(item.row.realisasiPokok) }}</td>
-          <td>{{ format(item.row.realisasiBunga) }}</td>
-          <td>{{ format(item.row.jumlahAngsuran) }}</td>
-          <td>{{ format(item.row.saldoAkhir) }}</td>
+          <td>{{ format(item.row.realisasi_pokok) }}</td>
+          <td>{{ format(item.row.realisasi_bunga) }}</td>
+          <td>{{ format(item.row.jumlah_angsuran) }}</td>
+          <td>{{ format(item.row.saldo_akhir) }}</td>
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -44,11 +44,12 @@ import { useDate } from '@/composables/useDate'
 import type { AccountReceivableData } from '@/types/account-receivable.type'
 import { computed } from 'vue'
 
-type DataEntry = AccountReceivableData & { id: number }
 
 interface Props {
-  entries: DataEntry[]
+  entries: AccountReceivableData[]
   showIndex?: boolean
+  currentPage:number
+  pageSize:number
   showFooterTotal?: boolean
   numberFormatLocale?: string
   filterYear?: number | string | null
@@ -69,8 +70,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })

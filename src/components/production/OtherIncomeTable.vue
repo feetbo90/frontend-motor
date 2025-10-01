@@ -19,17 +19,17 @@
           <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data pendapatan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td align="center">{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.penjualanPK) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td align="center">{{ item.row.year }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(item.row.penjualan_pk) }}</td>
           <td>{{ format(item.row.komisi) }}</td>
-          <td>{{ format(item.row.dendaKeterlambatan) }}</td>
-          <td>{{ format(item.row.diskonDenda) }}</td>
-          <td>{{ format(item.row.jumlahPendapatanLain) }}</td>
+          <td>{{ format(item.row.denda_keterlambatan) }}</td>
+          <td>{{ format(item.row.diskon_denda) }}</td>
+          <td>{{ format(item.row.jumlah_pendapatan_lain) }}</td>
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -42,11 +42,12 @@ import { useDate } from '@/composables/useDate'
 import type { OtherIncomeData } from '@/types/other-income.type'
 import { computed } from 'vue'
 
-type DataEntry = OtherIncomeData & { id: number }
 
 interface Props {
-  entries: DataEntry[]
+  entries: OtherIncomeData[]
   showIndex?: boolean
+  currentPage:number
+  pageSize:number
   showFooterTotal?: boolean
   numberFormatLocale?: string
   filterYear?: number | string | null
@@ -67,8 +68,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })

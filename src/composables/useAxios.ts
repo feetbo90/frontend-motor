@@ -21,7 +21,9 @@ function processQueue(error: unknown, token: string | null = null) {
   });
   failedQueue = [];
 }
-
+export function isAxiosError(err: unknown): err is AxiosError<{ message?: string }> {
+  return typeof err === 'object' && err !== null && 'isAxiosError' in err
+}
 export function useAxios(): AxiosInstance {
   const authStore = useAuthStore();
 

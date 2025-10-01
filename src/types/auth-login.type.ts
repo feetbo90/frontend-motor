@@ -12,7 +12,7 @@ export interface LoginResponse {
 
 export interface User {
     email: string;
-    entity_id: string;
+    entity_id: number;
     entity_type: string;
     id: string;
     name: string;

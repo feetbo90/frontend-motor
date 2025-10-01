@@ -1,9 +1,10 @@
 <template>
   <div class="form-field">
-    <label :for="id" class="form-label">{{ label }}</label>
-    <input :id="id" :type="type" :value="modelValue"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" class="form-input"
-      :placeholder="placeholder" :readonly="readonly" :min="min" :max="max" />
+    <label :for="id" :class="['form-label', { 'label-error': error }]">{{ label }}   <span v-if="required" class="required">*</span> </label>
+    <input :id="id" :type="type || 'text'" :value="modelValue"
+      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" :class="['form-input', { 'has-error': error }]"
+      :placeholder="placeholder" :readonly="readonly" :min="min" :max="max" :required="required"  />
+      <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
 
@@ -17,6 +18,8 @@ defineProps<{
   readonly?: boolean
   min?: number
   max?: number
+  required?: boolean
+  error?: string | null
 }>()
 
 defineEmits<{
@@ -65,5 +68,21 @@ defineEmits<{
 .form-input:read-only:focus {
   border-color: #e5e7eb;
   box-shadow: none;
+}
+
+.required {
+  color: red;
+  margin-left: 4px;
+}
+.has-error {
+  border-color: red;
+}
+.label-error{
+  color:red !important;
+}
+.error-message {
+  margin-top: 0.5rem;
+  color: red;
+  font-size: 0.8rem;
 }
 </style>

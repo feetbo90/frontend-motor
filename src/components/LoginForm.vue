@@ -72,7 +72,11 @@
     </form>
 
     <div class="login-footer">
-      <p>Belum punya akun? <a href="#" class="register-link">Daftar di sini</a></p>
+      <p>Belum punya akun? 
+        <router-link to="/auth/signup" class="register-link" >
+          Daftar di sini
+          </router-link>
+      </p>
     </div>
   </div>
 </template>

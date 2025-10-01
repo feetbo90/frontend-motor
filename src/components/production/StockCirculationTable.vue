@@ -6,9 +6,16 @@
           <th v-if="showIndex">#</th>
           <th>Tahun</th>
           <th>Bulan</th>
-          <th>Jumlah Unit Awal</th>
+          <th>Unit Awal</th>
+          <th>Unit Awal Data</th>
           <th>Pembelian Tambahan</th>
-          <th>Unit Terjual</th>
+          <th>Pembelian Tambahan Data</th>
+          <th>Mutasi Masuk</th>
+          <th>Mutasi Keluar</th>
+          <th>Terjual</th>
+          <th>Terjual Data</th>
+          <th>Unit Akhir</th>
+          <th>Unit Akhir Data</th>
           <th>Jumlah Unit Stok Akhir</th>
           <th>Aksi</th>
         </tr>
@@ -18,16 +25,22 @@
           <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td align="center">{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.unitAwal) }}</td>
-          <td>{{ format(item.row.pembelianTambahan) }}</td>
-          <td>{{ format(item.row.unitTerjual) }}</td>
-          <td>{{ format(item.row.unitStokAkhir) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td align="center">{{ item.row.year }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(item.row.unit_awal) }}</td>
+          <td>{{ format(item.row.unit_awal_data) }}</td>
+          <td>{{ format(item.row.pembelian_tambahan) }}</td>
+          <td>{{ format(item.row.pembelian_tambahan_data) }}</td>
+          <td>{{ format(item.row.mutasi_masuk) }}</td>
+          <td>{{ format(item.row.mutasi_keluar) }}</td>
+          <td>{{ format(item.row.terjual) }}</td>
+          <td>{{ format(item.row.terjual_data) }}</td>
+          <td>{{ format(item.row.unit_akhir) }}</td>
+          <td>{{ format(item.row.unit_akhir_data) }}</td>
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -40,11 +53,12 @@ import { useDate } from '@/composables/useDate'
 import type { StockCirculationData } from '@/types/stock-circulation.type'
 import { computed } from 'vue'
 
-type DataEntry = StockCirculationData & { id: number }
 
 interface Props {
-  entries: DataEntry[]
+  entries: StockCirculationData[]
   showIndex?: boolean
+  currentPage: number
+  pageSize: number
   showFooterTotal?: boolean
   numberFormatLocale?: string
   filterYear?: number | string | null
@@ -65,8 +79,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })

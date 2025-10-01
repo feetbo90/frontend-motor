@@ -6,11 +6,14 @@
           <th v-if="showIndex">#</th>
           <th>Tahun</th>
           <th>Bulan</th>
-          <th>Penjualan Kontan</th>
-          <th>Penjualan Kredit</th>
+          <th>Markup Kontan</th>
+          <th>Markup Kredit</th>
+          <th>Jumlah Markup</th>
           <th>Realisasi Bunga</th>
           <th>Diskon Bunga</th>
           <th>Denda</th>
+          <th>Administrasi</th>
+          <th>Jumlah Pendapatan</th>
           <th>Aksi</th>
         </tr>
       </thead>
@@ -19,17 +22,20 @@
           <td :colspan="showIndex ? 9 : 6" class="empty">Belum ada data. Tambahkan data pendapatan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
-          <td v-if="showIndex">{{ idx + 1 }}</td>
-          <td align="center">{{ item.row.tahun }}</td>
-          <td>{{ getMonthName(item.row.bulan) }}</td>
-          <td>{{ format(item.row.markupKontan) }}</td>
-          <td>{{ format(item.row.markupKredit) }}</td>
-          <td>{{ format(item.row.realisasiBunga) }}</td>
-          <td>{{ format(item.row.diskonBunga) }}</td>
-          <td>{{ format(item.row.denda) }}</td>
+          <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>
+          <td align="center">{{ item.row.year }}</td>
+          <td>{{ getMonthName(item.row.month) }}</td>
+          <td>{{ format(Number(item.row.markup_kontan)) }}</td>
+          <td>{{ format(Number(item.row.markup_kredit)) }}</td>
+          <td>{{ format(Number(item.row.markup_jumlah)) }}</td>
+          <td>{{ format(Number(item.row.realisasi_bunga)) }}</td>
+          <td>{{ format(Number(item.row.diskon_bunga)) }}</td>
+          <td>{{ format(Number(item.row.denda)) }}</td>
+          <td>{{ format(Number(item.row.administrasi)) }}</td>
+          <td>{{ format(Number(item.row.jumlah_pendapatan)) }}</td>
           <td class="actions">
-            <button class="btn btn-xs btn-outline" @click="$emit('edit', item.originalIndex)"><i class="fas fa-pen"></i> Ubah</button>
-            <button class="btn btn-xs btn-danger" @click="$emit('delete', item.originalIndex)"><i class="fas fa-trash"></i> Hapus</button>
+            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i> Ubah</button>
+            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i class="fas fa-trash"></i> Hapus</button>
           </td>
         </tr>
       </tbody>
@@ -42,10 +48,10 @@ import { useDate } from '@/composables/useDate'
 import type { IncomeData } from '@/types/income.type'
 import { computed } from 'vue'
 
-type IncomeEntry = IncomeData & { id: number }
-
 interface Props {
-  entries: IncomeEntry[]
+  entries: IncomeData[]
+  currentPage:number,
+  pageSize:number,
   showIndex?: boolean
   showFooterTotal?: boolean
   numberFormatLocale?: string
@@ -67,8 +73,8 @@ const visibleEntries = computed(() => {
   return props.entries
     .map((row, index) => ({ row, originalIndex: index }))
     .filter(({ row }) => {
-      const matchYear = yearFilter === null || Number(row.tahun) === yearFilter
-      const matchMonth = monthFilter === null || Number(row.bulan) === monthFilter
+      const matchYear = yearFilter === null || Number(row.year) === yearFilter
+      const matchMonth = monthFilter === null || Number(row.month) === monthFilter
       return matchYear && matchMonth
     })
 })

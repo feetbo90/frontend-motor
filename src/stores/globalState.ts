@@ -36,78 +36,145 @@ export const produksiData = ref({
     kontan: 0,
     kredit: 0,
     leasing: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    tahun: currentDate.year,
+    bulan: currentDate.month
   },
   pendapatan: {
-    markupKontan: 0,
-    markupKredit: 0,
-    realisasiBunga: 0,
-    diskonBunga: 0,
+    markup_kontan: 0,
+    markup_kredit: 0,
+    markup_jumlah: 0,
+    realisasi_bunga: 0,
+    diskon_bunga: 0,
     denda: 0,
     administrasi: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    jumlah_pendapatan: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   pendapatanLain: {
-    penjualanPK: 0,
+    penjualan_pk: 0,
     komisi: 0,
-    dendaKeterlambatan: 0,
-    diskonDenda: 0,
-    jumlahPendapatanLain: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    denda_keterlambatan: 0,
+    diskon_denda: 0,
+    jumlah_pendapatan_lain: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   piutang: {
-    saldoAwal: 0,
+    saldo_awal: 0,
     tambahan: 0,
-    realisasiPokok: 0,
-    realisasiBunga: 0,
-    jumlahAngsuran: 0,
-    saldoAkhir: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    realisasi_pokok: 0,
+    realisasi_bunga: 0,
+    jumlah_angsuran: 0,
+    saldo_akhir: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   sirkulasiPiutang: {
     lancar: 0,
-    kurangLancar: 0,
-    raguRagu: 0,
-    macetBaru: 0,
-    macetLama: 0,
-    totalPiutang: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    kurang_lancar: 0,
+    ragu_ragu: 0,
+    macet_baru: 0,
+    macet_lama: 0,
+    total_piutang: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   sirkulasiStock: {
-    unitAwal: 0,
-    pembelianTambahan: 0,
-    unitTerjual: 0,
-    unitStokAkhir: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    unit_awal: 0,
+    unit_awal_data: 0,
+    pembelian_tambahan: 0,
+    pembelian_tambahan_data: 0,
+    mutasi_masuk: 0,
+    mutasi_keluar: 0,
+    terjual: 0,
+    terjual_data: 0,
+    unit_akhir: 0,
+    unit_akhir_data: 0,
+    year: currentDate.year,
+    month: currentDate.month
   },
   barangPK: {
-    unitAwal: 0,
-    pkTambahan: 0,
-    unitTerjual: 0,
-    unitPK: 0,
-    tahun: currentDate.tahun,
-    bulan: currentDate.bulan
+    unit_awal: 0,
+    unit_awal_data: 0,
+    pk_tambahan: 0,
+    pk_tambahan_data: 0,
+    terjual: 0,
+    terjual_data: 0,
+    jumlah_pk: 0,
+    jumlah_pk_data: 0,
+    year: currentDate.year,
+    month: currentDate.month
   }
 })
 
 // Data untuk beban
 export const bebanData = ref({
-  gajiInsentif: 0,
-  bebanUmum: 0,
-  bebanOperasional: 0,
-  jumlahBebanUmumOps: 0,
-  bebanPenyusutan: 0,
-  cadanganPHPiutang: 0,
-  cadanganPHStok: 0,
-  totalBeban: 0,
-  tahun: currentDate.tahun,
-  bulan: currentDate.bulan
+  gaji: 0,
+  admin: 0,
+  operasional: 0,
+  beban_umum_operasional: 0,
+  penyusutan_aktiva: 0,
+  cadangan_piutang: 0,
+  cadangan_stock: 0,
+  total: 0,
+  year: currentDate.year,
+  month: currentDate.month
+})
+
+// Data untuk laba rugi
+export const labaRugiData = ref({
+  kumulatif: 0,
+  penarikan: 0,
+  modal: 0,
+  year:currentDate.year,
+  month:currentDate.month
+})
+
+// Data untuk cadangan
+export const cadanganData = ref({
+  cadangan_piutang: 0,
+  macet_real: 0,
+  surplus_devist: 0,
+  cadangan_stock: 0,
+  cadangan_stock_data: 0,
+  year:currentDate.year,
+  month:currentDate.month
+})
+
+// Data untuk sumber daya
+
+export const sumberDayaData = ref({
+  jumlah_karyawan: 0,
+  formasi_tenaga:0,
+  pimpinan:0,
+  kasir: 0,
+  administrasi: 0,
+  pdl: 0,
+  formasi_kurang: 0,
+  kontrak_kantor:0,
+  inventaris_mobil:0,
+  inventaris_mobil_ket:'',
+  sisa_inventaris_pendirian:0,
+  penyusutan_bulan:0,
+  year:currentDate.year,
+  month:currentDate.month
+
+})
+
+// Data untuk kas/keuangan
+export const cashFlowData = ref({
+  kas_tunai: 0,
+  rekening_bank: 0,
+  bon_karyawan: 0,
+  bon_pusat: 0,
+  bon_operasional: 0,
+  bon_gantung: 0,
+  jumlah_kas_lancar:0,
+  jumlah_kas_macet:0,
+  saldo_akhir:0,
+  year:currentDate.year,
+  month:currentDate.month
 })
 
 // Global loading state
