@@ -38,16 +38,19 @@
                             <div><strong>Sisa Kontrak Kantor:</strong> {{ format(item.row.kontrak_kantor) }}</div>
                             <div><strong>Inventaris Mobil:</strong> {{ format(item.row.inventaris_mobil) }}</div>
                             <div><strong>Keterangan Inventaris Mobil:</strong> {{ item.row.inventaris_mobil_ket }}</div>
-                            <div><strong>Sisa Inventaris Pendirian:</strong> {{ format(item.row.sisa_inventaris_pendirian) }}
+                            <div><strong>Sisa Inventaris Pendirian:</strong> {{
+                                format(item.row.sisa_inventaris_pendirian) }}
                             </div>
                             <div><strong>Nilai Penyusutan:</strong> {{ format(item.row.penyusutan_bulan) }}</div>
                         </div>
                     </td>
-                    <td class="actions">
-                        <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
-                                class="fas fa-pen"></i> Ubah</button>
-                        <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
-                                class="fas fa-trash"></i> Hapus</button>
+                    <td>
+                        <div class="actions">
+                            <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
+                                    class="fas fa-pen"></i> Ubah</button>
+                            <button type="button" class="btn btn-xs btn-danger" @click="$emit('delete', item.row.id)"><i
+                                    class="fas fa-trash"></i> Hapus</button>
+                        </div>
                     </td>
                 </tr>
             </tbody>
@@ -66,7 +69,7 @@ interface Props {
     entries: ResourcesData[]
     showIndex?: boolean
     currentPage: number
-  pageSize: number
+    pageSize: number
     showFooterTotal?: boolean
     numberFormatLocale?: string
     filterYear?: number | string | null
