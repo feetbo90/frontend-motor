@@ -2,7 +2,8 @@ import type { User } from '@/types/auth-login.type'
 import AuthView from '@/views/AuthView.vue'
 import CashFlowView from '@/views/CashFlowView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import ExportImportView from '@/views/ExportImportView.vue'
+import ExportView from '@/views/ExportView.vue'
+import ImportView from '@/views/ImportView.vue'
 import LoadComponentsView from '@/views/LoadComponentsView.vue'
 import ProductionComponentView from '@/views/ProductionComponentView.vue'
 import ProfitLostView from '@/views/ProfitLostView.vue'
@@ -89,10 +90,16 @@ const routes = [
     meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['PUSAT'] }
   },
   { 
-    path: '/export-import', 
-    name: 'export-import', 
-    component: ExportImportView,
-    meta: { title: 'Export / Import', requiresAuth: true, allowedRoles: ['PUSAT','CABANG','UNIT'] }
+    path: '/export', 
+    name: 'export', 
+    component: ExportView,
+    meta: { title: 'Data Ekspor', requiresAuth: true, allowedRoles: ['PUSAT','UNIT'] }
+  },
+  { 
+    path: '/import', 
+    name: 'import', 
+    component: ImportView,
+    meta: { title: 'Data Impor', requiresAuth: true, allowedRoles: ['PUSAT','CABANG'] }
   }
 ]
 
