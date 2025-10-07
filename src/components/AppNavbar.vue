@@ -6,8 +6,8 @@
           <h3>{{ pageTitle }}</h3>
         </div>
       </div>
-      
-      <div class="navbar-right"  @click.stop="toggleUserMenu">
+
+      <div class="navbar-right" @click.stop="toggleUserMenu">
         <div class="user-info">
           <div class="user-avatar">
             <i class="fas fa-user"></i>
@@ -25,10 +25,10 @@
                 <i class="fas fa-user-cog"></i>
                 Profile
               </a>
-              <a href="#" class="dropdown-item">
+              <!-- <a href="#" class="dropdown-item">
                 <i class="fas fa-cog"></i>
                 Settings
-              </a>
+              </a> -->
               <hr class="dropdown-divider">
               <a href="#" class="dropdown-item logout" @click="logout">
                 <i class="fas fa-sign-out-alt"></i>
@@ -74,7 +74,7 @@ const userInfo = computed(() => {
   if (user) {
     return {
       ...user,
-      role: formatRole(user.entity_type)
+      role: formatRole(user?.entity_type)
     }
   }
   return {
@@ -84,6 +84,7 @@ const userInfo = computed(() => {
   }
 })
 
+
 const toggleUserMenu = () => {
   showUserMenu.value = !showUserMenu.value
 }
@@ -91,7 +92,7 @@ const toggleUserMenu = () => {
 const logout = async () => {
   try {
     await logoutApi()
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (e) {
     // Optional: handle error, e.g. network error, but tetap lanjut logout lokal
   }
@@ -276,19 +277,19 @@ onUnmounted(() => {
   .navbar {
     left: 0;
   }
-  
+
   .navbar-content {
     padding: 0 1rem;
   }
-  
+
   .page-info h3 {
     font-size: 1rem;
   }
-  
+
   .page-subtitle {
     display: none;
   }
-  
+
   .user-details {
     display: none;
   }

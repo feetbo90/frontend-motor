@@ -4,45 +4,30 @@
       <h1>Selamat Datang di App</h1>
       <p>Silakan masuk ke akun Anda</p>
     </div>
-    
+
     <form @submit.prevent="handleLogin" class="form">
       <div class="form-group-login">
         <label for="email">Email</label>
-        <input
-          id="email"
-          v-model="formData.email"
-          type="email"
-          placeholder="Masukkan email Anda"
-          required
-          :class="{ 'error': errors.email }"
-        />
+        <input id="email" v-model="formData.email" type="email" placeholder="Masukkan email Anda" required
+          :class="{ 'error': errors.email }" />
         <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
       </div>
 
       <div class="form-group-login">
         <label for="password">Password</label>
         <div class="password-input">
-          <input
-            id="password"
-            v-model="formData.password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="Masukkan password Anda"
-            required
-            :class="{ 'error': errors.password }"
-          />
-          <button
-            type="button"
-            @click="togglePassword"
-            class="password-toggle"
-            :class="{ 'active': showPassword }"
-          >
-            <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+          <input id="password" v-model="formData.password" :type="showPassword ? 'text' : 'password'"
+            placeholder="Masukkan password Anda" required :class="{ 'error': errors.password }" />
+          <button type="button" @click="togglePassword" class="password-toggle" :class="{ 'active': showPassword }">
+            <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
             </svg>
           </button>
         </div>
@@ -51,42 +36,35 @@
 
       <div class="form-options">
         <label class="checkbox-container">
-          <input
-            v-model="formData.rememberMe"
-            type="checkbox"
-          />
+          <input v-model="formData.rememberMe" type="checkbox" />
           <span class="checkmark"></span>
           Ingat saya
         </label>
         <a href="#" class="forgot-password">Lupa password?</a>
       </div>
 
-      <button
-        type="submit"
-        class="login-button"
-        :disabled="isLoading"
-      >
+      <button type="submit" class="login-button" :disabled="isLoading">
         <span v-if="isLoading" class="loading-spinner"></span>
         {{ isLoading ? 'Memproses...' : 'Masuk' }}
       </button>
     </form>
 
     <div class="login-footer">
-      <p>Belum punya akun? 
-        <router-link to="/auth/signup" class="register-link" >
+      <p>Belum punya akun?
+        <router-link to="/auth/signup" class="register-link">
           Daftar di sini
-          </router-link>
+        </router-link>
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
-import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
 import { loginApi } from '@/services/authService';
+import { useAuthStore } from '@/stores/auth';
 import type { AxiosError } from 'axios';
+import { reactive, ref } from 'vue';
+import { useRouter } from 'vue-router';
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -112,7 +90,7 @@ const togglePassword = () => {
 const validateForm = () => {
   errors.email = ''
   errors.password = ''
-  
+
   let isValid = true
 
   if (!formData.email) {
@@ -144,11 +122,15 @@ const handleLogin = async () => {
       email: formData.email,
       password: formData.password
     });
-    localStorage.setItem('auth_token', response.token);
-    localStorage.setItem('refresh_token', response.refreshToken);
-    localStorage.setItem('user_data', JSON.stringify(response.user));
-    authStore.login({ ...response.user, token: response.token, refreshToken: response.refreshToken });
-    router.push('/');
+  
+    authStore.login({
+      ...response.user,
+      token: response.token,
+      refreshToken: response.refreshToken
+    });
+    
+    if (authStore.isAuthenticated)await router.replace('/')
+
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;
     if (err.response) {
@@ -241,7 +223,8 @@ const handleLogin = async () => {
 
 .password-input input {
   width: 100%;
-  padding-right: 3rem; /* Space for the toggle button */
+  padding-right: 3rem;
+  /* Space for the toggle button */
 }
 
 .password-toggle {
@@ -371,7 +354,7 @@ const handleLogin = async () => {
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .form-options {
     flex-direction: column;
     gap: 1rem;
