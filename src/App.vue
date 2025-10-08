@@ -6,12 +6,9 @@
       <AppNavbar />
       <main class="main-content">
         <router-view />
-        <AlertNotification 
-        :notifications="notifications" 
-        @close="(i: number) => notifications.splice(i, 1)" 
-      />
+        <AlertNotification :notifications="notifications" @close="(i: number) => notifications.splice(i, 1)" />
       </main>
-     
+
     </template>
 
     <!-- Tampilkan halaman login jika belum login -->
@@ -42,8 +39,8 @@ const isAuthenticated = computed(() => {
 })
 
 // Initialize authentication state dan redirect
-onMounted(async() => {
-  isGlobalLoading.value = true; 
+onMounted(async () => {
+  isGlobalLoading.value = true;
   await initializeAuth()
 
   // Redirect ke login jika tidak authenticated
@@ -51,7 +48,7 @@ onMounted(async() => {
     router.push('/auth/login')
   }
 
-  isGlobalLoading.value = false; 
+  isGlobalLoading.value = false;
 })
 </script>
 

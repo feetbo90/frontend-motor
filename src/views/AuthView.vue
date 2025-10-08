@@ -9,7 +9,7 @@
           <div class="shape shape-3"></div>
         </div>
       </div>
-      
+
       <div class="login-content">
         <div class="login-brand">
           <div class="brand-logo">
@@ -38,22 +38,17 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 
 const route = useRoute()
-// const router = useRouter()
 
 // Ambil mode dari route
 const mode = computed(() => route.params.mode || 'login')
 // Pilih form berdasarkan mode
 const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : LoginForm))
 
-// Toggle route
-// function toggleForm() {
-//   router.push(`/auth/${mode.value === 'signup' ? 'login' : 'signup'}`)
-// }
 </script>
 
 <style scoped>
 .login-page {
-  width:100%;
+  width: 100%;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -204,12 +199,16 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
 
 /* Animations */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px) rotate(0deg);
   }
+
   33% {
     transform: translateY(-20px) rotate(120deg);
   }
+
   66% {
     transform: translateY(10px) rotate(240deg);
   }
@@ -220,6 +219,7 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
     opacity: 0;
     transform: translateX(-50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -231,6 +231,7 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
     opacity: 0;
     transform: translateX(50px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -244,29 +245,29 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
     gap: 2rem;
     padding: 1rem;
   }
-  
+
   .login-brand {
     order: 1;
     margin-bottom: 1rem;
   }
-  
+
   .login-form-container {
     order: 2;
   }
-  
+
   .brand-title {
     font-size: 2rem;
   }
-  
+
   .brand-subtitle {
     font-size: 1rem;
   }
-  
+
   .brand-logo {
     width: 60px;
     height: 60px;
   }
-  
+
   .brand-logo svg {
     width: 36px;
     height: 36px;
@@ -277,11 +278,11 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
   .login-container {
     padding: 1rem;
   }
-  
+
   .brand-title {
     font-size: 1.75rem;
   }
-  
+
   .shape {
     display: none;
   }
@@ -292,5 +293,3 @@ const currentForm = computed(() => (mode.value === 'signup' ? SignUpForm : Login
   color: white;
 }
 </style>
-
-

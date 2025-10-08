@@ -4,103 +4,72 @@
       <h1>Selamat Datang di App</h1>
       <p>Silakan daftarkan ke akun Anda</p>
     </div>
-    
-    <form @submit.prevent="handleLogin" class="form">
+
+    <form @submit.prevent="handleSubmit" class="form" autocomplete="off">
       <div class="form-group-signup">
         <label for="name">Name</label>
-        <input
-          id="name"
-          v-model="formData.name"
-          placeholder="Please insert your name"
-          required
-          :class="{ 'error': errors.email }"
-        />
-        <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
+        <input id="name" v-model="formData.name" placeholder="Please insert your name" required
+          :class="{ 'error': errors.name }" />
+        <span v-if="errors.name" class="error-message">{{ errors.name }}</span>
       </div>
       <div class="form-group-signup">
         <label for="email">Email</label>
-        <input
-          id="email"
-          v-model="formData.email"
-          type="email"
-          placeholder="Masukkan email Anda"
-          required
-          :class="{ 'error': errors.email }"
-        />
+        <input id="email" v-model="formData.email" type="email" placeholder="Masukkan email Anda" required
+          autocomplete="off" :class="{ 'error': errors.email }" />
         <span v-if="errors.email" class="error-message">{{ errors.email }}</span>
       </div>
       <div class="form-group-signup">
         <label for="password">Password</label>
         <div class="password-input">
-          <input
-            id="password"
-            v-model="formData.password"
-            :type="showPassword ? 'text' : 'password'"
-            placeholder="Masukkan password Anda"
-            required
-            :class="{ 'error': errors.password }"
-          />
-          <button
-            type="button"
-            @click="togglePassword"
-            class="password-toggle"
-            :class="{ 'active': showPassword }"
-          >
-            <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
+          <input id="password" v-model="formData.password" :type="showPassword ? 'text' : 'password'"
+            placeholder="Masukkan password Anda" required autocomplete="new-password"
+            :class="{ 'error': errors.password }" />
+          <button type="button" @click="togglePassword" class="password-toggle" :class="{ 'active': showPassword }">
+            <svg v-if="!showPassword" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+              stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+              <circle cx="12" cy="12" r="3" />
             </svg>
             <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
+              <path
+                d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+              <line x1="1" y1="1" x2="23" y2="23" />
             </svg>
           </button>
         </div>
         <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
       </div>
       <div class="form-group-signup">
-        <!-- <label for="type">Tipe</label>
-        <select v-model="formData.type" class="form-select">
-          <option disabled value="">Pilih Tipe</option>
-          <option v-for="(type, index) in optionsType" :key="index" :value="index + 1">
-            {{ type }}
-          </option>
-        </select> -->
-        <FormSelect id="type" label="Tipe" v-model="formData.type" placeholder="Pilih Tipe"
-        :options="optionsType" />
-        <span v-if="errors.password" class="error-message">{{ errors.password }}</span>
+        <FormSelect required id="type" label="Tipe" v-model="formData.type" placeholder="Pilih Tipe"
+          :options="optionsType" />
+        <span v-if="errors.type" class="error-message">{{ errors.type }}</span>
       </div>
-      <button
-        type="submit"
-        class="signup-button"
-        :disabled="isLoading"
-      >
+      <button type="submit" class="signup-button" :disabled="isLoading">
         <span v-if="isLoading" class="loading-spinner"></span>
         {{ isLoading ? 'Memproses...' : 'Daftar' }}
       </button>
     </form>
 
     <div class="signup-footer">
-      <p>Sudah punya akun? 
-        <router-link to="/auth/login" class="register-link" >
-          Login 
-          </router-link>
+      <p>Sudah punya akun?
+        <router-link to="/auth/login" class="register-link">
+          Login
+        </router-link>
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { loginApi } from '@/services/authService';
+import { useNotification } from '@/composables/useNotification';
+import { signupnApi } from '@/services/authService';
 import { getEntities } from '@/services/entitiesService';
-import { useAuthStore } from '@/stores/auth';
 import type { AxiosError } from 'axios';
 import { onMounted, reactive, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import FormSelect, { type SelectOption } from './FormSelect.vue';
 
 const router = useRouter()
-const authStore = useAuthStore()
 
 const formData = reactive({
   name: '',
@@ -110,13 +79,16 @@ const formData = reactive({
 })
 
 const errors = reactive({
+  name: '',
   email: '',
-  password: ''
+  password: '',
+  type: ''
 })
 
 const showPassword = ref(false)
 const isLoading = ref(false)
 const optionsType = ref<SelectOption[]>([])
+const { notifyError, notifyWarning } = useNotification()
 
 onMounted(async () => {
   fetchEntities()
@@ -127,12 +99,13 @@ const fetchEntities = async () => {
     const apiData = await getEntities()//TODO: jangan lupa dari BE harusnya tidak pakai token (authorization)
     const items = Array.isArray(apiData) ? apiData : []
     optionsType.value = items.map((item) => ({
-      label:item.entity_type,
-      value:item.id
+      label: `${item.name} (${item.entity_type})`,
+      value: item.id,
+      name: item.entity_type
     }))
-  } catch(error) {
+  } catch (error) {
     console.log(error)
-  } 
+  }
 };
 
 const togglePassword = () => {
@@ -142,7 +115,8 @@ const togglePassword = () => {
 const validateForm = () => {
   errors.email = ''
   errors.password = ''
-  
+  errors.type = ''
+
   let isValid = true
 
   if (!formData.email) {
@@ -161,39 +135,44 @@ const validateForm = () => {
     isValid = false
   }
 
+  if (!formData.type) {
+    errors.type = 'Type harus diisi'
+    isValid = false
+  }
+
   return isValid
 }
 
-const handleLogin = async () => {
+const handleSubmit = async () => {
   if (!validateForm()) return;
   isLoading.value = true;
   errors.email = '';
   errors.password = '';
+  errors.type = '';
   try {
-    const response = await loginApi({
+    const findOption = optionsType.value.find((item) => item.value === formData.type)
+    if (!findOption) {
+      notifyError({ title: 'Error Message', msg: 'Tipe tidak ditemukan' })
+      return
+    }
+    const response = await signupnApi({
+      name: formData.name,
       email: formData.email,
-      password: formData.password
+      password: formData.password,
+      entity_type: findOption.name as string,
+      entity_id: findOption?.value as string
     });
-    localStorage.setItem('auth_token', response.token);
-    localStorage.setItem('refresh_token', response.refreshToken);
-    localStorage.setItem('user_data', JSON.stringify(response.user));
-    authStore.login({ ...response.user, token: response.token, refreshToken: response.refreshToken });
-    router.push('/');
+    if (response.user) {
+      router.push('/auth/login')
+    } else {
+      notifyWarning({ title: 'Warning Message', msg: response.message })
+    }
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;
-    if (err.response) {
-      if (err.response.status === 401) {
-        errors.email = 'Email atau password salah';
-        errors.password = 'Email atau password salah';
-      } else if (err.response.data && err.response.data.message) {
-        errors.email = err.response.data.message;
-      } else {
-        errors.email = 'Terjadi kesalahan saat login';
-      }
-    } else {
-      errors.email = 'Terjadi kesalahan saat login';
+    console.log({ err })
+    if (err.status === 400) {
+      errors.email = err.response?.data.message ?? 'Terjadi kesalahan saat register'
     }
-    console.error('Login error:', error);
   } finally {
     isLoading.value = false;
   }
@@ -201,7 +180,6 @@ const handleLogin = async () => {
 </script>
 
 <style scoped>
-
 .form-select {
   width: 100%;
   padding: 0.5rem;
@@ -292,7 +270,8 @@ const handleLogin = async () => {
 
 .password-input input {
   width: 100%;
-  padding-right: 3rem; /* Space for the toggle button */
+  padding-right: 3rem;
+  /* Space for the toggle button */
 }
 
 .password-toggle {
@@ -422,7 +401,7 @@ const handleLogin = async () => {
     padding: 1.5rem;
     margin: 1rem;
   }
-  
+
   .form-options {
     flex-direction: column;
     gap: 1rem;

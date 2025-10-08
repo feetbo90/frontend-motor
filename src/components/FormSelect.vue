@@ -26,6 +26,7 @@
 export interface SelectOption {
   value: string | number
   label: string | number
+  name?: string | number
 }
 
 defineProps<{
