@@ -1,21 +1,21 @@
 export interface SalesData {
-    tahun: number
-    bulan: number
-    kontan: number
-    kredit: number
-    leasing: number
-  }
-  export interface SalesPayload{
-    branch_id: number,
-    year: number,
-    month: number,
-    kontan: number,
-    kredit: number,
-    leasing: number,
-    jumlah: number
-    period_id?:number//TODO: delete nanti dihapus dari BE
-  }
-  export interface SalesResponse {
+  tahun: number
+  bulan: number
+  kontan: number
+  kredit: number
+  leasing: number
+}
+export interface SalesPayload {
+  branch_id: number,
+  year: number,
+  month: number,
+  kontan: number,
+  kredit: number,
+  leasing: number,
+  jumlah: number
+  period_id?: number//TODO: delete nanti dihapus dari BE
+}
+export interface SalesResponse {
   id: number;
   branch_id: string;
   period_id: string;
@@ -30,8 +30,8 @@ export interface SalesData {
   version: number;
   is_active: boolean;
 }
-export interface DeleteSalesResponse{
-  message:string
+export interface DeleteSalesResponse {
+  message: string
 }
 export interface SalesListResponse {
   message: string;

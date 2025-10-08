@@ -110,11 +110,18 @@
           </router-link>
         </li>
         
-        <!-- Export / Import - For all roles with access -->
-        <li v-if="canAccessRoute('/export-import')">
-          <router-link to="/export-import" class="nav-link" :class="{ active: $route.name === 'export-import' }">
+        <!-- Export with access -->
+        <li v-if="canAccessRoute('/export')">
+          <router-link to="/export" class="nav-link" :class="{ active: $route.name === 'export' }">
             <i class="fas fa-file-export"></i>
-            Ekspor / Impor
+            Ekspor
+          </router-link>
+        </li>
+         <!-- Import with access -->
+         <li v-if="canAccessRoute('/import')">
+          <router-link to="/import" class="nav-link" :class="{ active: $route.name === 'import' }">
+            <i class="fas fa-file-import"></i>
+            Impor
           </router-link>
         </li>
       </ul>

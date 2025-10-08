@@ -2,7 +2,8 @@ import type { User } from '@/types/auth-login.type'
 import AuthView from '@/views/AuthView.vue'
 import CashFlowView from '@/views/CashFlowView.vue'
 import DashboardView from '@/views/DashboardView.vue'
-import ExportImportView from '@/views/ExportImportView.vue'
+import ExportView from '@/views/ExportView.vue'
+import ImportView from '@/views/ImportView.vue'
 import LoadComponentsView from '@/views/LoadComponentsView.vue'
 import ProductionComponentView from '@/views/ProductionComponentView.vue'
 import ProfitLostView from '@/views/ProfitLostView.vue'
@@ -23,76 +24,70 @@ declare module 'vue-router' {
 }
 
 const routes = [
-  // { 
-  //   path: '/login', 
-  //   name: 'login', 
-  //   component: AuthView,
-  //   meta: { title: 'Login', requiresAuth: false }
-  // },
-  // { 
-  //   path: '/signup', 
-  //   name: 'signup', 
-  //   component: AuthView,
-  //   meta: { title: 'Sign', requiresAuth: false }
-  // },
   {
     path: '/auth/:mode?',
     name: 'auth',
     component: AuthView,
   },
-  { 
-    path: '/', 
-    name: 'dashboard', 
+  {
+    path: '/',
+    name: 'dashboard',
     component: DashboardView,
     meta: { title: 'Dashboard', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
   },
-  { 
-    path: '/komponen-produksi', 
-    name: 'komponen-produksi', 
+  {
+    path: '/komponen-produksi',
+    name: 'komponen-produksi',
     component: ProductionComponentView,
     meta: { title: 'Komponen Produksi', requiresAuth: true, allowedRoles: ['UNIT'] }
   },
-  { 
-    path: '/komponen-beban', 
-    name: 'komponen-beban', 
+  {
+    path: '/komponen-beban',
+    name: 'komponen-beban',
     component: LoadComponentsView,
-    meta: { title: 'Komponen Beban', requiresAuth: true, allowedRoles: ['CABANG','UNIT'] }
+    meta: { title: 'Komponen Beban', requiresAuth: true, allowedRoles: ['CABANG', 'UNIT'] }
   },
-  { 
-    path: '/laba-rugi', 
-    name: 'laba-rugi', 
+  {
+    path: '/laba-rugi',
+    name: 'laba-rugi',
     component: ProfitLostView,
     meta: { title: 'Laba / Rugi / Surplus Devisit', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
-  { 
-    path: '/cadangan-nilai-sisa', 
-    name: 'cadangan-nilai-sisa', 
+  {
+    path: '/cadangan-nilai-sisa',
+    name: 'cadangan-nilai-sisa',
     component: ResidualValueReserveView,
     meta: { title: 'Cadangan & Nilai Sisa ACC Penyusutan', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
-  { 
-    path: '/sumber-daya', 
-    name: 'sumber-daya', 
+  {
+    path: '/sumber-daya',
+    name: 'sumber-daya',
     component: ResourcesView,
-    meta: { title: 'Sumber Daya', requiresAuth: true, allowedRoles: ['UNIT','CABANG'] }
+    meta: { title: 'Sumber Daya', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG'] }
   },
-  { 
-    path: '/kas-keuangan', 
-    name: 'kas-keuangan', 
+  {
+    path: '/kas-keuangan',
+    name: 'kas-keuangan',
     component: CashFlowView,
     meta: { title: 'Kas & Keuangan', requiresAuth: true, allowedRoles: ['CABANG'] }
   },
-  { 
-    path: '/satuan-pengukuran', 
-    name: 'satuan-pengukuran', 
+  {
+    path: '/satuan-pengukuran',
+    name: 'satuan-pengukuran',
     component: UnitOfMeasurementView,
     meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['PUSAT'] }
   },
-  { 
-    path: '/export-import', 
-    name: 'export-import', 
-    component: ExportImportView,
-    meta: { title: 'Export / Import', requiresAuth: true, allowedRoles: ['PUSAT','CABANG','UNIT'] }
+  {
+    path: '/export',
+    name: 'export',
+    component: ExportView,
+    meta: { title: 'Data Ekspor', requiresAuth: true, allowedRoles: ['PUSAT', 'UNIT'] }
+  },
+  {
+    path: '/import',
+    name: 'import',
+    component: ImportView,
+    meta: { title: 'Data Impor', requiresAuth: true, allowedRoles: ['PUSAT', 'CABANG'] }
   }
 ]
 
@@ -107,8 +102,8 @@ const getUserRole = (): string | null => {
   const userData = localStorage.getItem('user_data')
   if (userData) {
     try {
-      const user:User = JSON.parse(userData)
-      return user?.entity_type || null
+      const user: User = JSON.parse(userData)
+      return user.entity_type && user.entity_type !== null ? user.entity_type : 'Pusat';
     } catch (error) {
       console.error('Error parsing user data:', error)
       return null
@@ -126,22 +121,24 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !isAuthenticated) {
     // Redirect ke halaman login jika memerlukan auth tapi belum login
     next('/auth/login')
-  } else if (to.path === '/auth/login' && isAuthenticated) {
+     return 
+  }
+  if (to.path.startsWith('/auth') && isAuthenticated) {
     // Redirect ke dashboard jika sudah login tapi mencoba akses halaman login
     next('/')
-  } else if (requiresAuth && isAuthenticated) {
+    return 
+  }
+  if (requiresAuth && isAuthenticated) {
     // Cek role-based access
     const allowedRoles = to.meta.allowedRoles
     if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
       // Redirect ke dashboard jika role tidak diizinkan
       console.warn(`Access denied: User role '${userRole}' not allowed for route '${to.path}'`)
       next('/')
-    } else {
-      next()
+      return 
     }
-  } else {
-    next()
   }
+  next()
 })
 
 // Helper function untuk mendapatkan allowed roles dari route path

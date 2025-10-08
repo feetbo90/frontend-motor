@@ -19,17 +19,18 @@ export const useAuthStore = () => {
       token.value = userData.token
       localStorage.setItem('auth_token', userData.token)
     }
-    localStorage.setItem('user_data', JSON.stringify(userData))
+    localStorage.setItem('user_data', JSON.stringify({ ...userData, entity_type: (userData.entity_type !== null ? userData.entity_type : 'PUSAT') }))
     if (userData.refreshToken) {
       localStorage.setItem('refresh_token', userData.refreshToken)
     }
+    initializeAuth()
   }
 
   const logout = () => {
     isAuthenticated.value = false
     user.value = null
     token.value = null
-    
+
     // Hapus data dari localStorage
     localStorage.removeItem('auth_token')
     localStorage.removeItem('user_data')
@@ -39,7 +40,7 @@ export const useAuthStore = () => {
   const checkAuth = () => {
     const storedToken = localStorage.getItem('auth_token')
     const storedUser = localStorage.getItem('user_data')
-    
+
     if (storedToken && storedUser) {
       token.value = storedToken
       user.value = JSON.parse(storedUser)
@@ -54,8 +55,8 @@ export const useAuthStore = () => {
     }
   }
   const updateToken = (newToken: Partial<string>) => {
-      token.value = newToken
-      localStorage.setItem('auth_token', newToken)
+    token.value = newToken
+    localStorage.setItem('auth_token', newToken)
   }
 
   return {
@@ -63,10 +64,10 @@ export const useAuthStore = () => {
     isAuthenticated: readonly(isAuthenticated),
     user: readonly(user),
     token: readonly(token),
-    
+
     // Getters
     isLoggedIn,
-    
+
     // Actions
     login,
     logout,
@@ -77,7 +78,7 @@ export const useAuthStore = () => {
 }
 
 // Initialize auth state on app start
-export const initializeAuth = () => {
+export const initializeAuth = async (): Promise<void> => {
   const authStore = useAuthStore()
   authStore.checkAuth()
 }
