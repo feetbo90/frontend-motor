@@ -169,9 +169,10 @@ const handleSubmit = async () => {
     }
   } catch (error) {
     const err = error as AxiosError<{ message?: string }>;
-    console.log({ err })
     if (err.status === 400) {
       errors.email = err.response?.data.message ?? 'Terjadi kesalahan saat register'
+    } else {
+      notifyError({ title: 'Error Message', msg: 'Terjadi kesalahan sistem' })
     }
   } finally {
     isLoading.value = false;
