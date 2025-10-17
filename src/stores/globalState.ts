@@ -36,6 +36,9 @@ export const produksiData = ref({
     kontan: 0,
     kredit: 0,
     leasing: 0,
+    unit_jualkontan:0,
+    unit_jualkredit:0,
+    unit_jualleasing:0,
     tahun: currentDate.year,
     bulan: currentDate.month
   },

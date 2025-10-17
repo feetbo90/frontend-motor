@@ -39,7 +39,7 @@ const routes = [
     path: '/komponen-produksi',
     name: 'komponen-produksi',
     component: ProductionComponentView,
-    meta: { title: 'Komponen Produksi', requiresAuth: true, allowedRoles: ['UNIT'] }
+    meta: { title: 'Komponen Produksi', requiresAuth: true, allowedRoles: ['UNIT','CABANG'] }
   },
   {
     path: '/komponen-beban',

@@ -22,6 +22,12 @@
                 placeholder="0" :error="errors.kredit" />
               <FormField id="penjualan-leasing" label="Penjualan Leasing" type="number" v-model="salesData.leasing"
                 placeholder="0" :error="errors.leasing" />
+              <FormField id="unit-penjualan-kontan" label="Unit Terjual (Kontan)" type="number" v-model="salesData.unit_jualkontan"
+                placeholder="0" :error="errors.unit_jualkontan" />
+              <FormField id="unit-penjualan-kredit" label="Unit Terjual (Kredit)" type="number" v-model="salesData.unit_jualkredit"
+                placeholder="0" :error="errors.unit_jualkredit" />
+              <FormField id="unit-penjualan-leasing" label="Unit Terjual (Leasing)" type="number" v-model="salesData.unit_jualleasing"
+                placeholder="0" :error="errors.unit_jualleasing" />
             </div>
           </div>
         </template>
@@ -109,6 +115,9 @@ const defaultSalesData = {
   kontan: 0,
   kredit: 0,
   leasing: 0,
+  unit_jualkontan: 0,
+  unit_jualkredit:0,
+  unit_jualleasing:0,
   tahun: currentDate.year,
   bulan: currentDate.month
 }
@@ -116,7 +125,10 @@ const defaultSalesData = {
 const errors = ref<Record<keyof SalesSchema, string>>({
   kontan: '',
   kredit: '',
-  leasing: ''
+  leasing: '',
+  unit_jualkontan:'',
+  unit_jualkredit:'',
+  unit_jualleasing:''
 })
 // Local table state
 const entries = ref<SalesResponse[]>([])
@@ -148,6 +160,9 @@ const fetchSales = async (page = 1, year: number | undefined = undefined, month:
       kredit: Number(item.kredit),
       leasing: Number(item.leasing),
       jumlah: Number(item.jumlah),
+      unit_jualkontan: Number(item.unit_jualkontan),
+      unit_jualkredit: Number(item.unit_jualkredit),
+      unit_jualleasing: Number(item.unit_jualleasing),
       created_at: item.created_at,
       updated_at: item.updated_at,
       year: item.year ?? null,
@@ -196,7 +211,10 @@ function validateForm(): boolean {
   const result = salesSchema.safeParse({
     kontan: safeNumber(salesData.value.kontan),
     kredit: safeNumber(salesData.value.kredit),
-    leasing: safeNumber(salesData.value.leasing)
+    leasing: safeNumber(salesData.value.leasing),
+    unit_jualkontan: safeNumber(salesData.value.unit_jualkontan),
+    unit_jualkredit: safeNumber(salesData.value.unit_jualkredit),
+    unit_jualleasing: safeNumber(salesData.value.unit_jualleasing)
   })
 
   if (!result.success) {
@@ -220,7 +238,10 @@ async function handleSave(): Promise<void> {
     bulan: safeNumber(salesData.value.bulan),
     kontan: safeNumber(salesData.value.kontan),
     kredit: safeNumber(salesData.value.kredit),
-    leasing: safeNumber(salesData.value.leasing)
+    leasing: safeNumber(salesData.value.leasing),
+    unit_jualkontan: safeNumber(salesData.value.unit_jualkontan),
+    unit_jualkredit: safeNumber(salesData.value.unit_jualkredit),
+    unit_jualleasing: safeNumber(salesData.value.unit_jualleasing)
   }
   try {
     const user = authStore.user.value
@@ -232,6 +253,9 @@ async function handleSave(): Promise<void> {
       kontan: newItem.kontan,
       kredit: newItem.kredit,
       leasing: newItem.leasing,
+      unit_jualkontan: newItem.unit_jualkontan,
+      unit_jualkredit: newItem.unit_jualkredit,
+      unit_jualleasing: newItem.unit_jualleasing,
       jumlah: newItem.kontan + newItem.kredit + newItem.leasing
     }
     if (isEditing.value && idSelected.value !== null) {
@@ -285,7 +309,10 @@ function editRow(id: number): void {
     bulan: Number(row.month),
     kontan: row.kontan,
     kredit: row.kredit,
-    leasing: row.leasing
+    leasing: row.leasing,
+    unit_jualkontan:row.unit_jualkontan,
+    unit_jualkredit:row.unit_jualkredit,
+    unit_jualleasing:row.unit_jualleasing
   });
 }
 
