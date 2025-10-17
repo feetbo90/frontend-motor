@@ -191,6 +191,7 @@ watch([selectedYear, selectedMonth, selectedCabang, selectedUnit], () => {
 onMounted(async () => {
   if (!authStore.user?.value) return
   isGlobalLoading.value = true
+  emit('update:modelValue', { ...defaultSalesData })
   fetchSales(currentPage.value)
 })
 
