@@ -123,15 +123,15 @@ import FormSection from '@/components/FormSection.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import { useDate } from '@/composables/useDate'
 import { useNotification } from '@/composables/useNotification'
+import { useRole } from '@/composables/useRole'
 import { resourcesSchema, type ResourcesSchema } from '@/schemas/resourcesSchema'
 import { deleteResources, getResourcesList, postResources, putResources } from '@/services/resourcesService'
 import { useAuthStore } from '@/stores/auth'
-import { currentPeriod, isGlobalLoading, sumberDayaData } from '@/stores/globalState'
+import { isGlobalLoading, sumberDayaData } from '@/stores/globalState'
 import type { ResourcesData, ResourcesFrm, ResourcesPayload } from '@/types/resource.type'
 import { computed, onMounted, ref } from 'vue'
 import ConfirmModal from '../ui/ConfirmModal.vue'
 import ResourcesTable from './ResourcesTable.vue'
-import { useRole } from '@/composables/useRole'
 
 interface Emits {
     (e: 'update:modelValue', value: ResourcesFrm): void
