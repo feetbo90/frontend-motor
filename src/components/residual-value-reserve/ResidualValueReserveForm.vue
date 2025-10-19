@@ -163,6 +163,7 @@ const fetchList = async (page = 1) => {
 onMounted(async () => {
     if (!authStore.user?.value) return
     isGlobalLoading.value = true
+  emit('update:modelValue', { ...defaultSalesData })
     fetchList(currentPage.value)
 })
 

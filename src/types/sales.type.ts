@@ -3,7 +3,10 @@ export interface SalesData {
   bulan: number
   kontan: number
   kredit: number
-  leasing: number
+  leasing: number,
+  unit_jualkontan:number;
+  unit_jualkredit:number;
+  unit_jualleasing:number;
 }
 export interface SalesPayload {
   branch_id: number,
@@ -12,6 +15,9 @@ export interface SalesPayload {
   kontan: number,
   kredit: number,
   leasing: number,
+  unit_jualkontan:number;
+  unit_jualkredit:number;
+  unit_jualleasing:number;
   jumlah: number
   period_id?: number//TODO: delete nanti dihapus dari BE
 }
@@ -23,6 +29,9 @@ export interface SalesResponse {
   kredit: number;
   leasing: number;
   jumlah: number;
+  unit_jualkontan:number;
+  unit_jualkredit:number;
+  unit_jualleasing:number;
   created_at: string;
   updated_at: string;
   year: number | null;
