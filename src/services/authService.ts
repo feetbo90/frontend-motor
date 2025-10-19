@@ -10,7 +10,7 @@ export async function loginApi(payload: LoginPayload): Promise<LoginResponse> {
 
 export async function logoutApi(): Promise<void> {
     const axios = useAxios();
-    await axios.post('/auth/logout');
+    await axios.post('auth/logout');
 }
 
 

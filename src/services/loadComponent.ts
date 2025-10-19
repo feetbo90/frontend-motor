@@ -8,7 +8,7 @@ export const getLoadComponentList: GetLoadComponentList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/beban', { params });
+        const { data } = await axios.get('beban', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data beban.'
@@ -26,7 +26,7 @@ export const postLoadComponent: AddLoadComponent = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/beban', payload)
+        const { data } = await axios.post('beban', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data beban berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteLoadComponent: DeleteLoadComponent = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/beban/${id}`)
+        const { data } = await axios.delete(`beban/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data beban.'

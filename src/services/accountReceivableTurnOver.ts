@@ -8,7 +8,7 @@ export const getAccountReceivableTurnOverList: GetAccountReceivableTurnOverList 
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/sirkulasi-piutang', { params });
+        const { data } = await axios.get('sirkulasi-piutang', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data sirkulasi piutang.'
@@ -26,7 +26,7 @@ export const postAccountReceivableTurnOver: AddAccountReceivableTurnOver = async
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/sirkulasi-piutang', payload)
+        const { data } = await axios.post('sirkulasi-piutang', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data sirkulasi piutang berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteAccountReceivableTurnOver: DeleteAccountReceivableTurnOver = 
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/sirkulasi-piutang/${id}`)
+        const { data } = await axios.delete(`sirkulasi-piutang/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data sirkulasi piutang.'

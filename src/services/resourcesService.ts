@@ -8,7 +8,7 @@ export const getResourcesList: GetResourcesList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/sumber-daya', { params });
+        const { data } = await axios.get('sumber-daya', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data sumber daya.'
@@ -26,7 +26,7 @@ export const postResources: AddResources = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/sumber-daya', payload)
+        const { data } = await axios.post('sumber-daya', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data sumber daya berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteResources: DeleteResources = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/sumber-daya/${id}`)
+        const { data } = await axios.delete(`sumber-daya/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data sumber daya.'

@@ -9,6 +9,7 @@
           <th>Kumulatif</th>
           <th>Penarikan</th>
           <th>Modal</th>
+          <th>Laba Rugi Bulan</th>
           <th>Aksi</th>
         </tr>
       </thead>
@@ -24,6 +25,7 @@
           <td>{{ format(item.row.kumulatif) }}</td>
           <td>{{ format(item.row.penarikan) }}</td>
           <td>{{ format(item.row.modal) }}</td>
+          <td>{{ format(item.row.bulan_ini) }}</td>
           <td class="actions">
             <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i class="fas fa-pen"></i>
               Ubah</button>

@@ -22,6 +22,8 @@
                                 placeholder="0" :error="errors.penarikan" />
                             <FormField id="modal" :label="`Modal`" type="number" v-model="formData.modal"
                                 placeholder="0" :error="errors.modal" />
+                            <FormField id="modal" :label="`Laba Rugi Bulan ${monthName}`" type="number"
+                                v-model="formData.bulan_ini" placeholder="0" :error="errors.bulanIni" />
                         </div>
                     </div>
                 </template>
@@ -80,7 +82,7 @@ import { deleteProfitLost, getProfitLostList, postProfitLost, putProfitLost } fr
 import { useAuthStore } from '@/stores/auth'
 import { isGlobalLoading, labaRugiData } from '@/stores/globalState'
 import type { ProfitLostData, ProfitLostFrm, ProfitLostPayload } from '@/types/profit-lost.type'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ConfirmModal from '../ui/ConfirmModal.vue'
 import ProfitLostTable from './ProfitLostTable.vue'
 
@@ -103,13 +105,19 @@ const idSelected = ref<number | null>(null)
 const authStore = useAuthStore()
 const { notifySuccess } = useNotification()
 const showConfirmModal = ref(false)
-
+const { getMonthName } = useDate()
 
 const formData = computed({
     get: () => labaRugiData.value,
     set: (value: ProfitLostPayload) => emit('update:modelValue', value)
 })
 
+const monthName = computed(() => {
+    return getMonthName(Number(formData.value.month))
+})
+
+console.log(monthName.value)
+watch(() => formData.value.month, (val) => console.log('bulan berubah ke:', val))
 const { monthOptions, getYearOptions, getCurrentDate } = useDate()
 const yearOptions = getYearOptions(5) // Current year ± 5 years
 const user = authStore.user.value
@@ -121,12 +129,14 @@ const defaultSalesData: ProfitLostFrm = {
     kumulatif: 0,
     penarikan: 0,
     modal: 0,
+    bulan_ini: 0,
 }
 
 const errors = ref<Record<keyof ProfitLostSchema, string>>({
     kumulatif: '',
     penarikan: '',
     modal: '',
+    bulanIni: '',
 })
 
 
@@ -171,6 +181,7 @@ function validateForm(): boolean {
         kumulatif: safeNumber(formData.value.kumulatif),
         penarikan: safeNumber(formData.value.penarikan),
         modal: safeNumber(formData.value.modal),
+        bulanIni: safeNumber(formData.value.bulan_ini),
     })
 
     if (!result.success) {
@@ -242,6 +253,7 @@ function editRow(id: number): void {
         kumulatif: Number(row.kumulatif),
         penarikan: Number(row.penarikan),
         modal: Number(row.modal),
+        bulan_ini: Number(row.bulan_ini),
         year: row.year,
         month: row.month
     }

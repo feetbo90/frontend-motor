@@ -130,6 +130,7 @@ export const labaRugiData = ref({
   kumulatif: 0,
   penarikan: 0,
   modal: 0,
+  bulan_ini: 0,
   year:currentDate.year,
   month:currentDate.month
 })

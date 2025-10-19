@@ -8,7 +8,7 @@ export const getAccountReceivableList: GetAccountReceivableList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/piutang', { params });
+        const { data } = await axios.get('piutang', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data piutang.'
@@ -26,7 +26,7 @@ export const postAccountReceivable: AddAccountReceivable = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/piutang', payload)
+        const { data } = await axios.post('piutang', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data piutang berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteAccountReceivable: DeleteAccountReceivable = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/piutang/${id}`)
+        const { data } = await axios.delete(`piutang/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data piutang.'

@@ -7,6 +7,7 @@ export interface ProfitLostPayload {
   kumulatif: number,
   penarikan: number,
   modal: number,
+  bulan_ini: number,
 }
 
 export type ProfitLostFrm = Omit<ProfitLostPayload, "branch_id">;
@@ -18,6 +19,7 @@ export interface ProfitLostData {
   month: number;
   kumulatif: number,
   penarikan: number,
+  bulan_ini: number,
   modal: number,
   created_at: Date;
   updated_at: Date;

@@ -8,7 +8,7 @@ export const getResidualValueReserveList: GetResidualValueReserveList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/cadangan', { params });
+        const { data } = await axios.get('cadangan', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data laba rugi.'
@@ -26,7 +26,7 @@ export const postResidualValueReserve: AddResidualValueReserve = async (payload)
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/cadangan', payload)
+        const { data } = await axios.post('cadangan', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data laba rugi berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteResidualValueReserve: DeleteResidualValueReserve = async (id)
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/cadangan/${id}`)
+        const { data } = await axios.delete(`cadangan/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data laba rugi.'

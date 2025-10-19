@@ -9,7 +9,7 @@ export const getOtherIncomeList: GetOtherIncomeList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/pendapatan-lain', { params });
+        const { data } = await axios.get('pendapatan-lain', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data pendapatan lain.'
@@ -27,7 +27,7 @@ export const postOtherIncome: AddOtherIncome = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/pendapatan-lain', payload)
+        const { data } = await axios.post('pendapatan-lain', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data pendapatan lain berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -65,7 +65,7 @@ export const deleteOtherIncome: DeleteOtherIncome = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/pendapatan-lain/${id}`)
+        const { data } = await axios.delete(`pendapatan-lain/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data pendapatan lain.'

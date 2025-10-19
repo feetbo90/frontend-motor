@@ -13,7 +13,7 @@ export const getExport: GetExport = async (
             month: params.month?.toString() ?? '',
         };
         const queryString = new URLSearchParams(newParams).toString();
-        const { data } = await axios.get(`/export/${params.type}?${queryString}`);
+        const { data } = await axios.get(`export/${params.type}?${queryString}`);
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data pendapatan.'
@@ -35,7 +35,7 @@ export const postImport: PostImport = async (
     try {
         const formData = new FormData();
         formData.append('file', file);
-        const { data } = await axios.post(`/upsert/import-to-cabang`, formData, {
+        const { data } = await axios.post(`upsert/import-to-cabang`, formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },

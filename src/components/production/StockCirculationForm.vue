@@ -24,10 +24,10 @@
                 v-model="formData.pembelian_tambahan" placeholder="0" :error="errors.pembelianTambahan" />
               <FormField id="pembelian-tambahan-data" label="Pembelian Tambahan Data" type="number"
                 v-model="formData.pembelian_tambahan_data" placeholder="0" :error="errors.pembelianTambahanData" />
-              <FormField id="mutasi-masuk" label="Mutasi Masuk" type="number" v-model="formData.mutasi_masuk"
+              <!-- <FormField id="mutasi-masuk" label="Mutasi Masuk" type="number" v-model="formData.mutasi_masuk"
                 placeholder="0" :error="errors.mutasiMasuk" />
               <FormField id="mutasi-keluar" label="Mutasi Keluar" type="number" v-model="formData.mutasi_keluar"
-                placeholder="0" :error="errors.mutasiKeluar" />
+                placeholder="0" :error="errors.mutasiKeluar" /> -->
               <FormField id="terjual" label="Terjual" type="number" v-model="formData.terjual" placeholder="0"
                 :error="errors.terjual" />
               <FormField id="terjual-data" label="Terjual Data" type="number" v-model="formData.terjual_data"

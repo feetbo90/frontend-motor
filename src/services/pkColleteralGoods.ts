@@ -8,7 +8,7 @@ export const getPkColleteralGoodsList: GetPkColleteralGoodsList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/barang-pk', { params });
+        const { data } = await axios.get('barang-pk', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data barang PK.'
@@ -26,7 +26,7 @@ export const postPkColleteralGoods: AddPkColleteralGoods = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/barang-pk', payload)
+        const { data } = await axios.post('barang-pk', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data barang PK berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deletePkColleteralGoods: DeletePkColleteralGoods = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/barang-pk/${id}`)
+        const { data } = await axios.delete(`barang-pk/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data barang PK.'

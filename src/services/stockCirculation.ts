@@ -8,7 +8,7 @@ export const getStockCirculationList: GetStockCirculationList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/sirkulasi-stock', { params });
+        const { data } = await axios.get('sirkulasi-stock', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data sirkulasi stok.'
@@ -26,7 +26,7 @@ export const postStockCirculation: AddStockCirculation = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/sirkulasi-stock', payload)
+        const { data } = await axios.post('sirkulasi-stock', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data sirkulasi stok berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteStockCirculation: DeleteStockCirculation = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/sirkulasi-stock/${id}`)
+        const { data } = await axios.delete(`sirkulasi-stock/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data sirkulasi stok.'

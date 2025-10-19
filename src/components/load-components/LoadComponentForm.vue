@@ -16,30 +16,26 @@
                 :options="monthOptions" />
             </div>
             <div class="form-fields">
-
               <FormField id="gaji-insentif" label="Gaji/Insentif/Bonus" type="number" v-model="formData.gaji"
-                placeholder="0" v-if="!isCabangRole" :error="errors.gaji" />
+                placeholder="0" />
               <FormField id="admin" label="Administrasi" type="number" v-model="formData.admin" placeholder="0"
-                v-if="!isCabangRole" :error="errors.admin" />
+                :error="errors.admin" />
               <FormField id="operasional" label="Operasional" type="number" v-model="formData.operasional"
-                placeholder="0" v-if="!isCabangRole" :error="errors.operasional" />
-              <FormField id="beban-umum-operasional" label="Beban Umum Operasional" type="number"
-                v-model="formData.beban_umum_operasional" placeholder="0" v-if="!isCabangRole"
-                :error="errors.bebanUmumOperasional" />
+                placeholder="0" :error="errors.operasional" />
+              <FormField id="beban-umum-operasional" label="Jumlah Beban Umum Operasional" type="number"
+                v-model="formData.beban_umum_operasional" placeholder="0" :error="errors.bebanUmumOperasional" />
 
               <!-- Fields for Cabang role only -->
               <FormField id="penyusutan-aktiva" label="Penyusutan Aktiva" type="number"
-                v-model="formData.penyusutan_aktiva" placeholder="0" v-if="isCabangRole"
-                :error="errors.penyusutanAktiva" />
+                v-model="formData.penyusutan_aktiva" placeholder="0" :error="errors.penyusutanAktiva" />
               <FormField id="cadangan-piutang" label="Cadangan Piutang" type="number"
-                v-model="formData.cadangan_piutang" placeholder="0" v-if="isCabangRole"
-                :error="errors.cadanganPiutang" />
+                v-model="formData.cadangan_piutang" placeholder="0" :error="errors.cadanganPiutang" />
 
               <!-- Fields for all roles except Cabang -->
               <FormField id="cadangan-stock" label="Cadangan Stock" type="number" v-model="formData.cadangan_stock"
-                placeholder="0" v-if="!isCabangRole" :error="errors.cadanganStock" />
-              <FormField id="total" label="Total" type="number" v-model="formData.total" placeholder="0"
-                v-if="!isCabangRole" :error="errors.total" />
+                placeholder="0" :error="errors.cadanganStock" />
+              <FormField id="total" label="Total Beban & Biaya" type="number" v-model="formData.total" placeholder="0"
+                :error="errors.total" />
             </div>
           </div>
         </template>
@@ -91,7 +87,6 @@ import FormSection from '@/components/FormSection.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import { useDate } from '@/composables/useDate'
 import { useNotification } from '@/composables/useNotification'
-import { useRole } from '@/composables/useRole'
 import { loadComponentSchema, type LoadComponentSchema } from '@/schemas/loadComponentSchema'
 import { deleteLoadComponent, getLoadComponentList, postLoadComponent, putLoadComponent } from '@/services/loadComponent'
 import { useAuthStore } from '@/stores/auth'
@@ -120,8 +115,8 @@ const idSelected = ref<number | null>(null)
 const authStore = useAuthStore()
 const { notifySuccess } = useNotification()
 const showConfirmModal = ref(false)
-const { hasRole } = useRole()
-const isCabangRole = computed(() => hasRole('CABANG'))
+// const { hasRole } = useRole()
+// const isCabangRole = computed(() => hasRole('CABANG'))
 
 
 const formData = computed({

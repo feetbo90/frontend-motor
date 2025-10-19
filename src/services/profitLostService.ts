@@ -8,7 +8,7 @@ export const getProfitLostList: GetProfitLostList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/laba-rugi', { params });
+        const { data } = await axios.get('laba-rugi', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data laba rugi.'
@@ -26,7 +26,7 @@ export const postProfitLost: AddProfitLost = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/laba-rugi', payload)
+        const { data } = await axios.post('laba-rugi', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data laba rugi berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteProfitLost: DeleteProfitLost = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/laba-rugi/${id}`)
+        const { data } = await axios.delete(`laba-rugi/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data laba rugi.'

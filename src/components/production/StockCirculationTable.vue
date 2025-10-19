@@ -10,8 +10,8 @@
           <th>Unit Awal Data</th>
           <th>Pembelian Tambahan</th>
           <th>Pembelian Tambahan Data</th>
-          <th>Mutasi Masuk</th>
-          <th>Mutasi Keluar</th>
+          <!-- <th>Mutasi Masuk</th>
+          <th>Mutasi Keluar</th> -->
           <th>Terjual</th>
           <th>Terjual Data</th>
           <th>Unit Akhir</th>
@@ -31,8 +31,8 @@
           <td>{{ format(item.row.unit_awal_data) }}</td>
           <td>{{ format(item.row.pembelian_tambahan) }}</td>
           <td>{{ format(item.row.pembelian_tambahan_data) }}</td>
-          <td>{{ format(item.row.mutasi_masuk) }}</td>
-          <td>{{ format(item.row.mutasi_keluar) }}</td>
+          <!-- <td>{{ format(item.row.mutasi_masuk) }}</td>
+          <td>{{ format(item.row.mutasi_keluar) }}</td> -->
           <td>{{ format(item.row.terjual) }}</td>
           <td>{{ format(item.row.terjual_data) }}</td>
           <td>{{ format(item.row.unit_akhir) }}</td>

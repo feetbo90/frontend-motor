@@ -17,7 +17,7 @@
                                 :options="monthOptions" />
                         </div>
                         <!-- Formasi Tenaga Section -->
-                        <div class="form-group" v-if="!isCabangRole">
+                        <div class="form-group">
                             <h4 class="form-group-title">Detail Formasi Tenaga</h4>
                             <p>Breakdown kebutuhan tenaga kerja</p>
                             <div class="form-group-content">
@@ -56,15 +56,14 @@
                                     </div>
                                     <div class="form-group">
                                         <h4 class="form-group-title">Nilai Sisa Inventaris Pendirian</h4>
-                                        <p>Data sisa inventaris dan penyusutan per {{ getMonthName(formData.month)
-                                        }}</p>
+                                        <p>Data sisa inventaris dan penyusutan per {{ monthName}}</p>
                                         <div class="form-group-content">
                                             <FormField id="nilai-sisa-inventaris" label="Sisa Inventaris Pendirian"
                                                 v-if="isCabangRole" type="number"
                                                 v-model="formData.sisa_inventaris_pendirian" placeholder="0"
                                                 :error="errors.sisaInventarisPendirian" />
                                             <FormField id="penyusutan-per-bulan"
-                                                :label="`Nilai penyusutan per ${currentPeriod}`" v-if="isCabangRole"
+                                                :label="`Nilai penyusutan per ${monthName}`" v-if="isCabangRole"
                                                 type="number" v-model="formData.penyusutan_bulan" placeholder="0"
                                                 :error="errors.penyusutanBulan" />
                                         </div>
@@ -162,7 +161,9 @@ const formData = computed({
     get: () => sumberDayaData.value,
     set: (value: ResourcesPayload) => emit('update:modelValue', value)
 })
-
+const monthName = computed(() => {
+    return getMonthName(Number(formData.value.month))
+})
 const { monthOptions, getYearOptions, getCurrentDate } = useDate()
 const yearOptions = getYearOptions(5) // Current year ± 5 years
 const user = authStore.user.value

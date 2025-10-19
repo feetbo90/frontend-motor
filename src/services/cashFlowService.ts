@@ -8,7 +8,7 @@ export const getCashFlowList: GetCashFlowList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get('/kas-keuangan', { params });
+        const { data } = await axios.get('kas-keuangan', { params });
         return data
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data kas keuangan.'
@@ -26,7 +26,7 @@ export const postCashFlow: AddCashFlow = async (payload) => {
     const axios = useAxios();
     const { notifySuccess, notifyError } = useNotification()
     try {
-        const { data } = await axios.post('/kas-keuangan', payload)
+        const { data } = await axios.post('kas-keuangan', payload)
         notifySuccess({ title: 'Success Message', msg: data.message || 'Data kas keuangan berhasil ditambah' })
         return data
     } catch (error: unknown) {
@@ -64,7 +64,7 @@ export const deleteCashFlow: DeleteCashFlow = async (id) => {
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.delete(`/kas-keuangan/${id}`)
+        const { data } = await axios.delete(`kas-keuangan/${id}`)
         return data
     } catch (error: unknown) {
         let message = 'Gagal menghapus data kas keuangan.'
