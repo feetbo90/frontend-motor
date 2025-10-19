@@ -29,7 +29,7 @@
           <td>{{ format(item.row.ragu_ragu) }}</td>
           <td>{{ format(item.row.macet_baru) }}</td>
           <td>{{ format(item.row.macet_lama) }}</td>
-          <td>{{ format(item.row.total_piutang) }}</td>
+          <td>{{ format(item.row.total) }}</td>
           <td class="actions">
             <button type="button" class="btn btn-xs btn-outline" @click="$emit('edit', item.row.id)"><i
                 class="fas fa-pen"></i> Ubah</button>

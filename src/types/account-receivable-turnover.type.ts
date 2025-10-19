@@ -25,6 +25,7 @@ export interface AccountReceivableTurnOverData {
   macet_baru: number,
   macet_lama: number,
   total_piutang: number,
+  total: number,
   created_at: Date;
   updated_at: Date;
   version: string;
