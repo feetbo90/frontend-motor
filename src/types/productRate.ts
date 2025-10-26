@@ -41,13 +41,10 @@ interface RateLimaEnamTujuhItem {
   rate_penyusutan_aktiva_per_karyawan: number;
 }
 
-interface ProductRateData {
+export interface ProductRateData {
+  success?: boolean;
   entity_id: string;
-  entityIds: {
-    id: string;
-    type: string;
-    name: string;
-  }[];
+  entityIds: entityIds[];
   rate_satu_dua: {
     [unitName: string]: RateSatuDuaItem[];
   };
@@ -61,7 +58,11 @@ interface ProductRateData {
     [unitName: string]: RateLimaEnamTujuhItem[];
   };
 }
-
+export interface entityIds{
+    id: string;
+    type: string;
+    name: string;
+}
 
 export interface ParamsProductRate {
   branch_id: number | undefined;
@@ -71,4 +72,4 @@ export interface ParamsProductRate {
 
 export type GetProductRateList = (
   params: ParamsProductRate
-) => Promise<ResponseData<ProductRateData[]>>;
+) => Promise<ProductRateData>;
