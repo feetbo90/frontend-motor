@@ -168,7 +168,6 @@ const fetchList = async (year: number | undefined, month: number | undefined) =>
     try {
         loading.value = true;
         const response = await getProductRate({ year, month, branch_id: branchId });
-        console.log(response, 'xxx')
         if (response.success) {
             apiData.value = response ?? {
                 entity_id: '',
