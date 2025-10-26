@@ -6,28 +6,18 @@
         CV. Pandu Motor
       </h2>
     </div>
-    
+
     <div class="period-filter">
       <h4>Filter Periode</h4>
       <div class="filter-year-month">
-      <div class="filter-group">
-        <label>Tahun:</label>
-        <select v-model="selectedYear" class="form-select">
-          <option disabled value="">Pilih Tahun</option>
-          <option v-for="year in years" :key="year" :value="year">{{ year }}</option>
-        </select>
+        <div class="filter-group">
+          <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years" />
+        </div>
+        <div class="filter-group">
+          <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months" />
+        </div>
       </div>
-      <div class="filter-group">
-        <label>Bulan:</label>
-        <select v-model="selectedMonth" class="form-select">
-          <option disabled value="">Pilih Bulan</option>
-          <option v-for="(month, index) in months" :key="index" :value="index + 1">
-            {{ month }}
-          </option>
-        </select>
-      </div>
-    </div>
-     
+
       <div class="filter-group">
         <label>Cabang:</label>
         <select v-model="selectedCabang" class="form-select">
@@ -53,15 +43,16 @@
             Dashboard
           </router-link>
         </li>
-        
+
         <!-- Komponen Produksi - Only for Unit role -->
         <li v-if="canAccessRoute('/komponen-produksi')">
-          <router-link to="/komponen-produksi" class="nav-link" :class="{ active: $route.name === 'komponen-produksi' }">
+          <router-link to="/komponen-produksi" class="nav-link"
+            :class="{ active: $route.name === 'komponen-produksi' }">
             <i class="fas fa-industry"></i>
             Komponen Produksi
           </router-link>
         </li>
-        
+
         <!-- Komponen Beban - Only for Cabang role -->
         <li v-if="canAccessRoute('/komponen-beban')">
           <router-link to="/komponen-beban" class="nav-link" :class="{ active: $route.name === 'komponen-beban' }">
@@ -69,7 +60,7 @@
             Komponen Beban
           </router-link>
         </li>
-        
+
         <!-- Laba / Rugi - Only for Pusat role -->
         <li v-if="canAccessRoute('/laba-rugi')">
           <router-link to="/laba-rugi" class="nav-link" :class="{ active: $route.name === 'laba-rugi' }">
@@ -77,15 +68,16 @@
             Laba / Rugi / Surplus Devisit
           </router-link>
         </li>
-        
+
         <!-- Cadangan & Nilai Sisa - Only for Pusat role -->
         <li v-if="canAccessRoute('/cadangan-nilai-sisa')">
-          <router-link to="/cadangan-nilai-sisa" class="nav-link" :class="{ active: $route.name === 'cadangan-nilai-sisa' }">
+          <router-link to="/cadangan-nilai-sisa" class="nav-link"
+            :class="{ active: $route.name === 'cadangan-nilai-sisa' }">
             <i class="fas fa-piggy-bank"></i>
             Cadangan & Nilai Sisa ACC Penyusutan
           </router-link>
         </li>
-        
+
         <!-- Sumber Daya - Only for Pusat role -->
         <li v-if="canAccessRoute('/sumber-daya')">
           <router-link to="/sumber-daya" class="nav-link" :class="{ active: $route.name === 'sumber-daya' }">
@@ -93,7 +85,7 @@
             Sumber Daya
           </router-link>
         </li>
-        
+
         <!-- Kas & Keuangan - Only for Pusat role -->
         <li v-if="canAccessRoute('/kas-keuangan')">
           <router-link to="/kas-keuangan" class="nav-link" :class="{ active: $route.name === 'kas-keuangan' }">
@@ -101,15 +93,16 @@
             Kas & Keuangan
           </router-link>
         </li>
-        
+
         <!-- Satuan Pengukuran - Only for Pusat role -->
         <li v-if="canAccessRoute('/satuan-pengukuran')">
-          <router-link to="/satuan-pengukuran" class="nav-link" :class="{ active: $route.name === 'satuan-pengukuran' }">
+          <router-link to="/satuan-pengukuran" class="nav-link"
+            :class="{ active: $route.name === 'satuan-pengukuran' }">
             <i class="fas fa-ruler-combined"></i>
             Satuan Pengukuran
           </router-link>
         </li>
-        
+
         <!-- Export with access -->
         <li v-if="canAccessRoute('/export')">
           <router-link to="/export" class="nav-link" :class="{ active: $route.name === 'export' }">
@@ -117,8 +110,8 @@
             Ekspor
           </router-link>
         </li>
-         <!-- Import with access -->
-         <li v-if="canAccessRoute('/import')">
+        <!-- Import with access -->
+        <li v-if="canAccessRoute('/import')">
           <router-link to="/import" class="nav-link" :class="{ active: $route.name === 'import' }">
             <i class="fas fa-file-import"></i>
             Impor
@@ -134,6 +127,7 @@ import { selectedCabang, selectedMonth, selectedYear, selectedUnit } from '@/sto
 import { useRole } from '@/composables/useRole'
 import { useDate } from '@/composables/useDate'
 import { getRouteAllowedRoles } from '@/router'
+import FormSelect from './FormSelect.vue'
 
 // Role-based navigation
 const { hasRole } = useRole()
@@ -142,14 +136,13 @@ const { hasRole } = useRole()
 const canAccessRoute = (path: string): boolean => {
   const allowedRoles = getRouteAllowedRoles(path)
   if (!allowedRoles) return false
-  
+
   return allowedRoles.some(role => hasRole(role))
 }
 
 // Use date composable
-const { monthOptions, getYearOptions } = useDate()
-const years = getYearOptions(5).map(option => option.value)
-const months = monthOptions.map(option => option.label)
+const { monthOptions: months, getYearOptions } = useDate()
+const years = getYearOptions(5) // Current year ± 5 years
 
 const cabangs = [
   'Cabang Kisaran', 'Cabang Aek Kanopan', 'Cabang Petatal'
@@ -162,18 +155,19 @@ const units = [
 </script>
 
 <style scoped>
-.filter-year-month{
+.filter-year-month {
   display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-    gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 1.5rem;
 }
+
 .sidebar {
   position: fixed;
   left: 0;
   top: 0;
   display: flex;
   flex-direction: column;
-  width: 280px;
+  width: 300px;
   flex-shrink: 0;
   height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -210,7 +204,7 @@ const units = [
 }
 
 .period-filter {
-  text-align:left;
+  text-align: left;
   padding: 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
@@ -256,7 +250,7 @@ const units = [
   list-style: none;
   margin: 0;
   padding: 0;
-  padding-bottom:32px;
+  padding-bottom: 32px;
 }
 
 .nav-link {
@@ -286,5 +280,35 @@ const units = [
 .nav-link i {
   width: 18px;
   text-align: center;
+}
+
+:deep(.form-select) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  padding: 0.75rem 1rem;
+  border: none !important;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23ffffff' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.75rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+:deep(.form-label) {
+  color: white !important;
+}
+
+:deep(.form-select) {
+  color: #fafafa;
+  /* warna placeholder awal */
+}
+
+/* Saat user sudah memilih (value != ""), ubah warna teks */
+:deep(.form-select:not([value=""])) {
+  color: white;
+  background-color: rgba(255, 255, 255, 0.1) !important;
 }
 </style>

@@ -2,8 +2,10 @@ import { ref, computed } from 'vue'
 import { useDate } from '@/composables/useDate'
 
 // Global state untuk filter periode
-// export const selectedYear = ref(new Date().getFullYear())
-// export const selectedMonth = ref(new Date().getMonth() + 1)
+
+const { getCurrentDate } = useDate()
+const currentDate = getCurrentDate()
+
 export const selectedYear = ref<string | number>('')
 export const selectedMonth = ref<string | number>('')
 export const selectedCabang = ref('')
@@ -28,17 +30,14 @@ export const dashboardData = ref({
 })
 
 // Data untuk produksi
-const { getCurrentDate } = useDate()
-const currentDate = getCurrentDate()
-
 export const produksiData = ref({
   penjualan: {
     kontan: 0,
     kredit: 0,
     leasing: 0,
-    unit_jualkontan:0,
-    unit_jualkredit:0,
-    unit_jualleasing:0,
+    unit_jualkontan: 0,
+    unit_jualkredit: 0,
+    unit_jualleasing: 0,
     tahun: currentDate.year,
     bulan: currentDate.month
   },
@@ -131,8 +130,8 @@ export const labaRugiData = ref({
   penarikan: 0,
   modal: 0,
   bulan_ini: 0,
-  year:currentDate.year,
-  month:currentDate.month
+  year: currentDate.year,
+  month: currentDate.month
 })
 
 // Data untuk cadangan
@@ -142,27 +141,27 @@ export const cadanganData = ref({
   surplus_devist: 0,
   cadangan_stock: 0,
   cadangan_stock_data: 0,
-  year:currentDate.year,
-  month:currentDate.month
+  year: currentDate.year,
+  month: currentDate.month
 })
 
 // Data untuk sumber daya
 
 export const sumberDayaData = ref({
   jumlah_karyawan: 0,
-  formasi_tenaga:0,
-  pimpinan:0,
+  formasi_tenaga: 0,
+  pimpinan: 0,
   kasir: 0,
   administrasi: 0,
   pdl: 0,
   formasi_kurang: 0,
-  kontrak_kantor:0,
-  inventaris_mobil:0,
-  inventaris_mobil_ket:'',
-  sisa_inventaris_pendirian:0,
-  penyusutan_bulan:0,
-  year:currentDate.year,
-  month:currentDate.month
+  kontrak_kantor: 0,
+  inventaris_mobil: 0,
+  inventaris_mobil_ket: '',
+  sisa_inventaris_pendirian: 0,
+  penyusutan_bulan: 0,
+  year: currentDate.year,
+  month: currentDate.month
 
 })
 
@@ -174,11 +173,11 @@ export const cashFlowData = ref({
   bon_pusat: 0,
   bon_operasional: 0,
   bon_gantung: 0,
-  jumlah_kas_lancar:0,
-  jumlah_kas_macet:0,
-  saldo_akhir:0,
-  year:currentDate.year,
-  month:currentDate.month
+  jumlah_kas_lancar: 0,
+  jumlah_kas_macet: 0,
+  saldo_akhir: 0,
+  year: currentDate.year,
+  month: currentDate.month
 })
 
 // Global loading state
@@ -192,6 +191,7 @@ export const currentPeriod = computed(() => {
   if (!yearNumber || !monthNumber) return 'Pilih periode'
   return `${getMonthName(monthNumber)} ${yearNumber}`
 })
+
 // currency
 export const formatCurrency = (amount: number) => {
   return new Intl.NumberFormat('id-ID', {
@@ -200,4 +200,13 @@ export const formatCurrency = (amount: number) => {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0
   }).format(amount)
+}
+
+export function resetPeriodeFilter() {
+  const { getCurrentDate } = useDate()
+  const now = getCurrentDate()
+  // selectedYear.value = now.year
+  // selectedMonth.value = now.month
+  selectedCabang.value = ''
+  selectedUnit.value = ''
 }

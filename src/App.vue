@@ -28,7 +28,7 @@ import { useAuthStore, initializeAuth } from './stores/auth'
 import LoadingCard from './components/LoadingCard.vue'
 import { isGlobalLoading } from './stores/globalState'
 import { useNotification } from './composables/useNotification'
-import AlertNotification from './components/ui/AlertNotification.vue'
+import AlertNotification from './components/ui/NotificationAlert.vue'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -74,7 +74,7 @@ body {
 }
 
 .main-content {
-  margin-left: 280px;
+  margin-left: 300px;
   margin-top: 70px;
   display: flex;
   flex: 1;

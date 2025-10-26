@@ -97,6 +97,7 @@ const logout = async () => {
     // Optional: handle error, e.g. network error, but tetap lanjut logout lokal
   }
   authStore.logout()
+  resetPeriodeFilter()
   router.push('/auth/login')
   showUserMenu.value = false
 }
@@ -111,6 +112,7 @@ const handleClickOutside = (event: Event) => {
 
 // Add event listener when component mounts
 import { onMounted, onUnmounted } from 'vue'
+import { resetPeriodeFilter } from '@/stores/globalState'
 
 onMounted(() => {
   document.addEventListener('click', handleClickOutside)
@@ -125,7 +127,7 @@ onUnmounted(() => {
 .navbar {
   position: fixed;
   top: 0;
-  left: 280px;
+  left: 300px;
   right: 0;
   height: 70px;
   background: white;

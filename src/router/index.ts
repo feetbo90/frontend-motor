@@ -75,7 +75,7 @@ const routes = [
     path: '/satuan-pengukuran',
     name: 'satuan-pengukuran',
     component: UnitOfMeasurementView,
-    meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['PUSAT'] }
+    meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG'] }
   },
   {
     path: '/export',

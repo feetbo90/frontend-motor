@@ -21,7 +21,7 @@
       </thead>
       <tbody>
         <tr v-if="visibleEntries.length === 0">
-          <td :colspan="showIndex ? 14 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
+          <td :colspan="showIndex ? 12 : 6" class="empty">Belum ada data. Tambahkan data piutang dan pembiayaan di atas.</td>
         </tr>
         <tr v-for="(item, idx) in visibleEntries" :key="item.row.id">
           <td>{{ (currentPage - 1) * pageSize + idx + 1 }}</td>

@@ -120,7 +120,7 @@ const user = authStore.user.value
 const branchId = user?.entity_id
 
 // Set default values for current date
-const defaultSalesData: AccountReceivableFrm = {
+const defaultData: AccountReceivableFrm = {
   ...getCurrentDate(),
   saldo_awal: 0,
   tambahan: 0,
@@ -161,7 +161,7 @@ const fetchList = async (page = 1) => {
 onMounted(async () => {
   if (!authStore.user?.value) return
   isGlobalLoading.value = true
-  emit('update:modelValue', { ...defaultSalesData })
+  handleReset()
   fetchList(currentPage.value)
 })
 
@@ -225,7 +225,7 @@ async function handleSave(): Promise<void> {
 }
 
 function handleReset(): void {
-  produksiData.value.piutang = { ...defaultSalesData }
+  produksiData.value.piutang = { ...defaultData }
   isEditing.value = false
   idSelected.value = null
 }

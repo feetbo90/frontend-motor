@@ -1,368 +1,334 @@
 <template>
-    <div class="">
-        <div class="section-header">
-            <h2>Tingkat Produksi</h2>
-            <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban dan laba/rugi</p>
+    <div class="container">
+      <div class="section-header">
+        <h2>Tingkat Produksi</h2>
+        <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi</p>
+      </div>
+      <MessageAlert
+type="warning" 
+title="Perhatian!" 
+message="Silakan pastikan filter di menu sidebaryang Anda pilih sudah sesuai agar data yang ditampilkan akurat."
+/>
+  
+      <div v-if="loading" class="loading">Loading...</div>
+  
+      <div v-else>
+        <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-card">
+          <!-- Header Collapsible -->
+          <div class="entity-header" @click="toggleCollapse(entity.id)">
+            <span class="entity-name">{{ entity.name }}</span>
+            <span class="arrow" :class="{ rotated: !collapsed[entity.id] }">&#9654;</span>
+          </div>
+  
+          <!-- Collapsible Content -->
+          <transition name="slide-fade">
+            <div v-show="!collapsed[entity.id]" class="entity-content">
+              <!-- Rate Satu Dua Card -->
+              <div class="metric-card">
+                <div class="card-header blue">Rata-rata Pembiayaan & Penjualan / Unit</div>
+                <div class="card-body">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Bulan</th>
+                        <th>Pembiayaan / Unit</th>
+                        <th>Total Pembiayaan</th>
+                        <th>Penjualan / Unit</th>
+                        <th>Total Penjualan</th>
+                        <th>Total Unit Jual</th>
+                        <th>Total Unit</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in apiData.rate_satu_dua[entity.name] || []" :key="item.month">
+                        <td>{{ item.month }}/{{ item.year }}</td>
+                        <td>{{ formatCurrency(item.pembiayaan_per_unit) }}</td>
+                        <td>{{ formatCurrency(item.total_pembiayaan) }}</td>
+                        <td>{{ formatCurrency(item.penjualan_per_unit) }}</td>
+                        <td>{{ formatCurrency(item.total_penjualan) }}</td>
+                        <td>{{ formatCurrency(item.total_unit_jual) }}</td>
+                        <td>{{ formatCurrency(item.total_unit) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+  
+              <!-- Rate Tiga Card -->
+              <div class="metric-card">
+                <div class="card-header green">Rata-rata Penjualan / Karyawan</div>
+                <div class="card-body">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Bulan</th>
+                        <th>Total Penjualan</th>
+                        <th>Jumlah Karyawan</th>
+                        <th>Penjualan / Karyawan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in apiData.rate_tiga[entity.name] || []" :key="item.month">
+                        <td>{{ item.month }}/{{ item.year }}</td>
+                        <td>{{ formatCurrency(item.total_penjualan) }}</td>
+                        <td>{{ item.jumlah_karyawan }}</td>
+                        <td>{{ formatCurrency(item.penjualan_per_karyawan) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+  
+              <!-- Rate Empat Card -->
+              <div class="metric-card">
+                <div class="card-header yellow">Rata-rata Markup / Karyawan</div>
+                <div class="card-body">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Bulan</th>
+                        <th>Total Markup</th>
+                        <th>Jumlah Karyawan</th>
+                        <th>Markup / Karyawan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in apiData.rate_empat[entity.name] || []" :key="item.month">
+                        <td>{{ item.month }}/{{ item.year }}</td>
+                        <td>{{ formatCurrency(item.total_markup) }}</td>
+                        <td>{{ item.jumlah_karyawan }}</td>
+                        <td>{{ formatCurrency(item.rate_empat) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+  
+              <!-- Rate Lima Enam Tujuh Card -->
+              <div class="metric-card">
+                <div class="card-header purple">Rata-rata Gaji / Biaya / Beban Tetap / Karyawan</div>
+                <div class="card-body">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>Bulan</th>
+                        <th>Gaji / Karyawan</th>
+                        <th>Beban Operasional / Karyawan</th>
+                        <th>Beban Tetap / Karyawan</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr v-for="item in apiData.rate_lima_enam_tujuh[entity.name] || []" :key="item.month">
+                        <td>{{ item.month }}/{{ item.year }}</td>
+                        <td>{{ formatCurrency(item.rate_gaji_per_karyawan) }}</td>
+                        <td>{{ formatCurrency(item.rate_beban_umum_operasional_per_karyawan) }}</td>
+                        <td>{{ formatCurrency(item.rate_penyusutan_aktiva_per_karyawan) }}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+  
+            </div>
+          </transition>
         </div>
-
-        <!-- Rata-rata Per Unit -->
-        <div class="metric-card" style="margin-bottom: 2rem;">
-            <div class="card-header">
-                <i class="fas fa-box"></i>
-                <h3>Rata-rata Per Unit</h3>
-            </div>
-            <div class="metric-values">
-                <div class="metric-item">
-                    <span class="label">Pembiayaan / Unit:</span>
-                    <span class="value">{{ formatCurrency(0) }}</span>
-                </div>
-                <div class="metric-item">
-                    <span class="label">Penjualan / Unit:</span>
-                    <span class="value">{{ formatCurrency(0) }}</span>
-                </div>
-            </div>
-        </div>
-        <div class="metrics-grid">
-            <!-- Rata-rata Per Karyawan -->
-            <div class="metric-card">
-                <div class="card-header">
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    <h3>Rata-rata Per Karyawan</h3>
-                </div>
-                <div class="metric-values">
-                    <div class="metric-item">
-                        <span class="label">Penjualan / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Mark up / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Biaya Operasional / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Gaji / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Beban Tetap / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Laba/Rugi Net / Karyawan:</span>
-                        <span class="value">{{ formatCurrency(0) }}</span>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Rata-rata Per Satuan Kerja -->
-            <div class="metric-card">
-                <div class="card-header">
-                    <i class="fas fa-building"></i>
-                    <h3>Rata-rata Per Satuan Kerja</h3>
-                </div>
-                <div class="metric-values">
-                    <div class="metric-item">
-                        <span class="label">Beban Tetap / Satuan Kerja:</span>
-                        <span class="value">{{ 0 }}%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">Laba/Rugi Net / Satuan Kerja:</span>
-                        <span class="value">{{ 0 }}%</span>
-                    </div>
-                    <div class="metric-item">
-                        <span class="label">PH & Penyusutan / Satuan Kerja:</span>
-                        <span class="value">{{ 0 }}%</span>
-                    </div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
-
-    <!-- Rasio Produksi -->
-    <div class="ratio-section">
-        <div class="section-header">
-            <h2>Rasio-rasio Produksi</h2>
-            <p>Analisis perbandingan komponen keuangan</p>
-        </div>
-
-        <div class="ratio-grid">
-            <div class="ratio-card bg-1">
-                <div class="ratio-icon">
-                    <i class="fas fa-percentage"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Gaji </h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-2">
-                <div class="ratio-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Biaya Admin dan operasi</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-3">
-                <div class="ratio-icon">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Biaya Tetap (Penyusutan )</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-4">
-                <div class="ratio-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Biaya Tidak Tetap (Ph.p/stock )</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-1">
-                <div class="ratio-icon">
-                    <i class="fas fa-percentage"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Mark Up </h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Jumlah Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-2">
-                <div class="ratio-icon">
-                    <i class="fas fa-chart-line"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Pendapatan Bunga</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Jumlah Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-3">
-                <div class="ratio-icon">
-                    <i class="fas fa-balance-scale"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Pendapatan Lainnya</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Jumlah  Pendapatan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-4">
-                <div class="ratio-icon">
-                    <i class="fas fa-trophy"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Kn /T Kemacetan</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pembiayaan</span>
-                </div>
-            </div>
-
-            <div class="ratio-card bg-1">
-                <div class="ratio-icon">
-                    <i class="fas fa-percentage"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Mark Up </h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Pembiayaan</span>
-                </div>
-            </div>
-            <div class="ratio-card bg-1">
-                <div class="ratio-icon">
-                    <i class="fas fa-percentage"></i>
-                </div>
-                <div class="ratio-content">
-                    <h4>Rasio Pembiayaan</h4>
-                    <p class="ratio-value">{{ 0 }}%</p>
-                    <span class="ratio-description">Per Realisasi Pokok</span>
-                </div>
-            </div>
-        </div>
-        
-    </div>
-</template>
-
-<script setup lang="ts">
-import { formatCurrency } from '@/stores/globalState';
-//   defineProps<{
-//     title: string;
-//     value: string | number;
-//   }>();
-</script>
-<style scoped>
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-    gap: 2rem;
-    margin-bottom: 3rem;
-}
-
-.metric-card {
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  </template>
+  
+  <script setup lang="ts">
+  import { ref, reactive, onMounted, watch } from 'vue';
+  import { getProductRate } from '@/services/productRateService';
+  import { useAuthStore } from '@/stores/auth';
+  import { selectedMonth, selectedYear, isGlobalLoading, formatCurrency } from '@/stores/globalState';
+import MessageAlert from './ui/MessageAlert.vue';
+  
+  const authStore = useAuthStore();
+  const user = authStore.user.value;
+  const branchId = user?.entity_id;
+  
+  const apiData = ref<any>({
+    entity_id: '',
+    entityIds: [],
+    rate_satu_dua: {},
+    rate_tiga: {},
+    rate_empat: {},
+    rate_lima_enam_tujuh: {}
+  });
+  const loading = ref(false);
+  
+  // Collapsed state per entity
+  const collapsed = reactive<Record<string, boolean>>({});
+  
+  const toggleCollapse = (id: string) => {
+    collapsed[id] = !collapsed[id];
+  };
+  
+  const fetchList = async (year: number | undefined, month: number | undefined) => {
+    try {
+      loading.value = true;
+      const response = await getProductRate({ year, month, branch_id: branchId });
+      apiData.value = response;
+      // set all collapsed true by default
+      apiData.value.entityIds.forEach((e: any) => {
+        if (!(e.id in collapsed)) collapsed[e.id] = true;
+      });
+    } catch (err) {
+      console.error(err);
+    } finally {
+      loading.value = false;
+      isGlobalLoading.value = false;
+    }
+  };
+  
+  watch([selectedYear, selectedMonth], () => {
+    const year = selectedYear.value !== '' ? Number(selectedYear.value) : undefined;
+    const month = selectedMonth.value !== '' ? Number(selectedMonth.value) : undefined;
+    fetchList(year, month);
+  });
+  
+  onMounted(() => {
+    if (!authStore.user?.value) return;
+    const year = selectedYear.value !== '' ? Number(selectedYear.value) : undefined;
+    const month = selectedMonth.value !== '' ? Number(selectedMonth.value) : undefined;
+    if (year || month) {
+      isGlobalLoading.value = true;
+      fetchList(year, month);
+    }
+  });
+  </script>
+  
+  <style scoped>
+  .container {
+    width: 100%;
+    margin: 0 auto;
+  }
+  
+  .section-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .section-header h2 {
+    font-size: 1.875rem;
+    font-weight: bold;
+    margin-bottom: 8px;
+  }
+  .section-header p {
+    font-size: 0.875rem;
+    color: #6b7280;
+  }
+  
+  .loading {
+    text-align: center;
+    padding: 80px 0;
+    color: #6b7280;
+    font-weight: 500;
+  }
+  
+  .entity-card {
+    margin-bottom: 24px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     overflow: hidden;
-    transition: transform 0.3s ease;
-}
-
-.metric-card:hover {
-    transform: translateY(-2px);
-}
-
-.card-header {
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    color: white;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-}
-
-.card-header i {
-    font-size: 1.25rem;
-}
-
-.card-header h3 {
-    margin: 0;
-    font-size: 1.125rem;
-    font-weight: 600;
-}
-
-.metric-values {
-    padding: 1.5rem;
-}
-
-.metric-item {
+  }
+  
+  .entity-header {
+    padding: 16px 24px;
+    background-color: #f3f4f6;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid #f1f5f9;
-}
-
-.metric-item:last-child {
-    border-bottom: none;
-}
-
-.metric-item .label {
-    color: #64748b;
-    font-size: 0.875rem;
-}
-
-.metric-item .value {
     font-weight: 600;
-    color: #1e293b;
-}
-
-.ratio-section {
-    margin-bottom: 3rem;
-}
-
-.section-header {
-    text-align: center;
-    margin-bottom: 2rem;
-}
-
-.section-header h2 {
-    margin: 0 0 0.5rem 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.section-header p {
-    margin: 0;
-    color: #64748b;
-}
-
-.ratio-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-}
-
-.ratio-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    transition: transform 0.3s ease;
-}
-
-.ratio-card:hover {
-    transform: translateY(-2px);
-}
-
-.ratio-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
-}
-
-.bg-1 .ratio-icon {
-    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-}
-
-.bg-2 .ratio-icon {
-    background: linear-gradient(135deg, #10b981, #059669);
-}
-
-.bg-3 .ratio-icon {
-    background: linear-gradient(135deg, #f59e0b, #d97706);
-}
-
-.bg-4 .ratio-icon {
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-}
-
-.ratio-content h4 {
-    margin: 0 0 0.5rem 0;
-    font-size: 0.875rem;
-    font-weight: 500;
-    color: #64748b;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.ratio-value {
-    margin: 0 0 0.25rem 0;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #1e293b;
-}
-
-.ratio-description {
-    font-size: 0.75rem;
-    color: #94a3b8;
-}
-
-</style>
+  }
+  
+  .entity-header:hover {
+    background-color: #e5e7eb;
+  }
+  
+  .entity-name {
+    font-size: 1.125rem;
+    color: #111827;
+  }
+  
+  .arrow {
+    transition: transform 0.2s ease;
+  }
+  .arrow.rotated {
+    transform: rotate(90deg);
+  }
+  
+  .entity-content {
+    padding: 24px;
+    background-color: #fff;
+  }
+  
+  .metric-card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+  
+  .card-header {
+    font-weight: 600;
+    padding: 12px 16px;
+    color: #fff;
+  }
+  
+  .card-header.blue { background-color: #3b82f6; }
+  .card-header.green { background-color: #10b981; }
+  .card-header.yellow { background-color: #f59e0b; }
+  .card-header.purple { background-color: #8b5cf6; }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  th, td {
+    border: 1px solid #ddd;
+    padding: 12px 16px;
+  }
+  
+  thead th {
+    text-align: left;
+    background-color: #f9fafb;
+    color: #374151;
+  }
+  
+  td {
+    text-align: right;
+  }
+  
+  td:first-child {
+    text-align: left;
+  }
+  
+  tbody tr:hover {
+    background-color: #f3f4f6;
+  }
+  
+  /* Collapse animation */
+  .slide-fade-enter-active,
+  .slide-fade-leave-active {
+    transition: all 0.3s ease;
+  }
+  .slide-fade-enter-from,
+  .slide-fade-leave-to {
+    max-height: 0;
+    opacity: 0;
+    padding: 0 24px;
+  }
+  .slide-fade-enter-to,
+  .slide-fade-leave-from {
+    max-height: 2000px;
+    opacity: 1;
+    padding: 24px;
+  }
+  </style>
+  
