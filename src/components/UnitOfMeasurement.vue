@@ -5,10 +5,13 @@
             <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi</p>
         </div>
         <MessageAlert type="warning" title="Perhatian!"
-            message="Silakan pastikan filter di menu sidebaryang Anda pilih sudah sesuai agar data yang ditampilkan akurat." />
+            message="Pastikan filter di menu sidebar yang Anda pilih sudah sesuai agar data yang ditampilkan akurat." />
 
         <div v-if="loading" class="loading">Loading...</div>
-
+        <div v-if="apiData.entityIds.length < 1" class="empty-container">
+            <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
+            <p class="empty">Satuan pengukuran tidak ditemukan!</p>
+        </div>
         <div v-else>
             <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-card">
                 <!-- Header Collapsible -->
@@ -24,7 +27,7 @@
                         <div class="metric-card">
                             <div class="card-header blue">Rata-rata Pembiayaan & Penjualan / Unit</div>
                             <div class="card-body">
-                                <table>
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Bulan</th>
@@ -37,6 +40,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                            <td :colspan="7" class="empty">Data Rata-rata Pembiayaan & Penjualan / Unit
+                                                tidak ditemukan.</td>
+                                        </tr>
                                         <tr v-for="item in apiData.rate_satu_dua[entity.name] || []" :key="item.month">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.pembiayaan_per_unit) }}</td>
@@ -55,7 +62,7 @@
                         <div class="metric-card">
                             <div class="card-header green">Rata-rata Penjualan / Karyawan</div>
                             <div class="card-body">
-                                <table>
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Bulan</th>
@@ -65,6 +72,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                            <td :colspan="4" class="empty">Data Rata-rata Penjualan / Karyawan tidak
+                                                ditemukan.</td>
+                                        </tr>
                                         <tr v-for="item in apiData.rate_tiga[entity.name] || []" :key="item.month">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.total_penjualan) }}</td>
@@ -80,7 +91,7 @@
                         <div class="metric-card">
                             <div class="card-header yellow">Rata-rata Markup / Karyawan</div>
                             <div class="card-body">
-                                <table>
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Bulan</th>
@@ -90,6 +101,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                            <td :colspan="4" class="empty">Data Rata-rata Markup / Karyawan tidak
+                                                ditemukan.</td>
+                                        </tr>
                                         <tr v-for="item in apiData.rate_empat[entity.name] || []" :key="item.month">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.total_markup) }}</td>
@@ -105,7 +120,7 @@
                         <div class="metric-card">
                             <div class="card-header purple">Rata-rata Gaji / Biaya / Beban Tetap / Karyawan</div>
                             <div class="card-body">
-                                <table>
+                                <table class="table">
                                     <thead>
                                         <tr>
                                             <th>Bulan</th>
@@ -115,6 +130,10 @@
                                         </tr>
                                     </thead>
                                     <tbody>
+                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                            <td :colspan="4" class="empty">Data Rata-rata Gaji / Biaya / Beban Tetap /
+                                                Karyawan tidak ditemukan.</td>
+                                        </tr>
                                         <tr v-for="item in apiData.rate_lima_enam_tujuh[entity.name] || []"
                                             :key="item.month">
                                             <td>{{ item.month }}/{{ item.year }}</td>
@@ -356,5 +375,23 @@ tbody tr:hover {
     max-height: 2000px;
     opacity: 1;
     padding: 24px;
+}
+
+.table .empty {
+    text-align: center;
+    color: #6b7280;
+}
+.empty {
+    text-align: center;
+    color: #6b7280;
+}
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center; /* ⬅️ vertikal + horizontal center */
+  height: 100%;            /* ⬅️ penuh sesuai tinggi parent */
+  text-align: center;
+  color: #6b7280;
 }
 </style>
