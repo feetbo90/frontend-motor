@@ -5,11 +5,11 @@ interface RateSatuDuaItem {
   type: string;
   year: number;
   month: number;
-  total_pembiayaan: string;
-  total_unit_jual: string;
+  total_pembiayaan: number;
+  total_unit_jual: number;
   pembiayaan_per_unit: number;
-  total_penjualan: string;
-  total_unit: string;
+  total_penjualan: number;
+  total_unit: number;
   penjualan_per_unit: number;
 }
 
