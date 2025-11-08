@@ -30,7 +30,7 @@
                                 <table class="table">
                                     <thead>
                                         <tr>
-                                            <th>Bulan</th>
+                                            <th>Bulan / Tahun</th>
                                             <th>Pembiayaan / Unit</th>
                                             <th>Total Pembiayaan</th>
                                             <th>Penjualan / Unit</th>
@@ -40,18 +40,18 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                        <tr v-if="getCombinedRateData(entity.name).length === 0">
                                             <td :colspan="7" class="empty">Data Rata-rata Pembiayaan & Penjualan / Unit
                                                 tidak ditemukan.</td>
                                         </tr>
-                                        <tr v-for="item in apiData.rate_satu_dua[entity.name] || []" :key="item.month">
+                                        <tr v-for="item in getCombinedRateData(entity.name)" :key="`${item.year}-${item.month}`">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.pembiayaan_per_unit) }}</td>
                                             <td>{{ formatCurrency(item.total_pembiayaan) }}</td>
-                                            <td>{{ formatCurrency(item.penjualan_per_unit) }}</td>
-                                            <td>{{ formatCurrency(item.total_penjualan) }}</td>
-                                            <td>{{ formatCurrency(item.total_unit_jual) }}</td>
-                                            <td>{{ formatCurrency(item.total_unit) }}</td>
+                                            <td>{{ item.penjualan_per_unit > 0 ? formatCurrency(item.penjualan_per_unit) : '' }}</td>
+                                            <td>{{ item.total_penjualan > 0 ? formatCurrency(item.total_penjualan) : '' }}</td>
+                                            <td>{{ item.total_unit_jual > 0 ? formatCurrency(item.total_unit_jual) : '' }}</td>
+                                            <td>{{ item.total_unit > 0 ? formatCurrency(item.total_unit) : '' }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -72,11 +72,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                        <tr v-if="(apiData.rate_tiga[entity.name] || []).length === 0">
                                             <td :colspan="4" class="empty">Data Rata-rata Penjualan / Karyawan tidak
                                                 ditemukan.</td>
                                         </tr>
-                                        <tr v-for="item in apiData.rate_tiga[entity.name] || []" :key="item.month">
+                                        <tr v-for="item in apiData.rate_tiga[entity.name] || []" :key="`${item.year}-${item.month}`">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.total_penjualan) }}</td>
                                             <td>{{ item.jumlah_karyawan }}</td>
@@ -101,11 +101,11 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                        <tr v-if="(apiData.rate_empat[entity.name] || []).length === 0">
                                             <td :colspan="4" class="empty">Data Rata-rata Markup / Karyawan tidak
                                                 ditemukan.</td>
                                         </tr>
-                                        <tr v-for="item in apiData.rate_empat[entity.name] || []" :key="item.month">
+                                        <tr v-for="item in apiData.rate_empat[entity.name] || []" :key="`${item.year}-${item.month}`">
                                             <td>{{ item.month }}/{{ item.year }}</td>
                                             <td>{{ formatCurrency(item.total_markup) }}</td>
                                             <td>{{ item.jumlah_karyawan }}</td>
@@ -130,16 +130,16 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr v-if="apiData.rate_satu_dua[entity.name].length === 0">
+                                        <tr v-if="getCombinedRateLimaEnamTujuh(entity.name).length === 0">
                                             <td :colspan="4" class="empty">Data Rata-rata Gaji / Biaya / Beban Tetap /
                                                 Karyawan tidak ditemukan.</td>
                                         </tr>
-                                        <tr v-for="item in apiData.rate_lima_enam_tujuh[entity.name] || []"
-                                            :key="item.month">
+                                        <tr v-for="item in getCombinedRateLimaEnamTujuh(entity.name)"
+                                            :key="`${item.year}-${item.month}`">
                                             <td>{{ item.month }}/{{ item.year }}</td>
-                                            <td>{{ formatCurrency(item.rate_gaji_per_karyawan) }}</td>
-                                            <td>{{ formatCurrency(item.rate_beban_umum_operasional_per_karyawan) }}</td>
-                                            <td>{{ formatCurrency(item.rate_penyusutan_aktiva_per_karyawan) }}</td>
+                                            <td>{{ item.rate_gaji_per_karyawan > 0 ? formatCurrency(item.rate_gaji_per_karyawan) : '' }}</td>
+                                            <td>{{ item.rate_beban_umum_operasional_per_karyawan > 0 ? formatCurrency(item.rate_beban_umum_operasional_per_karyawan) : '' }}</td>
+                                            <td>{{ item.rate_penyusutan_aktiva_per_karyawan > 0 ? formatCurrency(item.rate_penyusutan_aktiva_per_karyawan) : '' }}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -169,10 +169,13 @@ const apiData = ref<ProductRateData>({
     success: false,
     entity_id: '',
     entityIds: [],
-    rate_satu_dua: {},
+    rate_satu: {},
+    rate_dua: {},
     rate_tiga: {},
     rate_empat: {},
-    rate_lima_enam_tujuh: {}
+    rate_lima: {},
+    rate_enam: {},
+    rate_tujuh: {},
 });
 const loading = ref(false);
 
@@ -183,6 +186,82 @@ const toggleCollapse = (id: string) => {
     collapsed[id] = !collapsed[id];
 };
 
+// Method to combine rate_satu and rate_dua data
+const getCombinedRateData = (entityName: string) => {
+    const rateSatu = apiData.value.rate_satu[entityName] || [];
+    const rateDua = apiData.value.rate_dua[entityName] || [];
+    
+    // Get all unique month/year combinations
+    const monthYearSet = new Set<string>();
+    rateSatu.forEach(item => {
+        monthYearSet.add(`${item.year}-${item.month}`);
+    });
+    rateDua.forEach(item => {
+        monthYearSet.add(`${item.year}-${item.month}`);
+    });
+    
+    // Combine data for each month/year
+    return Array.from(monthYearSet).map(key => {
+        const [year, month] = key.split('-').map(Number);
+        const satuItem = rateSatu.find(r => r.year === year && r.month === month);
+        const duaItem = rateDua.find(r => r.year === year && r.month === month);
+        
+        return {
+            year,
+            month,
+            pembiayaan_per_unit: satuItem?.pembiayaan_per_unit || 0,
+            total_pembiayaan: satuItem?.total_pembiayaan || 0,
+            total_unit_jual: satuItem?.total_unit_jual || 0,
+            penjualan_per_unit: duaItem?.penjualan_per_unit || 0,
+            total_penjualan: duaItem?.total_penjualan || 0,
+            total_unit: duaItem?.total_unit || 0,
+        };
+    }).sort((a, b) => {
+        // Sort by year first, then by month
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+    });
+};
+
+// Method to combine rate_lima, rate_enam, and rate_tujuh data
+const getCombinedRateLimaEnamTujuh = (entityName: string) => {
+    const rateLima = apiData.value.rate_lima[entityName] || [];
+    const rateEnam = apiData.value.rate_enam[entityName] || [];
+    const rateTujuh = apiData.value.rate_tujuh[entityName] || [];
+    
+    // Get all unique month/year combinations
+    const monthYearSet = new Set<string>();
+    rateLima.forEach(item => {
+        monthYearSet.add(`${item.year}-${item.month}`);
+    });
+    rateEnam.forEach(item => {
+        monthYearSet.add(`${item.year}-${item.month}`);
+    });
+    rateTujuh.forEach(item => {
+        monthYearSet.add(`${item.year}-${item.month}`);
+    });
+    
+    // Combine data for each month/year
+    return Array.from(monthYearSet).map(key => {
+        const [year, month] = key.split('-').map(Number);
+        const limaItem = rateLima.find(r => r.year === year && r.month === month);
+        const enamItem = rateEnam.find(r => r.year === year && r.month === month);
+        const tujuhItem = rateTujuh.find(r => r.year === year && r.month === month);
+        
+        return {
+            year,
+            month,
+            rate_gaji_per_karyawan: limaItem?.rate_gaji_per_karyawan || 0,
+            rate_beban_umum_operasional_per_karyawan: enamItem?.rate_beban_umum_operasional_per_karyawan || 0,
+            rate_penyusutan_aktiva_per_karyawan: tujuhItem?.rate_penyusutan_aktiva_per_karyawan || 0,
+        };
+    }).sort((a, b) => {
+        // Sort by year first, then by month
+        if (a.year !== b.year) return a.year - b.year;
+        return a.month - b.month;
+    });
+};
+
 const fetchList = async (year: number | undefined, month: number | undefined) => {
     try {
         loading.value = true;
@@ -191,7 +270,7 @@ const fetchList = async (year: number | undefined, month: number | undefined) =>
             apiData.value = response ?? {
                 entity_id: '',
                 entityIds: [],
-                rate_satu_dua: {},
+                rate_satu: {},
                 rate_tiga: {},
                 rate_empat: {},
                 rate_lima_enam_tujuh: {}
