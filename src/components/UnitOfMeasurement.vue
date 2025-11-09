@@ -11,7 +11,7 @@
         <div v-if="loading" class="loading">Loading...</div>
         <div v-if="apiData.entityIds.length < 1" class="empty-container">
             <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
-            <p class="empty">Satuan pengukuran tidak ditemukan!</p>
+            <p class="empty">Satuan pengukuran (Rata-rate) tidak ditemukan!</p>
         </div>
         <div v-else>
             <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-card">
