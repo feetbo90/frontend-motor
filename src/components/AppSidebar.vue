@@ -123,14 +123,22 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted, watch } from 'vue'
 import { selectedCabang, selectedMonth, selectedYear, selectedUnit } from '@/stores/globalState'
 import { useRole } from '@/composables/useRole'
 import { useDate } from '@/composables/useDate'
 import { getRouteAllowedRoles } from '@/router'
 import FormSelect from './FormSelect.vue'
+import { getCabangs } from '@/services/entitiesService'
+import { useAuthStore } from '@/stores/auth'
+import type { Entities } from '@/types/entities.type'
 
 // Role-based navigation
 const { hasRole } = useRole()
+
+// Auth store
+const authStore = useAuthStore()
+const user = computed(() => authStore.user.value)
 
 // Helper function to check if user can access specific route
 const canAccessRoute = (path: string): boolean => {
@@ -144,13 +152,90 @@ const canAccessRoute = (path: string): boolean => {
 const { monthOptions: months, getYearOptions } = useDate()
 const years = getYearOptions(5) // Current year ± 5 years
 
-const cabangs = [
-  'Cabang Kisaran', 'Cabang Aek Kanopan', 'Cabang Petatal'
-]
+const allCabangsData = ref<Entities[]>([])
+const cabangs = ref<string[]>([])
+const cabangsData = ref<Entities[]>([])
 
-const units = [
-  'Unit A', 'Unit B', 'Unit C'
-]
+// Computed property untuk filter cabang berdasarkan user.entity_id
+const filteredCabangs = computed(() => {
+  const currentUser = user.value
+  if (!currentUser || !allCabangsData.value.length) {
+    return []
+  }
+
+  // Jika user adalah PUSAT, tampilkan semua cabang
+  if (currentUser.entity_type === 'PUSAT' || !currentUser.entity_type) {
+    return allCabangsData.value
+  }
+
+  // Jika user adalah CABANG, tampilkan hanya cabang dengan id yang sama dengan user.entity_id
+  if (currentUser.entity_type === 'CABANG') {
+    return allCabangsData.value.filter(
+      (cabang: Entities) => cabang.id === String(currentUser.entity_id)
+    )
+  }
+
+  // Jika user adalah UNIT, cari cabang parent dari unit tersebut
+  if (currentUser.entity_type === 'UNIT') {
+    // Cari cabang yang memiliki unit dengan id yang sama dengan user.entity_id
+    return allCabangsData.value.filter((cabang: Entities) => {
+      return cabang.units?.some((unit: Entities) => unit.id === String(currentUser.entity_id))
+    })
+  }
+
+  return []
+})
+
+// Watch filteredCabangs untuk update cabangs dan cabangsData
+watch(filteredCabangs, (filtered) => {
+  cabangsData.value = filtered
+  cabangs.value = filtered.map((cabang: Entities) => cabang.name)
+}, { immediate: true })
+
+// Computed property untuk units berdasarkan selectedCabang
+const units = computed(() => {
+  if (!selectedCabang.value) {
+    return []
+  }
+  
+  // Cari cabang yang dipilih dari data cabangs
+  const selectedCabangData = cabangsData.value.find(
+    (cabang: Entities) => cabang.name === selectedCabang.value
+  )
+  
+  // Jika cabang ditemukan dan memiliki units, return nama units
+  if (selectedCabangData && selectedCabangData.units) {
+    return selectedCabangData.units.map((unit: Entities) => unit.name)
+  }
+  
+  return []
+})
+
+// Watch selectedCabang untuk reset selectedUnit ketika cabang berubah
+watch(selectedCabang, () => {
+  selectedUnit.value = ''
+})
+
+// Fetch cabangs from API
+const fetchCabangs = async () => {
+  try {
+    const response = await getCabangs()
+    if (response && response.data) {
+      allCabangsData.value = response.data
+      // filteredCabangs computed akan otomatis update cabangs dan cabangsData
+    }
+  } catch (error) {
+    console.error('Error fetching cabangs:', error)
+    // Fallback to empty array on error
+    allCabangsData.value = []
+    cabangs.value = []
+    cabangsData.value = []
+  }
+}
+
+onMounted(() => {
+  fetchCabangs()
+})
 
 </script>
 

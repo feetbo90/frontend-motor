@@ -15,3 +15,8 @@ export enum EntityType {
     Cabang = "CABANG",
     Unit = "UNIT",
 }
+
+export interface CabangResponse {
+    message: string;
+    data: Entities[];
+}

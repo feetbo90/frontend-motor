@@ -204,9 +204,9 @@ export const formatCurrency = (amount: number) => {
 
 export function resetPeriodeFilter() {
   const { getCurrentDate } = useDate()
-  const now = getCurrentDate()
-  // selectedYear.value = now.year
-  // selectedMonth.value = now.month
+  // const now = getCurrentDate()
+  selectedYear.value = ''
+  selectedMonth.value = ''
   selectedCabang.value = ''
   selectedUnit.value = ''
 }
