@@ -11,10 +11,10 @@
       <h4>Filter Periode</h4>
       <div class="filter-year-month">
         <div class="filter-group">
-          <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years" />
+          <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years" :allowEmpty="true" />
         </div>
         <div class="filter-group">
-          <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months" />
+          <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months" :allowEmpty="true" />
         </div>
       </div>
 
@@ -32,6 +32,11 @@
           <option v-for="unit in units" :key="unit" :value="unit">{{ unit }}</option>
         </select>
       </div>
+      
+      <button @click="resetFilters" class="reset-button" type="button">
+        <i class="fas fa-redo"></i>
+        Reset Filter
+      </button>
     </div>
 
     <nav class="sidebar-nav">
@@ -233,6 +238,14 @@ const fetchCabangs = async () => {
   }
 }
 
+// Fungsi untuk reset semua filter
+const resetFilters = () => {
+  selectedYear.value = ''
+  selectedMonth.value = ''
+  selectedCabang.value = ''
+  selectedUnit.value = ''
+}
+
 onMounted(() => {
   fetchCabangs()
 })
@@ -395,5 +408,37 @@ onMounted(() => {
 :deep(.form-select:not([value=""])) {
   color: white;
   background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.reset-button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 6px;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.reset-button:hover {
+  background: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: translateY(-1px);
+}
+
+.reset-button:active {
+  transform: translateY(0);
+}
+
+.reset-button i {
+  font-size: 0.875rem;
 }
 </style>
