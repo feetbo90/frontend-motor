@@ -15,54 +15,29 @@
         <i class="fas fa-filter"></i>
         <h4>Filter Periode</h4>
       </div>
-      
+
       <div class="filter-content">
         <div class="filter-year-month">
           <div class="filter-group">
-            <FormSelect 
-              id="year" 
-              label="Tahun" 
-              v-model="selectedYear" 
-              placeholder="Pilih Tahun" 
-              :options="years" 
-              :allowEmpty="true" 
-            />
+            <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years"
+              :allowEmpty="true" />
           </div>
           <div class="filter-group">
-            <FormSelect 
-              id="month" 
-              label="Bulan" 
-              v-model="selectedMonth" 
-              placeholder="Pilih Bulan" 
-              :options="months" 
-              :allowEmpty="true" 
-            />
+            <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months"
+              :allowEmpty="true" />
           </div>
         </div>
 
         <div class="filter-group">
-          <FormSelect 
-            id="cabang" 
-            label="Cabang" 
-            v-model="selectedCabang" 
-            placeholder="Pilih Cabang" 
-            :options="cabangOptions" 
-            :allowEmpty="true" 
-          />
+          <FormSelect id="cabang" label="Cabang" v-model="selectedCabang" placeholder="Pilih Cabang"
+            :options="cabangOptions" :allowEmpty="true" />
         </div>
-        
+
         <div class="filter-group">
-          <FormSelect 
-            id="unit" 
-            label="Unit" 
-            v-model="selectedUnit" 
-            placeholder="Pilih Unit" 
-            :options="unitOptions" 
-            :allowEmpty="true"
-            :disabled="!selectedCabang"
-          />
+          <FormSelect id="unit" label="Unit" v-model="selectedUnit" placeholder="Pilih Unit" :options="unitOptions"
+            :allowEmpty="true" :disabled="!selectedCabang" />
         </div>
-        
+
         <button @click="resetFilters" class="reset-button" type="button">
           <i class="fas fa-redo"></i>
           <span>Reset Filter</span>
@@ -164,7 +139,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { selectedCabang, selectedMonth, selectedYear, selectedUnit } from '@/stores/globalState'
+import { selectedCabang, selectedMonth, selectedYear, selectedUnit, selectedEntityId } from '@/stores/globalState'
 import { useRole } from '@/composables/useRole'
 import { useDate } from '@/composables/useDate'
 import { getRouteAllowedRoles } from '@/router'
@@ -237,17 +212,17 @@ const units = computed(() => {
   if (!selectedCabang.value) {
     return []
   }
-  
+
   // Cari cabang yang dipilih dari data cabangs
   const selectedCabangData = cabangsData.value.find(
     (cabang: Entities) => cabang.name === selectedCabang.value
   )
-  
+
   // Jika cabang ditemukan dan memiliki units, return nama units
   if (selectedCabangData && selectedCabangData.units) {
     return selectedCabangData.units.map((unit: Entities) => unit.name)
   }
-  
+
   return []
 })
 
@@ -269,8 +244,27 @@ const unitOptions = computed(() => {
 
 // Watch selectedCabang untuk reset selectedUnit ketika cabang berubah
 watch(selectedCabang, () => {
+  selectedEntityId.value = Number(cabangsData.value.find(cabang => cabang.name === selectedCabang.value)?.id || undefined)
   selectedUnit.value = ''
+  if (selectedCabang.value === '') {
+    selectedEntityId.value = undefined
+  }
 })
+
+watch(selectedUnit, () => {
+  if (selectedUnit.value === '' && selectedCabang.value !== '') {
+    selectedEntityId.value = Number(cabangsData.value.find(cabang => cabang.name === selectedCabang.value)?.id || undefined)
+  } else {
+    const selected = cabangsData.value.find(
+      (cabang: Entities) => cabang.name === selectedCabang.value
+    )
+    if (selected?.units) {
+      selectedEntityId.value = Number(selected.units.find((unit: Entities) => unit.name === selectedUnit.value)?.id || undefined)
+    }
+  }
+
+})
+console.log(selectedUnit.value, 'selectedUnit')
 
 // Fetch cabangs from API
 const fetchCabangs = async () => {
@@ -411,7 +405,7 @@ onMounted(() => {
   background: rgba(255, 255, 255, 0.08);
   /* border-radius: 14px; */
   /* border: 1px solid rgba(255, 255, 255, 0.18); */
-  box-shadow: 
+  box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -419,7 +413,7 @@ onMounted(() => {
   top: calc(11rem + 1px);
   left: 0;
   right: 0;
-  width: calc(300px );
+  width: calc(300px);
   z-index: 10;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -429,7 +423,7 @@ onMounted(() => {
 .period-filter:hover {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(255, 255, 255, 0.28);
-  box-shadow: 
+  box-shadow:
     0 6px 20px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.15);
   transform: translateY(-1px);
@@ -477,6 +471,7 @@ onMounted(() => {
     opacity: 0;
     transform: translateY(5px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -484,8 +479,8 @@ onMounted(() => {
 }
 
 .sidebar-nav {
-  margin-top: calc(359px+184px);
-  padding-top:595px;
+  margin-top: 543px;
+  padding-top: 595px;
 }
 
 .nav-header {
@@ -570,7 +565,7 @@ onMounted(() => {
   color: white;
   border-left-color: #ffd700;
   font-weight: 600;
-  box-shadow: 
+  box-shadow:
     0 2px 8px rgba(0, 0, 0, 0.1),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
