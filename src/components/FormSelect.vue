@@ -8,7 +8,7 @@
       class="form-select"
       :disabled="disabled"
     >
-      <option value="" disabled>{{ placeholder || 'Pilih...' }}</option>
+      <option value="" :disabled="!allowEmpty">{{ placeholder || 'Pilih...' }}</option>
       <option 
         v-for="option in options" 
         :key="option.value" 
@@ -37,6 +37,7 @@ defineProps<{
   options: SelectOption[]
   disabled?: boolean
   error?: string
+  allowEmpty?: boolean
 }>()
 
 defineEmits<{
