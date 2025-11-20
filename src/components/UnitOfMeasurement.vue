@@ -732,17 +732,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, watch } from 'vue';
 import { getProductRate, getProductRatio } from '@/services/productRateService';
 import { useAuthStore } from '@/stores/auth';
-import { selectedMonth, selectedYear, isGlobalLoading, formatCurrency } from '@/stores/globalState';
-import MessageAlert from './ui/MessageAlert.vue';
+import { formatCurrency, isGlobalLoading, selectedEntityId, selectedMonth, selectedYear } from '@/stores/globalState';
 import type { entityIds, ProductRateData, ProductRatioData } from '@/types/productRate';
+import { onMounted, reactive, ref, watch } from 'vue';
+import MessageAlert from './ui/MessageAlert.vue';
 
 const authStore = useAuthStore();
-const user = authStore.user.value;
-const branchId = user?.entity_id;
-
+// const branchId = selectedCabang.value ? selectedUnit.value ? Number(selectedUnit.value) : Number(selectedCabang.value) : undefined;
+// const branchId = computed(() => {
+//    return selectedEntityId.value ?? undefined
+// })
+// console.log(selectedEntityId.value,'xxxx')
 const apiData = ref<ProductRateData>({
     success: false,
     entity_id: '',
@@ -755,7 +757,7 @@ const apiData = ref<ProductRateData>({
     rate_enam: {},
     rate_tujuh: {},
 });
-
+ 
 const apiRatioData = ref<ProductRatioData>({
     success: false,
     entity_id: '',
@@ -962,7 +964,7 @@ const getRasioSebelas = (entityName: string, entityType?: string) => {
 const fetchRateList = async (year: number | undefined, month: number | undefined) => {
     try {
         loading.value = true;
-        const response = await getProductRate({ year, month, branch_id: branchId });
+        const response = await getProductRate({ year, month, branch_id: Number(selectedEntityId.value) ?? undefined });
         if (response.success) {
             apiData.value = response ?? {
                 entity_id: '',
@@ -989,7 +991,7 @@ const fetchRateList = async (year: number | undefined, month: number | undefined
 const fetchRatioList = async (year: number | undefined, month: number | undefined) => {
     try {
         loading.value = true;
-        const response = await getProductRatio({ year, month, branch_id: branchId });
+        const response = await getProductRatio({ year, month, branch_id: Number(selectedEntityId.value) ?? undefined });
         if (response.success) {
             apiRatioData.value = response ?? {
                 entity_id: '',
@@ -1020,18 +1022,21 @@ const fetchRatioList = async (year: number | undefined, month: number | undefine
         isGlobalLoading.value = false;
     }
 };
-watch([selectedYear, selectedMonth], () => {
+watch([selectedYear, selectedMonth, selectedEntityId], () => {
     const year = selectedYear.value !== '' ? Number(selectedYear.value) : undefined;
     const month = selectedMonth.value !== '' ? Number(selectedMonth.value) : undefined;
-    fetchRateList(year, month);
-    fetchRatioList(year, month);
+    if (selectedEntityId.value && year && month) {
+        isGlobalLoading.value = true;
+        fetchRateList(year, month);
+        fetchRatioList(year, month);
+    }
 });
 
 onMounted(() => {
     if (!authStore.user?.value) return;
     const year = selectedYear.value !== '' ? Number(selectedYear.value) : undefined;
     const month = selectedMonth.value !== '' ? Number(selectedMonth.value) : undefined;
-    if (year || month) {
+    if (selectedEntityId.value && year && month) {
         isGlobalLoading.value = true;
         fetchRateList(year, month);
         fetchRatioList(year, month);

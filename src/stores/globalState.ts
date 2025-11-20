@@ -10,6 +10,7 @@ export const selectedYear = ref<string | number>('')
 export const selectedMonth = ref<string | number>('')
 export const selectedCabang = ref('')
 export const selectedUnit = ref('')
+export const selectedEntityId = ref<number|undefined>(undefined)
 
 // Dummy User information
 export const userInfo = ref({
