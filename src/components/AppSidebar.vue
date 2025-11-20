@@ -1,5 +1,5 @@
 <template>
-  <div class="sidebar">
+  <div class="sidebar" :class="{ 'filter-open': isFilterOpen }">
     <div class="sidebar-header">
       <div class="header-content">
         <div class="logo-wrapper">
@@ -8,132 +8,149 @@
         <h2>CV. Pandu Motor</h2>
         <p class="header-subtitle">Management System</p>
       </div>
+      <div class="header-filter">
+        <div class="period-filter" :class="{ collapsed: !isFilterOpen }">
+          <button
+            class="filter-header"
+            type="button"
+            @click="toggleFilters"
+            :aria-expanded="isFilterOpen"
+          >
+            <div class="filter-heading">
+              <i class="fas fa-filter"></i>
+              <div>
+                <h4>Filter Periode</h4>
+                <p>Sesuaikan data laporan</p>
+              </div>
+            </div>
+            <i class="fas" :class="isFilterOpen ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+          </button>
+
+          <transition name="collapse">
+            <div v-show="isFilterOpen" class="filter-content">
+              <div class="filter-year-month">
+                <div class="filter-group">
+                  <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years"
+                    :allowEmpty="true" />
+                </div>
+                <div class="filter-group">
+                  <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months"
+                    :allowEmpty="true" />
+                </div>
+              </div>
+
+              <div class="filter-group">
+                <FormSelect id="cabang" label="Cabang" v-model="selectedCabang" placeholder="Pilih Cabang"
+                  :options="cabangOptions" :allowEmpty="true" />
+              </div>
+
+              <div class="filter-group">
+                <FormSelect id="unit" label="Unit" v-model="selectedUnit" placeholder="Pilih Unit" :options="unitOptions"
+                  :allowEmpty="true" :disabled="!selectedCabang" />
+              </div>
+
+              <button @click="resetFilters" class="reset-button" type="button">
+                <i class="fas fa-redo"></i>
+                <span>Reset Filter</span>
+              </button>
+            </div>
+          </transition>
+        </div>
+      </div>
     </div>
 
-    <div class="period-filter">
-      <div class="filter-header">
-        <i class="fas fa-filter"></i>
-        <h4>Filter Periode</h4>
-      </div>
+    <div class="sidebar-content">
 
-      <div class="filter-content">
-        <div class="filter-year-month">
-          <div class="filter-group">
-            <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years"
-              :allowEmpty="true" />
-          </div>
-          <div class="filter-group">
-            <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months"
-              :allowEmpty="true" />
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <FormSelect id="cabang" label="Cabang" v-model="selectedCabang" placeholder="Pilih Cabang"
-            :options="cabangOptions" :allowEmpty="true" />
-        </div>
-
-        <div class="filter-group">
-          <FormSelect id="unit" label="Unit" v-model="selectedUnit" placeholder="Pilih Unit" :options="unitOptions"
-            :allowEmpty="true" :disabled="!selectedCabang" />
-        </div>
-
-        <button @click="resetFilters" class="reset-button" type="button">
-          <i class="fas fa-redo"></i>
-          <span>Reset Filter</span>
-        </button>
-      </div>
-    </div>
-
-    <nav class="sidebar-nav">
-      <!-- <div class="nav-header">
+      <nav class="sidebar-nav">
+        <!-- <div class="nav-header">
         <i class="fas fa-bars"></i>
         <span>Menu Navigasi</span>
       </div> -->
-      <ul>
-        <!-- Dashboard - Available for all roles -->
-        <li>
-          <router-link to="/" class="nav-link" :class="{ active: $route.name === 'dashboard' }">
-            <i class="fas fa-tachometer-alt"></i>
-            <span>Dashboard</span>
-          </router-link>
-        </li>
+        <ul>
+          <!-- Dashboard - Available for all roles -->
+          <li>
+            <router-link to="/" class="nav-link" :class="{ active: $route.name === 'dashboard' }">
+              <i class="fas fa-tachometer-alt"></i>
+              <span>Dashboard</span>
+            </router-link>
+          </li>
 
-        <!-- Komponen Produksi - Only for Unit role -->
-        <li v-if="canAccessRoute('/komponen-produksi')">
-          <router-link to="/komponen-produksi" class="nav-link"
-            :class="{ active: $route.name === 'komponen-produksi' }">
-            <i class="fas fa-industry"></i>
-            <span>Komponen Produksi</span>
-          </router-link>
-        </li>
+          <!-- Komponen Produksi - Only for Unit role -->
+          <li v-if="canAccessRoute('/komponen-produksi')">
+            <router-link to="/komponen-produksi" class="nav-link"
+              :class="{ active: $route.name === 'komponen-produksi' }">
+              <i class="fas fa-industry"></i>
+              <span>Komponen Produksi</span>
+            </router-link>
+          </li>
 
-        <!-- Komponen Beban - Only for Cabang role -->
-        <li v-if="canAccessRoute('/komponen-beban')">
-          <router-link to="/komponen-beban" class="nav-link" :class="{ active: $route.name === 'komponen-beban' }">
-            <i class="fas fa-credit-card"></i>
-            <span>Komponen Beban</span>
-          </router-link>
-        </li>
+          <!-- Komponen Beban - Only for Cabang role -->
+          <li v-if="canAccessRoute('/komponen-beban')">
+            <router-link to="/komponen-beban" class="nav-link" :class="{ active: $route.name === 'komponen-beban' }">
+              <i class="fas fa-credit-card"></i>
+              <span>Komponen Beban</span>
+            </router-link>
+          </li>
 
-        <!-- Laba / Rugi - Only for Pusat role -->
-        <li v-if="canAccessRoute('/laba-rugi')">
-          <router-link to="/laba-rugi" class="nav-link" :class="{ active: $route.name === 'laba-rugi' }">
-            <i class="fas fa-chart-pie"></i>
-            <span>Laba / Rugi / Surplus Devisit</span>
-          </router-link>
-        </li>
+          <!-- Laba / Rugi - Only for Pusat role -->
+          <li v-if="canAccessRoute('/laba-rugi')">
+            <router-link to="/laba-rugi" class="nav-link" :class="{ active: $route.name === 'laba-rugi' }">
+              <i class="fas fa-chart-pie"></i>
+              <span>Laba / Rugi / Surplus Devisit</span>
+            </router-link>
+          </li>
 
-        <!-- Cadangan & Nilai Sisa - Only for Pusat role -->
-        <li v-if="canAccessRoute('/cadangan-nilai-sisa')">
-          <router-link to="/cadangan-nilai-sisa" class="nav-link"
-            :class="{ active: $route.name === 'cadangan-nilai-sisa' }">
-            <i class="fas fa-piggy-bank"></i>
-            <span>Cadangan & Nilai Sisa ACC Penyusutan</span>
-          </router-link>
-        </li>
+          <!-- Cadangan & Nilai Sisa - Only for Pusat role -->
+          <li v-if="canAccessRoute('/cadangan-nilai-sisa')">
+            <router-link to="/cadangan-nilai-sisa" class="nav-link"
+              :class="{ active: $route.name === 'cadangan-nilai-sisa' }">
+              <i class="fas fa-piggy-bank"></i>
+              <span>Cadangan & Nilai Sisa ACC Penyusutan</span>
+            </router-link>
+          </li>
 
-        <!-- Sumber Daya - Only for Pusat role -->
-        <li v-if="canAccessRoute('/sumber-daya')">
-          <router-link to="/sumber-daya" class="nav-link" :class="{ active: $route.name === 'sumber-daya' }">
-            <i class="fas fa-users"></i>
-            <span>Sumber Daya</span>
-          </router-link>
-        </li>
+          <!-- Sumber Daya - Only for Pusat role -->
+          <li v-if="canAccessRoute('/sumber-daya')">
+            <router-link to="/sumber-daya" class="nav-link" :class="{ active: $route.name === 'sumber-daya' }">
+              <i class="fas fa-users"></i>
+              <span>Sumber Daya</span>
+            </router-link>
+          </li>
 
-        <!-- Kas & Keuangan - Only for Pusat role -->
-        <li v-if="canAccessRoute('/kas-keuangan')">
-          <router-link to="/kas-keuangan" class="nav-link" :class="{ active: $route.name === 'kas-keuangan' }">
-            <i class="fas fa-wallet"></i>
-            <span>Kas & Keuangan</span>
-          </router-link>
-        </li>
+          <!-- Kas & Keuangan - Only for Pusat role -->
+          <li v-if="canAccessRoute('/kas-keuangan')">
+            <router-link to="/kas-keuangan" class="nav-link" :class="{ active: $route.name === 'kas-keuangan' }">
+              <i class="fas fa-wallet"></i>
+              <span>Kas & Keuangan</span>
+            </router-link>
+          </li>
 
-        <!-- Satuan Pengukuran - Only for Pusat role -->
-        <li v-if="canAccessRoute('/satuan-pengukuran')">
-          <router-link to="/satuan-pengukuran" class="nav-link"
-            :class="{ active: $route.name === 'satuan-pengukuran' }">
-            <i class="fas fa-ruler-combined"></i>
-            <span>Satuan Pengukuran</span>
-          </router-link>
-        </li>
+          <!-- Satuan Pengukuran - Only for Pusat role -->
+          <li v-if="canAccessRoute('/satuan-pengukuran')">
+            <router-link to="/satuan-pengukuran" class="nav-link"
+              :class="{ active: $route.name === 'satuan-pengukuran' }">
+              <i class="fas fa-ruler-combined"></i>
+              <span>Satuan Pengukuran</span>
+            </router-link>
+          </li>
 
-        <!-- Export with access -->
-        <li v-if="canAccessRoute('/export')">
-          <router-link to="/export" class="nav-link" :class="{ active: $route.name === 'export' }">
-            <i class="fas fa-file-export"></i>
-            <span>Ekspor</span>
-          </router-link>
-        </li>
-        <!-- Import with access -->
-        <li v-if="canAccessRoute('/import')">
-          <router-link to="/import" class="nav-link" :class="{ active: $route.name === 'import' }">
-            <i class="fas fa-file-import"></i>
-            <span>Impor</span>
-          </router-link>
-        </li>
-      </ul>
-    </nav>
+          <!-- Export with access -->
+          <li v-if="canAccessRoute('/export')">
+            <router-link to="/export" class="nav-link" :class="{ active: $route.name === 'export' }">
+              <i class="fas fa-file-export"></i>
+              <span>Ekspor</span>
+            </router-link>
+          </li>
+          <!-- Import with access -->
+          <li v-if="canAccessRoute('/import')">
+            <router-link to="/import" class="nav-link" :class="{ active: $route.name === 'import' }">
+              <i class="fas fa-file-import"></i>
+              <span>Impor</span>
+            </router-link>
+          </li>
+        </ul>
+      </nav>
+    </div>
   </div>
 </template>
 
@@ -170,6 +187,7 @@ const years = getYearOptions(5) // Current year ± 5 years
 const allCabangsData = ref<Entities[]>([])
 const cabangs = ref<string[]>([])
 const cabangsData = ref<Entities[]>([])
+const isFilterOpen = ref(false)
 
 // Computed property untuk filter cabang berdasarkan user.entity_id
 const filteredCabangs = computed(() => {
@@ -295,13 +313,16 @@ onMounted(() => {
   fetchCabangs()
 })
 
+const toggleFilters = () => {
+  isFilterOpen.value = !isFilterOpen.value
+}
+
 </script>
 
 <style scoped>
 .filter-year-month {
   display: flex;
-  flex-direction: 'column';
-  /* grid-template-rows: 1fr 11fr; */
+  flex-direction: column;
   gap: 0.875rem;
   margin-bottom: 1rem;
 }
@@ -320,8 +341,15 @@ onMounted(() => {
   overflow-y: auto;
   overflow-x: hidden;
   box-shadow: 4px 0 30px rgba(0, 0, 0, 0.15);
-  flex-shrink: 0;
-  scroll-behavior: smooth;
+  padding-top: 0;
+}
+
+.sidebar-content {
+  margin-top: 0;
+  /* padding: 1rem 1.25rem 2.5rem; */
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
 }
 
 /* Hide scrollbar for webkit browsers */
@@ -335,17 +363,23 @@ onMounted(() => {
 }
 
 .sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
   padding: 1.75rem 1.5rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.12);
-  position: fixed;
+  position: sticky;
   top: 0;
   left: 0;
-  width: 300px;
+  width: 100%;
+  height: auto;
   z-index: 20;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  box-sizing: border-box;
+  overflow: visible;
 }
 
 .header-content {
@@ -398,72 +432,100 @@ onMounted(() => {
   text-transform: uppercase;
 }
 
+.header-filter {
+  width: 100%;
+}
+
 .period-filter {
   text-align: left;
-  /* margin: 1rem;
-  margin-bottom: 1.25rem; */
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: rgba(255, 255, 255, 0.08);
-  /* border-radius: 14px; */
-  /* border: 1px solid rgba(255, 255, 255, 0.18); */
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  position: fixed;
-  top: calc(11rem + 1px);
-  left: 0;
-  right: 0;
-  width: calc(300px);
-  z-index: 10;
+  transition: border-color 0.25s ease, background 0.25s ease;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
 }
 
-.period-filter:hover {
-  background: rgba(255, 255, 255, 0.12);
-  border-color: rgba(255, 255, 255, 0.28);
-  box-shadow:
-    0 6px 20px rgba(0, 0, 0, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  transform: translateY(-1px);
+.period-filter.collapsed {
+  border-color: rgba(255, 255, 255, 0.12);
 }
 
 .filter-header {
-  padding: 1.25rem 1.5rem 1rem;
+  width: 100%;
+  padding: 1.25rem 1.5rem;
   display: flex;
   align-items: center;
-  gap: 0.625rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  justify-content: space-between;
+  gap: 0.75rem;
+  border: none;
   background: rgba(255, 255, 255, 0.05);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.25s ease;
 }
 
-.filter-header i {
-  font-size: 0.875rem;
-  color: rgba(255, 255, 255, 0.9);
-  opacity: 0.9;
+.filter-header:focus,
+.filter-header:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
-.filter-header h4 {
+.filter-header:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.filter-heading {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+.filter-heading h4 {
   margin: 0;
   font-size: 0.8125rem;
   font-weight: 700;
-  color: rgba(255, 255, 255, 0.98);
   letter-spacing: 0.5px;
   text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.filter-heading p {
+  margin: 0.15rem 0 0;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.filter-heading i {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.period-filter > .filter-header .fa-chevron-up,
+.period-filter > .filter-header .fa-chevron-down {
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+  transition: transform 0.25s ease;
 }
 
 .filter-content {
-  padding: 1rem 1rem 1rem;
+  padding: 1.25rem 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .filter-group {
-  margin-bottom: 1rem;
   animation: fadeInUp 0.3s ease-out;
 }
 
 .filter-group:last-of-type {
-  margin-bottom: 1.25rem;
+  margin-bottom: 0.5rem;
 }
 
 @keyframes fadeInUp {
@@ -478,9 +540,21 @@ onMounted(() => {
   }
 }
 
+.collapse-enter-active,
+.collapse-leave-active {
+  transition: height 0.25s ease, opacity 0.25s ease;
+}
+
+.collapse-enter-from,
+.collapse-leave-to {
+  height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
 .sidebar-nav {
-  margin-top: 543px;
-  padding-top: 595px;
+  margin: 0;
+  padding: 0;
 }
 
 .nav-header {
@@ -508,12 +582,12 @@ onMounted(() => {
 .sidebar-nav ul {
   list-style: none;
   margin: 0;
-  padding: 0.5rem 0;
+  padding: 1rem 0;
   padding-bottom: 2rem;
 }
 
 .sidebar-nav li {
-  margin: 0.25rem 0.75rem;
+  margin: 0.5rem 0.75rem;
 }
 
 .nav-link {
