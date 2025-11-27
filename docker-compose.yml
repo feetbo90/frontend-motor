@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  frontend:
+    image: mhdiqbalpradipta/pandu_frontend:v1.0.2
+    container_name: pandu_motor_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api/}
+    ports:
+      - "8080:80"
+    networks:
+      - shared
+
+
+networks:
+  shared:
+    external: true
+    name: pandu_shared_net
