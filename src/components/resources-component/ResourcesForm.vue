@@ -434,7 +434,7 @@ const fetchList = async () => {
       per_page: pageSize.value,
       branch_id: branchId,
     };
-    const { items } = await getResourcesList(apiData);
+    const items = await getResourcesList(apiData);
     if (items) {
       entries.value = items.data;
       currentPage.value = items.current_page;

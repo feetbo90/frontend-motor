@@ -231,7 +231,6 @@ const props = withDefaults(defineProps<Props>(), {
   filterYear: null,
   filterMonth: null,
 });
-
 const visibleEntries = computed(() => {
   const yearFilter =
     props.filterYear !== null && props.filterYear !== "" ? Number(props.filterYear) : null;
