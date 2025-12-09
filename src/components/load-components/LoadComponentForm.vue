@@ -12,7 +12,7 @@
       />
       <FormSection
         title="Data Beban Operasional"
-        description="Input semua komponen beban perusahaan"
+        description="Input semua komponen beban perusahaan berdasarkan kategori"
         :class="{ highlight: highlightForm }"
       >
         <!-- Slot untuk content -->
@@ -34,79 +34,173 @@
                 :options="monthOptions"
               />
             </div>
-            <div class="form-fields">
-              <FormField
-                id="gaji-insentif"
-                label="Gaji/Insentif/Bonus"
-                type="number"
-                v-model="formData.gaji"
-                placeholder="0"
-                format="currency"
-              />
-              <FormField
-                id="admin"
-                label="Administrasi"
-                type="number"
-                v-model="formData.admin"
-                placeholder="0"
-                :error="errors.admin"
-              />
-              <FormField
-                id="operasional"
-                label="Operasional"
-                type="number"
-                v-model="formData.operasional"
-                placeholder="0"
-                :error="errors.operasional"
-              />
-              <FormField
-                id="beban-umum-operasional"
-                label="Jumlah Beban Umum Operasional"
-                type="number"
-                v-model="formData.beban_umum_operasional"
-                placeholder="0"
-                :error="errors.bebanUmumOperasional"
-                format="currency"
-              />
-
-              <!-- Fields for Cabang role only -->
-              <FormField
-                id="penyusutan-aktiva"
-                label="Penyusutan Aktiva"
-                type="number"
-                v-model="formData.penyusutan_aktiva"
-                placeholder="0"
-                :error="errors.penyusutanAktiva"
-              />
-              <FormField
-                id="cadangan-piutang"
-                label="Cadangan Piutang"
-                type="number"
-                v-model="formData.cadangan_piutang"
-                placeholder="0"
-                :error="errors.cadanganPiutang"
-                format="currency"
-              />
-
-              <!-- Fields for all roles except Cabang -->
-              <FormField
-                id="cadangan-stock"
-                label="Cadangan Stock"
-                type="number"
-                v-model="formData.cadangan_stock"
-                placeholder="0"
-                :error="errors.cadanganStock"
-                format="currency"
-              />
-              <FormField
-                id="total"
-                label="Total Beban & Biaya"
-                type="number"
-                v-model="formData.total"
-                placeholder="0"
-                :error="errors.total"
-                format="currency"
-              />
+            <div class="form-table">
+              <table class="data-input-table">
+                <thead>
+                  <tr>
+                    <th class="field-header">Field Name</th>
+                    <th class="value-header">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="table-row salary-row">
+                    <td class="field-label">
+                      <label for="gaji-insentif">
+                        <i class="fas fa-money-bill-wave icon"></i>
+                        Gaji/Insentif/Bonus
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="gaji-insentif"
+                        label=""
+                        type="number"
+                        v-model="formData.gaji"
+                        placeholder="0"
+                        :error="errors.gaji"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row operational-row">
+                    <td class="field-label">
+                      <label for="admin">
+                        <i class="fas fa-file-invoice icon"></i>
+                        Administrasi
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="admin"
+                        label=""
+                        type="number"
+                        v-model="formData.admin"
+                        placeholder="0"
+                        :error="errors.admin"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row operational-row">
+                    <td class="field-label">
+                      <label for="operasional">
+                        <i class="fas fa-cogs icon"></i>
+                        Operasional
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="operasional"
+                        label=""
+                        type="number"
+                        v-model="formData.operasional"
+                        placeholder="0"
+                        :error="errors.operasional"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row result-row">
+                    <td class="field-label">
+                      <label for="beban-umum-operasional">
+                        <i class="fas fa-calculator icon"></i>
+                        Jumlah Beban Umum Operasional
+                        <span class="total-badge">Subtotal</span>
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="beban-umum-operasional"
+                        label=""
+                        type="number"
+                        v-model="formData.beban_umum_operasional"
+                        placeholder="0"
+                        :error="errors.bebanUmumOperasional"
+                        format="currency"
+                        :readonly="true"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="penyusutan-aktiva">
+                        <i class="fas fa-chart-line-down icon"></i>
+                        Penyusutan Aktiva
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="penyusutan-aktiva"
+                        label=""
+                        type="number"
+                        v-model="formData.penyusutan_aktiva"
+                        placeholder="0"
+                        :error="errors.penyusutanAktiva"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="cadangan-piutang">
+                        <i class="fas fa-piggy-bank icon"></i>
+                        Cadangan Piutang
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="cadangan-piutang"
+                        label=""
+                        type="number"
+                        v-model="formData.cadangan_piutang"
+                        placeholder="0"
+                        :error="errors.cadanganPiutang"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="cadangan-stock">
+                        <i class="fas fa-warehouse icon"></i>
+                        Cadangan Stock
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="cadangan-stock"
+                        label=""
+                        type="number"
+                        v-model="formData.cadangan_stock"
+                        placeholder="0"
+                        :error="errors.cadanganStock"
+                        format="currency"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row final-result-row">
+                    <td class="field-label">
+                      <label for="total">
+                        <i class="fas fa-chart-bar icon"></i>
+                        Total Beban & Biaya
+                        <span class="final-total-badge">Grand Total</span>
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="total"
+                        label=""
+                        type="number"
+                        v-model="formData.total"
+                        placeholder="0"
+                        :error="errors.total"
+                        format="currency"
+                        :readonly="true"
+                      />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </template>
@@ -127,8 +221,9 @@
           </div>
         </template>
       </FormSection>
+
       <FormSection
-        title="Beban Operasional"
+        title="Daftar Beban Operasional"
         description="Kumpulan item beban operasional yang telah ditambahkan"
       >
         <template #content>
@@ -189,7 +284,7 @@ import type {
   LoadComponentFrm,
   LoadComponentPayload,
 } from "@/types/load-component.type";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
 import LoadComponentTable from "./LoadComponentTable.vue";
 
@@ -246,6 +341,40 @@ const errors = ref<Record<keyof LoadComponentSchema, string>>({
   cadanganStock: "",
   total: "",
 });
+
+// Watch for auto calculation - Beban Umum Operasional
+watch(
+  [() => () => formData.value.admin, () => formData.value.operasional],
+  () => {
+    const admin = safeNumber(formData.value.admin);
+    const operasional = safeNumber(formData.value.operasional);
+
+    // Calculate beban umum operasional:  admin + operasional
+    formData.value.beban_umum_operasional = admin + operasional;
+  },
+  { immediate: true },
+);
+
+// Watch for auto calculation - Total Beban & Biaya
+watch(
+  [
+    () => formData.value.beban_umum_operasional,
+    () => formData.value.penyusutan_aktiva,
+    () => formData.value.cadangan_piutang,
+    () => formData.value.cadangan_stock,
+  ],
+  () => {
+    const bebanUmumOperasional = safeNumber(formData.value.beban_umum_operasional);
+    const penyusutanAktiva = safeNumber(formData.value.penyusutan_aktiva);
+    const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
+    const cadanganStock = safeNumber(formData.value.cadangan_stock);
+
+    // Calculate total: beban_umum_operasional + penyusutan_aktiva + cadangan_piutang + cadangan_stock
+    formData.value.total =
+      bebanUmumOperasional + penyusutanAktiva + cadanganPiutang + cadanganStock;
+  },
+  { immediate: true },
+);
 
 const fetchList = async (page = 1) => {
   try {
@@ -410,12 +539,271 @@ function handleCancelDelete() {
 </script>
 
 <style scoped>
-.pagination {
-  margin-top: 16px;
+.form-grid {
   display: flex;
-  justify-content: end;
-  align-items: center;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.date-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1rem;
+  padding: 1rem 1.5rem;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.form-table {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.data-input-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0;
+  background: #ffffff;
+}
+
+.data-input-table thead th {
+  background: #f9fafb;
+  color: #374151;
+  padding: 1rem 1.5rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-bottom: 2px solid #e5e7eb;
+  letter-spacing: 0.025em;
+}
+
+.field-header {
+  width: 40%;
+}
+
+.value-header {
+  width: 60%;
+}
+
+.table-row {
+  border-bottom: 1px solid #f3f4f6;
+  transition: background-color 0.15s ease;
+}
+
+.table-row:hover {
+  background: #f9fafb;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+  background: #fafafa;
+  border-right: 1px solid #f3f4f6;
+}
+
+.field-label label {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.icon {
+  margin-right: 0.5rem;
+  color: #6b7280;
+  font-size: 1rem;
+  opacity: 0.7;
+}
+
+.field-input {
+  padding: 1rem 1.5rem;
+  vertical-align: middle;
+  background: #ffffff;
+}
+
+.field-input :deep(.form-field) {
+  margin: 0;
+}
+
+.field-input :deep(.form-input) {
+  border-radius: 6px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  transition: all 0.15s ease;
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  width: 100%;
+  font-weight: 400;
+}
+
+.field-input :deep(.form-input:focus) {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.salary-row {
+  background: #fef3c7;
+}
+
+.salary-row .field-label {
+  background: #fde68a;
+  border-right-color: #fcd34d;
+}
+
+.salary-row .icon {
+  color: #d97706;
+}
+
+.salary-row .field-input {
+  background: #fef3c7;
+}
+
+.salary-row .field-input :deep(.form-input) {
+  background: #ffffff;
+  border-color: #f59e0b;
+  font-weight: 500;
+  color: #92400e;
+}
+
+.operational-row {
+  background: #f0f9ff;
+}
+
+.operational-row .field-label {
+  background: #e0f2fe;
+  border-right-color: #bae6fd;
+}
+
+.operational-row .icon {
+  color: #0284c7;
+}
+
+.operational-row .field-input {
+  background: #f0f9ff;
+}
+
+.operational-row .field-input :deep(.form-input) {
+  background: #ffffff;
+  border-color: #0ea5e9;
+  font-weight: 500;
+  color: #0c4a6e;
+}
+
+.result-row {
+  background: #f0fdf4;
+}
+
+.result-row .field-label {
+  background: #ecfdf5;
+  border-right-color: #d1fae5;
+}
+
+.result-row .icon {
+  color: #10b981;
+}
+
+.result-row .field-input {
+  background: #f0fdf4;
+}
+
+.result-row .field-input :deep(.form-input) {
+  background: #ffffff;
+  border-color: #10b981;
+  font-weight: 500;
+  color: #065f46;
+}
+
+.final-result-row {
+  background: #ede9fe;
+}
+
+.final-result-row .field-label {
+  background: #f3f4f6;
+  border-right-color: #e5e7eb;
+}
+
+.final-result-row .icon {
+  color: #7c3aed;
+}
+
+.final-result-row .field-input {
+  background: #ede9fe;
+}
+
+.final-result-row .field-input :deep(.form-input) {
+  background: #ffffff;
+  border-color: #7c3aed;
+  font-weight: 600;
+  color: #5b21b6;
+}
+
+.total-badge {
+  background: #10b981;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+
+.final-total-badge {
+  background: #7c3aed;
+  color: white;
+  font-size: 0.7rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  margin-left: 0.5rem;
+  font-weight: 500;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .data-input-table thead {
+    display: none;
+  }
+
+  .table-row {
+    display: block;
+    margin-bottom: 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .field-label,
+  .field-input {
+    display: block;
+    padding: 0.75rem 1rem;
+    border: none;
+  }
+
+  .field-label {
+    border-bottom: 1px solid #f3f4f6;
+    background: #f9fafb;
+  }
+
+  .field-input {
+    background: #ffffff;
+  }
+
+  .date-fields {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 0.75rem;
+  }
 }
 
 .list-table {
@@ -489,5 +877,13 @@ function handleCancelDelete() {
   color: white;
   transform: translateY(-2px);
   box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
 }
 </style>
