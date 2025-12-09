@@ -30,23 +30,48 @@
             <div v-show="isFilterOpen" class="filter-content">
               <div class="filter-year-month">
                 <div class="filter-group">
-                  <FormSelect id="year" label="Tahun" v-model="selectedYear" placeholder="Pilih Tahun" :options="years"
-                    :allowEmpty="true" />
+                  <FormSelect
+                    id="year"
+                    label="Tahun"
+                    v-model="selectedYear"
+                    placeholder="Pilih Tahun"
+                    :options="years"
+                    :allowEmpty="true"
+                  />
                 </div>
                 <div class="filter-group">
-                  <FormSelect id="month" label="Bulan" v-model="selectedMonth" placeholder="Pilih Bulan" :options="months"
-                    :allowEmpty="true" />
+                  <FormSelect
+                    id="month"
+                    label="Bulan"
+                    v-model="selectedMonth"
+                    placeholder="Pilih Bulan"
+                    :options="months"
+                    :allowEmpty="true"
+                  />
                 </div>
               </div>
 
               <div class="filter-group">
-                <FormSelect id="cabang" label="Cabang" v-model="selectedCabang" placeholder="Pilih Cabang"
-                  :options="cabangOptions" :allowEmpty="true" />
+                <FormSelect
+                  id="cabang"
+                  label="Cabang"
+                  v-model="selectedCabang"
+                  placeholder="Pilih Cabang"
+                  :options="cabangOptions"
+                  :allowEmpty="true"
+                />
               </div>
 
               <div class="filter-group">
-                <FormSelect id="unit" label="Unit" v-model="selectedUnit" placeholder="Pilih Unit" :options="unitOptions"
-                  :allowEmpty="true" :disabled="!selectedCabang" />
+                <FormSelect
+                  id="unit"
+                  label="Unit"
+                  v-model="selectedUnit"
+                  placeholder="Pilih Unit"
+                  :options="unitOptions"
+                  :allowEmpty="true"
+                  :disabled="!selectedCabang"
+                />
               </div>
 
               <button @click="resetFilters" class="reset-button" type="button">
@@ -60,7 +85,6 @@
     </div>
 
     <div class="sidebar-content">
-
       <nav class="sidebar-nav">
         <!-- <div class="nav-header">
         <i class="fas fa-bars"></i>
@@ -77,8 +101,11 @@
 
           <!-- Komponen Produksi - Only for Unit role -->
           <li v-if="canAccessRoute('/komponen-produksi')">
-            <router-link to="/komponen-produksi" class="nav-link"
-              :class="{ active: $route.name === 'komponen-produksi' }">
+            <router-link
+              to="/komponen-produksi"
+              class="nav-link"
+              :class="{ active: $route.name === 'komponen-produksi' }"
+            >
               <i class="fas fa-industry"></i>
               <span>Komponen Produksi</span>
             </router-link>
@@ -86,7 +113,11 @@
 
           <!-- Komponen Beban - Only for Cabang role -->
           <li v-if="canAccessRoute('/komponen-beban')">
-            <router-link to="/komponen-beban" class="nav-link" :class="{ active: $route.name === 'komponen-beban' }">
+            <router-link
+              to="/komponen-beban"
+              class="nav-link"
+              :class="{ active: $route.name === 'komponen-beban' }"
+            >
               <i class="fas fa-credit-card"></i>
               <span>Komponen Beban</span>
             </router-link>
@@ -94,7 +125,11 @@
 
           <!-- Laba / Rugi - Only for Pusat role -->
           <li v-if="canAccessRoute('/laba-rugi')">
-            <router-link to="/laba-rugi" class="nav-link" :class="{ active: $route.name === 'laba-rugi' }">
+            <router-link
+              to="/laba-rugi"
+              class="nav-link"
+              :class="{ active: $route.name === 'laba-rugi' }"
+            >
               <i class="fas fa-chart-pie"></i>
               <span>Laba / Rugi / Surplus Devisit</span>
             </router-link>
@@ -102,8 +137,11 @@
 
           <!-- Cadangan & Nilai Sisa - Only for Pusat role -->
           <li v-if="canAccessRoute('/cadangan-nilai-sisa')">
-            <router-link to="/cadangan-nilai-sisa" class="nav-link"
-              :class="{ active: $route.name === 'cadangan-nilai-sisa' }">
+            <router-link
+              to="/cadangan-nilai-sisa"
+              class="nav-link"
+              :class="{ active: $route.name === 'cadangan-nilai-sisa' }"
+            >
               <i class="fas fa-piggy-bank"></i>
               <span>Cadangan & Nilai Sisa ACC Penyusutan</span>
             </router-link>
@@ -111,7 +149,11 @@
 
           <!-- Sumber Daya - Only for Pusat role -->
           <li v-if="canAccessRoute('/sumber-daya')">
-            <router-link to="/sumber-daya" class="nav-link" :class="{ active: $route.name === 'sumber-daya' }">
+            <router-link
+              to="/sumber-daya"
+              class="nav-link"
+              :class="{ active: $route.name === 'sumber-daya' }"
+            >
               <i class="fas fa-users"></i>
               <span>Sumber Daya</span>
             </router-link>
@@ -119,7 +161,11 @@
 
           <!-- Kas & Keuangan - Only for Pusat role -->
           <li v-if="canAccessRoute('/kas-keuangan')">
-            <router-link to="/kas-keuangan" class="nav-link" :class="{ active: $route.name === 'kas-keuangan' }">
+            <router-link
+              to="/kas-keuangan"
+              class="nav-link"
+              :class="{ active: $route.name === 'kas-keuangan' }"
+            >
               <i class="fas fa-wallet"></i>
               <span>Kas & Keuangan</span>
             </router-link>
@@ -127,8 +173,11 @@
 
           <!-- Satuan Pengukuran - Only for Pusat role -->
           <li v-if="canAccessRoute('/satuan-pengukuran')">
-            <router-link to="/satuan-pengukuran" class="nav-link"
-              :class="{ active: $route.name === 'satuan-pengukuran' }">
+            <router-link
+              to="/satuan-pengukuran"
+              class="nav-link"
+              :class="{ active: $route.name === 'satuan-pengukuran' }"
+            >
               <i class="fas fa-ruler-combined"></i>
               <span>Satuan Pengukuran</span>
             </router-link>
@@ -136,14 +185,22 @@
 
           <!-- Export with access -->
           <li v-if="canAccessRoute('/export')">
-            <router-link to="/export" class="nav-link" :class="{ active: $route.name === 'export' }">
+            <router-link
+              to="/export"
+              class="nav-link"
+              :class="{ active: $route.name === 'export' }"
+            >
               <i class="fas fa-file-export"></i>
               <span>Ekspor</span>
             </router-link>
           </li>
           <!-- Import with access -->
           <li v-if="canAccessRoute('/import')">
-            <router-link to="/import" class="nav-link" :class="{ active: $route.name === 'import' }">
+            <router-link
+              to="/import"
+              class="nav-link"
+              :class="{ active: $route.name === 'import' }"
+            >
               <i class="fas fa-file-import"></i>
               <span>Impor</span>
             </router-link>
@@ -155,168 +212,181 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { selectedCabang, selectedMonth, selectedYear, selectedUnit, selectedEntityId } from '@/stores/globalState'
-import { useRole } from '@/composables/useRole'
-import { useDate } from '@/composables/useDate'
-import { getRouteAllowedRoles } from '@/router'
-import FormSelect from './FormSelect.vue'
-import { getCabangs } from '@/services/entitiesService'
-import { useAuthStore } from '@/stores/auth'
-import type { Entities } from '@/types/entities.type'
+import { ref, computed, onMounted, watch } from "vue";
+import {
+  selectedCabang,
+  selectedMonth,
+  selectedYear,
+  selectedUnit,
+  selectedEntityId,
+} from "@/stores/globalState";
+import { useRole } from "@/composables/useRole";
+import { useDate } from "@/composables/useDate";
+import { getRouteAllowedRoles } from "@/router";
+import FormSelect from "./FormSelect.vue";
+import { getCabangs } from "@/services/entitiesService";
+import { useAuthStore } from "@/stores/auth";
+import type { Entities } from "@/types/entities.type";
 
 // Role-based navigation
-const { hasRole } = useRole()
+const { hasRole } = useRole();
 
 // Auth store
-const authStore = useAuthStore()
-const user = computed(() => authStore.user.value)
+const authStore = useAuthStore();
+const user = computed(() => authStore.user.value);
 
 // Helper function to check if user can access specific route
 const canAccessRoute = (path: string): boolean => {
-  const allowedRoles = getRouteAllowedRoles(path)
-  if (!allowedRoles) return false
+  const allowedRoles = getRouteAllowedRoles(path);
+  if (!allowedRoles) return false;
 
-  return allowedRoles.some(role => hasRole(role))
-}
+  return allowedRoles.some((role) => hasRole(role));
+};
 
 // Use date composable
-const { monthOptions: months, getYearOptions } = useDate()
-const years = getYearOptions(5) // Current year ± 5 years
+const { monthOptions: months, getYearOptions } = useDate();
+const years = getYearOptions(5); // Current year ± 5 years
 
-const allCabangsData = ref<Entities[]>([])
-const cabangs = ref<string[]>([])
-const cabangsData = ref<Entities[]>([])
-const isFilterOpen = ref(false)
+const allCabangsData = ref<Entities[]>([]);
+const cabangs = ref<string[]>([]);
+const cabangsData = ref<Entities[]>([]);
+const isFilterOpen = ref(false);
 
 // Computed property untuk filter cabang berdasarkan user.entity_id
 const filteredCabangs = computed(() => {
-  const currentUser = user.value
+  const currentUser = user.value;
   if (!currentUser || !allCabangsData.value.length) {
-    return []
+    return [];
   }
 
   // Jika user adalah PUSAT, tampilkan semua cabang
-  if (currentUser.entity_type === 'PUSAT' || !currentUser.entity_type) {
-    return allCabangsData.value
+  if (currentUser.entity_type === "PUSAT" || !currentUser.entity_type) {
+    return allCabangsData.value;
   }
 
   // Jika user adalah CABANG, tampilkan hanya cabang dengan id yang sama dengan user.entity_id
-  if (currentUser.entity_type === 'CABANG') {
+  if (currentUser.entity_type === "CABANG") {
     return allCabangsData.value.filter(
-      (cabang: Entities) => cabang.id === String(currentUser.entity_id)
-    )
+      (cabang: Entities) => cabang.id === String(currentUser.entity_id),
+    );
   }
 
   // Jika user adalah UNIT, cari cabang parent dari unit tersebut
-  if (currentUser.entity_type === 'UNIT') {
+  if (currentUser.entity_type === "UNIT") {
     // Cari cabang yang memiliki unit dengan id yang sama dengan user.entity_id
     return allCabangsData.value.filter((cabang: Entities) => {
-      return cabang.units?.some((unit: Entities) => unit.id === String(currentUser.entity_id))
-    })
+      return cabang.units?.some((unit: Entities) => unit.id === String(currentUser.entity_id));
+    });
   }
 
-  return []
-})
+  return [];
+});
 
 // Watch filteredCabangs untuk update cabangs dan cabangsData
-watch(filteredCabangs, (filtered) => {
-  cabangsData.value = filtered
-  cabangs.value = filtered.map((cabang: Entities) => cabang.name)
-}, { immediate: true })
+watch(
+  filteredCabangs,
+  (filtered) => {
+    cabangsData.value = filtered;
+    cabangs.value = filtered.map((cabang: Entities) => cabang.name);
+  },
+  { immediate: true },
+);
 
 // Computed property untuk units berdasarkan selectedCabang
 const units = computed(() => {
   if (!selectedCabang.value) {
-    return []
+    return [];
   }
 
   // Cari cabang yang dipilih dari data cabangs
   const selectedCabangData = cabangsData.value.find(
-    (cabang: Entities) => cabang.name === selectedCabang.value
-  )
+    (cabang: Entities) => cabang.name === selectedCabang.value,
+  );
 
   // Jika cabang ditemukan dan memiliki units, return nama units
   if (selectedCabangData && selectedCabangData.units) {
-    return selectedCabangData.units.map((unit: Entities) => unit.name)
+    return selectedCabangData.units.map((unit: Entities) => unit.name);
   }
 
-  return []
-})
+  return [];
+});
 
 // Computed property untuk cabang options (format untuk FormSelect)
 const cabangOptions = computed(() => {
-  return cabangs.value.map(cabang => ({
+  return cabangs.value.map((cabang) => ({
     value: cabang,
-    label: cabang
-  }))
-})
+    label: cabang,
+  }));
+});
 
 // Computed property untuk unit options (format untuk FormSelect)
 const unitOptions = computed(() => {
-  return units.value.map(unit => ({
+  return units.value.map((unit) => ({
     value: unit,
-    label: unit
-  }))
-})
+    label: unit,
+  }));
+});
 
 // Watch selectedCabang untuk reset selectedUnit ketika cabang berubah
 watch(selectedCabang, () => {
-  selectedEntityId.value = Number(cabangsData.value.find(cabang => cabang.name === selectedCabang.value)?.id || undefined)
-  selectedUnit.value = ''
-  if (selectedCabang.value === '') {
-    selectedEntityId.value = undefined
+  selectedEntityId.value = Number(
+    cabangsData.value.find((cabang) => cabang.name === selectedCabang.value)?.id || undefined,
+  );
+  selectedUnit.value = "";
+  if (selectedCabang.value === "") {
+    selectedEntityId.value = undefined;
   }
-})
+});
 
 watch(selectedUnit, () => {
-  if (selectedUnit.value === '' && selectedCabang.value !== '') {
-    selectedEntityId.value = Number(cabangsData.value.find(cabang => cabang.name === selectedCabang.value)?.id || undefined)
+  if (selectedUnit.value === "" && selectedCabang.value !== "") {
+    selectedEntityId.value = Number(
+      cabangsData.value.find((cabang) => cabang.name === selectedCabang.value)?.id || undefined,
+    );
   } else {
     const selected = cabangsData.value.find(
-      (cabang: Entities) => cabang.name === selectedCabang.value
-    )
+      (cabang: Entities) => cabang.name === selectedCabang.value,
+    );
     if (selected?.units) {
-      selectedEntityId.value = Number(selected.units.find((unit: Entities) => unit.name === selectedUnit.value)?.id || undefined)
+      selectedEntityId.value = Number(
+        selected.units.find((unit: Entities) => unit.name === selectedUnit.value)?.id || undefined,
+      );
     }
   }
-
-})
-console.log(selectedUnit.value, 'selectedUnit')
+});
 
 // Fetch cabangs from API
 const fetchCabangs = async () => {
   try {
-    const response = await getCabangs()
+    const response = await getCabangs();
     if (response && response.data) {
-      allCabangsData.value = response.data
+      allCabangsData.value = response.data;
       // filteredCabangs computed akan otomatis update cabangs dan cabangsData
     }
   } catch (error) {
-    console.error('Error fetching cabangs:', error)
+    console.error("Error fetching cabangs:", error);
     // Fallback to empty array on error
-    allCabangsData.value = []
-    cabangs.value = []
-    cabangsData.value = []
+    allCabangsData.value = [];
+    cabangs.value = [];
+    cabangsData.value = [];
   }
-}
+};
 
 // Fungsi untuk reset semua filter
 const resetFilters = () => {
-  selectedYear.value = ''
-  selectedMonth.value = ''
-  selectedCabang.value = ''
-  selectedUnit.value = ''
-}
+  selectedYear.value = "";
+  selectedMonth.value = "";
+  selectedCabang.value = "";
+  selectedUnit.value = "";
+};
 
 onMounted(() => {
-  fetchCabangs()
-})
+  fetchCabangs();
+});
 
 const toggleFilters = () => {
-  isFilterOpen.value = !isFilterOpen.value
-}
-
+  isFilterOpen.value = !isFilterOpen.value;
+};
 </script>
 
 <style scoped>
@@ -444,7 +514,9 @@ const toggleFilters = () => {
   box-shadow:
     0 4px 16px rgba(0, 0, 0, 0.12),
     inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  transition: border-color 0.25s ease, background 0.25s ease;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease;
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   overflow: hidden;
@@ -542,7 +614,9 @@ const toggleFilters = () => {
 
 .collapse-enter-active,
 .collapse-leave-active {
-  transition: height 0.25s ease, opacity 0.25s ease;
+  transition:
+    height 0.25s ease,
+    opacity 0.25s ease;
 }
 
 .collapse-enter-from,
@@ -611,7 +685,7 @@ const toggleFilters = () => {
 }
 
 .nav-link::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 0;
@@ -729,7 +803,7 @@ const toggleFilters = () => {
 }
 
 .reset-button::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 50%;
   left: 50%;
@@ -738,7 +812,9 @@ const toggleFilters = () => {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.2);
   transform: translate(-50%, -50%);
-  transition: width 0.4s ease, height 0.4s ease;
+  transition:
+    width 0.4s ease,
+    height 0.4s ease;
 }
 
 .reset-button:hover {

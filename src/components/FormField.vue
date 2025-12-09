@@ -1,30 +1,134 @@
 <template>
   <div class="form-field">
-    <label :for="id" :class="['form-label', { 'label-error': error }]">{{ label }}   <span v-if="required" class="required">*</span> </label>
-    <input :id="id" :type="type || 'text'" :value="modelValue"
-      @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)" :class="['form-input', { 'has-error': error }]"
-      :placeholder="placeholder" :readonly="readonly" :min="min" :max="max" :required="required"  />
-      <p v-if="error" class="error-message">{{ error }}</p>
+    <label :for="id" :class="['form-label', { 'label-error': error }]"
+      >{{ label }} <span v-if="required" class="required">*</span>
+    </label>
+    <input
+      :id="id"
+      :type="inputType"
+      :value="displayValue"
+      @input="handleInput"
+      :class="['form-input', { 'has-error': error }]"
+      :placeholder="placeholder"
+      :readonly="readonly"
+      :min="min"
+      :max="max"
+      :required="required"
+    />
+    <p v-if="error" class="error-message">{{ error }}</p>
   </div>
 </template>
 
 <script setup lang="ts">
-defineProps<{
-  id: string
-  label: string
-  type?: string
-  placeholder?: string
-  modelValue: string | number
-  readonly?: boolean
-  min?: number
-  max?: number
-  required?: boolean
-  error?: string | null
-}>()
+import { computed } from "vue";
 
-defineEmits<{
-  'update:modelValue': [value: string | number]
-}>()
+const props = defineProps<{
+  id: string;
+  label: string;
+  type?: string;
+  placeholder?: string;
+  modelValue: string | number;
+  readonly?: boolean;
+  min?: number;
+  max?: number;
+  required?: boolean;
+  error?: string | null;
+  format?: "currency" | "none";
+}>();
+
+const emit = defineEmits<{
+  "update:modelValue": [value: string | number];
+}>();
+
+// Format currency
+const formatCurrency = (value: number | string): string => {
+  let num: number;
+  if (typeof value === "string") {
+    // If it's already a formatted string, parse it first
+    num = value.includes("Rp") ? parseCurrency(value) : parseFloat(value) || 0;
+  } else {
+    num = isNaN(value) ? 0 : value;
+  }
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(num);
+};
+
+// Format number with thousand separators (no currency symbol)
+const formatNumber = (value: number | string): string => {
+  let num: number;
+  if (typeof value === "string") {
+    // If it's already a formatted string, parse it first
+    num = value.includes(".") ? parseNumber(value) : parseFloat(value) || 0;
+  } else {
+    num = isNaN(value) ? 0 : value;
+  }
+  return new Intl.NumberFormat("id-ID", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(num);
+};
+
+// Parse number back to number (removes thousand separators)
+const parseNumber = (value: string): number => {
+  // Remove all dots (thousand separators) but keep other digits
+  const cleanValue = value.replace(/\./g, "").replace(/[^\d]/g, "");
+  // Return 0 if empty string, otherwise parse as integer
+  return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+};
+
+// Parse currency back to number
+const parseCurrency = (value: string): number => {
+  // Remove all non-digit characters including currency symbols and separators
+  const cleanValue = value.replace(/[^\d]/g, "");
+  // Return 0 if empty string, otherwise parse as integer
+  return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+};
+
+// Input type based on format
+const inputType = computed(() => {
+  if ((props.format === "currency" || !props.format) && props.type === "number") {
+    return "text";
+  }
+  return props.type || "text";
+});
+
+// Display value based on format
+const displayValue = computed(() => {
+  if (props.format === "currency" && props.type === "number") {
+    return formatCurrency(props.modelValue);
+  } else if (!props.format && props.type === "number") {
+    return formatNumber(props.modelValue);
+  }
+  return props.modelValue;
+});
+
+// Handle input changes
+const handleInput = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  const value: string | number = target.value;
+
+  if (props.format === "currency" && props.type === "number") {
+    const numericValue = parseCurrency(value as string);
+    // Update the display value after a short delay to avoid cursor jumping
+    setTimeout(() => {
+      target.value = formatCurrency(numericValue);
+    }, 0);
+    emit("update:modelValue", numericValue);
+  } else if (!props.format && props.type === "number") {
+    const numericValue = parseNumber(value as string);
+    // Update the display value after a short delay to avoid cursor jumping
+    setTimeout(() => {
+      target.value = formatNumber(numericValue);
+    }, 0);
+    emit("update:modelValue", numericValue);
+  } else {
+    emit("update:modelValue", value);
+  }
+};
 </script>
 
 <style scoped>
@@ -77,8 +181,8 @@ defineEmits<{
 .has-error {
   border-color: red;
 }
-.label-error{
-  color:red !important;
+.label-error {
+  color: red !important;
 }
 .error-message {
   margin-top: 0.5rem;
