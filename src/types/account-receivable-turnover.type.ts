@@ -1,15 +1,14 @@
-
 import type { ResponseData } from "./response-data.type";
 export interface AccountReceivableTurnOverPayload {
-  branch_id: number,
-  year: number,
-  month: number,
-  lancar: number,
-  kurang_lancar: number,
-  ragu_ragu: number,
-  macet_baru: number,
-  macet_lama: number,
-  total_piutang: number,
+  branch_id: number;
+  year: number;
+  month: number;
+  lancar: number;
+  kurang_lancar: number;
+  ragu_ragu: number;
+  macet_baru: number;
+  macet_lama: number;
+  total: number;
 }
 
 export type AccountReceivableTurnOverFrm = Omit<AccountReceivableTurnOverPayload, "branch_id">;
@@ -19,13 +18,13 @@ export interface AccountReceivableTurnOverData {
   period_id: string;
   year: number;
   month: number;
-  lancar: number,
-  kurang_lancar: number,
-  ragu_ragu: number,
-  macet_baru: number,
-  macet_lama: number,
-  total_piutang: number,
-  total: number,
+  lancar: number;
+  kurang_lancar: number;
+  ragu_ragu: number;
+  macet_baru: number;
+  macet_lama: number;
+  total_piutang: number;
+  total: number;
   created_at: Date;
   updated_at: Date;
   version: string;
@@ -39,18 +38,16 @@ export interface ParamAccountReceivableTurnOverList {
 }
 
 export type GetAccountReceivableTurnOverList = (
-  params: ParamAccountReceivableTurnOverList
+  params: ParamAccountReceivableTurnOverList,
 ) => Promise<ResponseData<AccountReceivableTurnOverData[]>>;
 
 export type AddAccountReceivableTurnOver = (
-  payload: AccountReceivableTurnOverPayload
+  payload: AccountReceivableTurnOverPayload,
 ) => Promise<ResponseData<AccountReceivableTurnOverData>>;
 
 export type UpdateAccountReceivableTurnOver = (
   id: number,
-  payload: AccountReceivableTurnOverPayload
+  payload: AccountReceivableTurnOverPayload,
 ) => Promise<ResponseData<AccountReceivableTurnOverData>>;
 
-export type DeleteAccountReceivableTurnOver = (
-  id: number,
-) => Promise<ResponseData<string>>;
+export type DeleteAccountReceivableTurnOver = (id: number) => Promise<ResponseData<string>>;

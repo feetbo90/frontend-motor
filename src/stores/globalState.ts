@@ -1,25 +1,25 @@
-import { ref, computed } from 'vue'
-import { useDate } from '@/composables/useDate'
+import { ref, computed } from "vue";
+import { useDate } from "@/composables/useDate";
 
 // Global state untuk filter periode
 
-const { getCurrentDate } = useDate()
-const currentDate = getCurrentDate()
+const { getCurrentDate } = useDate();
+const currentDate = getCurrentDate();
 
-export const selectedYear = ref<string | number>('')
-export const selectedMonth = ref<string | number>('')
-export const selectedCabang = ref('')
-export const selectedUnit = ref('')
-export const selectedEntityId = ref<number|undefined>(undefined)
+export const selectedYear = ref<string | number>("");
+export const selectedMonth = ref<string | number>("");
+export const selectedCabang = ref("");
+export const selectedUnit = ref("");
+export const selectedEntityId = ref<number | undefined>(undefined);
 
 // Dummy User information
 export const userInfo = ref({
-  name: 'Admin Pandu Motor',
-  role: 'UNIT',//role yang tersedia [unit, cabang, pusat]
-  email: 'admin@pandumotor.com',
+  name: "Admin Pandu Motor",
+  role: "UNIT", //role yang tersedia [unit, cabang, pusat]
+  email: "admin@pandumotor.com",
   avatar: null,
-  lastLogin: new Date().toLocaleDateString('id-ID')
-})
+  lastLogin: new Date().toLocaleDateString("id-ID"),
+});
 
 // Data store untuk dashboard
 export const dashboardData = ref({
@@ -27,8 +27,8 @@ export const dashboardData = ref({
   totalBeban: 180000000,
   labaRugi: 70000000,
   totalKaryawan: 25,
-  totalPiutang: 150000000
-})
+  totalPiutang: 150000000,
+});
 
 // Data untuk produksi
 export const produksiData = ref({
@@ -40,7 +40,7 @@ export const produksiData = ref({
     unit_jualkredit: 0,
     unit_jualleasing: 0,
     tahun: currentDate.year,
-    bulan: currentDate.month
+    bulan: currentDate.month,
   },
   pendapatan: {
     markup_kontan: 0,
@@ -52,7 +52,7 @@ export const produksiData = ref({
     administrasi: 0,
     jumlah_pendapatan: 0,
     year: currentDate.year,
-    month: currentDate.month
+    month: currentDate.month,
   },
   pendapatanLain: {
     penjualan_pk: 0,
@@ -61,7 +61,7 @@ export const produksiData = ref({
     diskon_denda: 0,
     jumlah_pendapatan_lain: 0,
     year: currentDate.year,
-    month: currentDate.month
+    month: currentDate.month,
   },
   piutang: {
     saldo_awal: 0,
@@ -71,7 +71,7 @@ export const produksiData = ref({
     jumlah_angsuran: 0,
     saldo_akhir: 0,
     year: currentDate.year,
-    month: currentDate.month
+    month: currentDate.month,
   },
   sirkulasiPiutang: {
     lancar: 0,
@@ -79,9 +79,9 @@ export const produksiData = ref({
     ragu_ragu: 0,
     macet_baru: 0,
     macet_lama: 0,
-    total_piutang: 0,
+    total: 0,
     year: currentDate.year,
-    month: currentDate.month
+    month: currentDate.month,
   },
   sirkulasiStock: {
     unit_awal: 0,
@@ -95,7 +95,7 @@ export const produksiData = ref({
     unit_akhir: 0,
     unit_akhir_data: 0,
     year: currentDate.year,
-    month: currentDate.month
+    month: currentDate.month,
   },
   barangPK: {
     unit_awal: 0,
@@ -107,9 +107,9 @@ export const produksiData = ref({
     jumlah_pk: 0,
     jumlah_pk_data: 0,
     year: currentDate.year,
-    month: currentDate.month
-  }
-})
+    month: currentDate.month,
+  },
+});
 
 // Data untuk beban
 export const bebanData = ref({
@@ -122,8 +122,8 @@ export const bebanData = ref({
   cadangan_stock: 0,
   total: 0,
   year: currentDate.year,
-  month: currentDate.month
-})
+  month: currentDate.month,
+});
 
 // Data untuk laba rugi
 export const labaRugiData = ref({
@@ -132,8 +132,8 @@ export const labaRugiData = ref({
   modal: 0,
   bulan_ini: 0,
   year: currentDate.year,
-  month: currentDate.month
-})
+  month: currentDate.month,
+});
 
 // Data untuk cadangan
 export const cadanganData = ref({
@@ -143,8 +143,8 @@ export const cadanganData = ref({
   cadangan_stock: 0,
   cadangan_stock_data: 0,
   year: currentDate.year,
-  month: currentDate.month
-})
+  month: currentDate.month,
+});
 
 // Data untuk sumber daya
 
@@ -158,13 +158,12 @@ export const sumberDayaData = ref({
   formasi_kurang: 0,
   kontrak_kantor: 0,
   inventaris_mobil: 0,
-  inventaris_mobil_ket: '',
+  inventaris_mobil_ket: "",
   sisa_inventaris_pendirian: 0,
   penyusutan_bulan: 0,
   year: currentDate.year,
-  month: currentDate.month
-
-})
+  month: currentDate.month,
+});
 
 // Data untuk kas/keuangan
 export const cashFlowData = ref({
@@ -178,36 +177,38 @@ export const cashFlowData = ref({
   jumlah_kas_macet: 0,
   saldo_akhir: 0,
   year: currentDate.year,
-  month: currentDate.month
-})
+  month: currentDate.month,
+});
 
 // Global loading state
-export const isGlobalLoading = ref(false)
+export const isGlobalLoading = ref(false);
 
 // Computed values
 export const currentPeriod = computed(() => {
-  const { getMonthName } = useDate()
-  const yearNumber = typeof selectedYear.value === 'string' ? Number(selectedYear.value) : selectedYear.value
-  const monthNumber = typeof selectedMonth.value === 'string' ? Number(selectedMonth.value) : selectedMonth.value
-  if (!yearNumber || !monthNumber) return 'Pilih periode'
-  return `${getMonthName(monthNumber)} ${yearNumber}`
-})
+  const { getMonthName } = useDate();
+  const yearNumber =
+    typeof selectedYear.value === "string" ? Number(selectedYear.value) : selectedYear.value;
+  const monthNumber =
+    typeof selectedMonth.value === "string" ? Number(selectedMonth.value) : selectedMonth.value;
+  if (!yearNumber || !monthNumber) return "Pilih periode";
+  return `${getMonthName(monthNumber)} ${yearNumber}`;
+});
 
 // currency
 export const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
+  return new Intl.NumberFormat("id-ID", {
+    style: "currency",
+    currency: "IDR",
     minimumFractionDigits: 0,
-    maximumFractionDigits: 0
-  }).format(amount)
-}
+    maximumFractionDigits: 0,
+  }).format(amount);
+};
 
 export function resetPeriodeFilter() {
-  const { getCurrentDate } = useDate()
+  const { getCurrentDate } = useDate();
   // const now = getCurrentDate()
-  selectedYear.value = ''
-  selectedMonth.value = ''
-  selectedCabang.value = ''
-  selectedUnit.value = ''
+  selectedYear.value = "";
+  selectedMonth.value = "";
+  selectedCabang.value = "";
+  selectedUnit.value = "";
 }

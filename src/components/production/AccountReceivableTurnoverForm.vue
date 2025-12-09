@@ -151,9 +151,9 @@
                         id="total-piutang"
                         label=""
                         type="number"
-                        v-model="formData.total_piutang"
+                        v-model="formData.total"
                         placeholder="0"
-                        :error="errors.totalPiutang"
+                        :error="errors.total"
                         format="currency"
                         :readonly="true"
                       />
@@ -289,7 +289,7 @@ const defaultSalesData: AccountReceivableTurnOverFrm = {
   ragu_ragu: 0,
   macet_baru: 0,
   macet_lama: 0,
-  total_piutang: 0,
+  total: 0,
 };
 
 const errors = ref<Record<keyof AccountReceivableTurnOverSchema, string>>({
@@ -298,7 +298,7 @@ const errors = ref<Record<keyof AccountReceivableTurnOverSchema, string>>({
   raguRagu: "",
   macetBaru: "",
   macetLama: "",
-  totalPiutang: "",
+  total: "",
 });
 
 // Watch for auto calculation
@@ -317,7 +317,7 @@ watch(
     const macetBaru = safeNumber(formData.value.macet_baru);
     const macetLama = safeNumber(formData.value.macet_lama);
 
-    formData.value.total_piutang = lancar + kurangLancar + raguRagu + macetBaru + macetLama;
+    formData.value.total = lancar + kurangLancar + raguRagu + macetBaru + macetLama;
   },
   { immediate: true },
 );
@@ -366,7 +366,7 @@ function validateForm(): boolean {
     raguRagu: safeNumber(formData.value.ragu_ragu),
     macetBaru: safeNumber(formData.value.macet_baru),
     macetLama: safeNumber(formData.value.macet_lama),
-    totalPiutang: safeNumber(formData.value.total_piutang),
+    total: safeNumber(formData.value.total),
   });
 
   if (!result.success) {
@@ -439,7 +439,7 @@ function editRow(id: number): void {
     ragu_ragu: Number(row.ragu_ragu),
     macet_baru: Number(row.macet_baru),
     macet_lama: Number(row.macet_lama),
-    total_piutang: Number(row.total_piutang),
+    total: Number(row.total),
     year: row.year,
     month: row.month,
   };
