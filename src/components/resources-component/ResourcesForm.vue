@@ -434,14 +434,12 @@ const fetchList = async () => {
       per_page: pageSize.value,
       branch_id: branchId,
     };
-    const items = await getResourcesList(apiData);
-    if (items) {
-      entries.value = items.data;
-      currentPage.value = items.current_page;
-      totalPages.value = items.last_page;
-      total.value = items.total;
-      pageSize.value = items.per_page;
-    }
+    const ress = await getResourcesList(apiData);
+    const items = Array.isArray(ress?.data) ? ress.data : [];
+    entries.value = items;
+    currentPage.value = ress.meta.currentPage;
+    totalPages.value = ress.meta.totalPages;
+    total.value = ress.meta.total;
   } catch (error) {
     console.error("Error fetching resources list:", error);
   } finally {
@@ -483,7 +481,7 @@ function validateForm(): boolean {
   });
 
   if (!result.success) {
-    result.error.errors.forEach((error) => {
+    result.error.issues.forEach((error) => {
       const field = error.path[0] as keyof ResourcesSchema;
       errors.value[field] = error.message;
     });
@@ -501,15 +499,15 @@ async function handleSave() {
 
     const payload: ResourcesPayload = {
       ...formData.value,
-      branch_id: branchId,
+      branch_id: branchId ?? 0,
     };
 
     if (isEditing.value && idSelected.value) {
       await putResources(idSelected.value, payload);
-      notifySuccess("Data SDM berhasil diperbarui!");
+      notifySuccess({ title: "Success Message", msg: "Data SDM berhasil diperbarui!" });
     } else {
       await postResources(payload);
-      notifySuccess("Data SDM berhasil ditambahkan!");
+      notifySuccess({ title: "Success Message", msg: "Data SDM berhasil ditambahkan!" });
     }
 
     handleReset();
@@ -527,7 +525,7 @@ function handleReset() {
 
 function editRow(id: number) {
   try {
-    const row = entries.value.find((item) => item.id === id);
+    const row = entries.value.find((item) => Number(item.id) === id);
     if (!row) {
       console.error("Row not found for editing");
       return;
@@ -577,7 +575,7 @@ function cancelEdit() {
 
 function deleteRow(id: number) {
   try {
-    const row = entries.value.find((item) => item.id === id);
+    const row = entries.value.find((item) => Number(item.id) === Number(id));
     showConfirmModal.value = true;
     idSelected.value = id;
   } catch (error) {
@@ -593,7 +591,7 @@ async function handleConfirmDelete() {
         title: "Berhasil!",
         msg: "Data SDM berhasil dihapus",
       };
-      notifySuccess(data.msg);
+      notifySuccess({ title: data.title, msg: data.msg });
       showConfirmModal.value = false;
       idSelected.value = null;
       await fetchList();

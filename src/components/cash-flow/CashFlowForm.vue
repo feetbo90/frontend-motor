@@ -401,14 +401,12 @@ const fetchList = async () => {
       per_page: pageSize.value,
       branch_id: branchId,
     };
-    const items = await getCashFlowList(apiData);
-    if (items) {
-      entries.value = items.data;
-      currentPage.value = items.current_page;
-      totalPages.value = items.last_page;
-      total.value = items.total;
-      pageSize.value = items.per_page;
-    }
+    const ress = await getCashFlowList(apiData);
+    const items = Array.isArray(ress?.data) ? ress.data : [];
+    entries.value = items;
+    currentPage.value = ress.meta.currentPage;
+    totalPages.value = ress.meta.totalPages;
+    total.value = ress.meta.total;
   } catch (error) {
     console.error("Error fetching cash flow list:", error);
   } finally {
@@ -447,7 +445,7 @@ function validateForm(): boolean {
   });
 
   if (!result.success) {
-    result.error.errors.forEach((error) => {
+    result.error.issues.forEach((error) => {
       const field = error.path[0] as keyof CashFlowSchema;
       errors.value[field] = error.message;
     });
@@ -465,15 +463,15 @@ async function handleSave() {
 
     const payload: CashFlowPayload = {
       ...formData.value,
-      branch_id: branchId,
+      branch_id: branchId ?? 0,
     };
 
     if (isEditing.value && idSelected.value) {
       await putCashFlow(idSelected.value, payload);
-      notifySuccess("Data kas & keuangan berhasil diperbarui!");
+      notifySuccess({ title: "Success", msg: "Data kas & keuangan berhasil diperbarui!" });
     } else {
       await postCashFlow(payload);
-      notifySuccess("Data kas & keuangan berhasil ditambahkan!");
+      notifySuccess({ title: "Success", msg: "Data kas & keuangan berhasil ditambahkan!" });
     }
 
     handleReset();
@@ -491,7 +489,7 @@ function handleReset() {
 
 function editRow(id: number) {
   try {
-    const row = entries.value.find((item) => item.id === id);
+    const row = entries.value.find((item) => Number(item.id) === id);
     if (!row) {
       console.error("Row not found for editing");
       return;
@@ -538,7 +536,7 @@ function cancelEdit() {
 
 function deleteRow(id: number) {
   try {
-    const row = entries.value.find((item) => item.id === id);
+    const row = entries.value.find((item) => Number(item.id) === id);
     showConfirmModal.value = true;
     idSelected.value = id;
   } catch (error) {
@@ -554,7 +552,7 @@ async function handleConfirmDelete() {
         title: "Berhasil!",
         msg: "Data kas & keuangan berhasil dihapus",
       };
-      notifySuccess(data.msg);
+      notifySuccess({ title: data.title, msg: data.msg });
       showConfirmModal.value = false;
       idSelected.value = null;
       await fetchList();

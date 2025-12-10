@@ -100,7 +100,7 @@
                       />
                     </td>
                   </tr>
-                  <tr class="table-row result-row">
+                  <!-- <tr class="table-row result-row">
                     <td class="field-label">
                       <label for="total-laba">
                         <i class="fas fa-calculator icon"></i>
@@ -120,7 +120,7 @@
                         :readonly="true"
                       />
                     </td>
-                  </tr>
+                  </tr> -->
                   <tr class="table-row withdrawal-row">
                     <td class="field-label">
                       <label for="penarikan">
@@ -140,7 +140,7 @@
                       />
                     </td>
                   </tr>
-                  <tr class="table-row final-result-row">
+                  <!-- <tr class="table-row final-result-row">
                     <td class="field-label">
                       <label for="saldo-akhir">
                         <i class="fas fa-chart-bar icon"></i>
@@ -160,7 +160,7 @@
                         :readonly="true"
                       />
                     </td>
-                  </tr>
+                  </tr> -->
                 </tbody>
               </table>
             </div>
@@ -288,8 +288,8 @@ const defaultSalesData: ProfitLostFrm = {
   penarikan: 0,
   modal: 0,
   bulan_ini: 0,
-  total_laba: 0,
-  saldo_akhir: 0,
+  // total_laba: 0,
+  // saldo_akhir: 0,
 };
 
 const errors = ref<Record<keyof ProfitLostSchema, string>>({
@@ -297,36 +297,36 @@ const errors = ref<Record<keyof ProfitLostSchema, string>>({
   penarikan: "",
   modal: "",
   bulanIni: "",
-  totalLaba: "",
-  saldoAkhir: "",
+  // totalLaba: "",
+  // saldoAkhir: "",
 });
 
 // Watch for auto calculation - Total Laba Rugi
-watch(
-  [() => formData.value.kumulatif, () => formData.value.bulan_ini],
-  () => {
-    const kumulatif = safeNumber(formData.value.kumulatif);
-    const bulanIni = safeNumber(formData.value.bulan_ini);
+// watch(
+//   [() => formData.value.kumulatif, () => formData.value.bulan_ini],
+//   () => {
+//     const kumulatif = safeNumber(formData.value.kumulatif);
+//     const bulanIni = safeNumber(formData.value.bulan_ini);
 
-    // Calculate total laba rugi: kumulatif + bulan_ini
-    formData.value.total_laba = kumulatif + bulanIni;
-  },
-  { immediate: true },
-);
+//     // Calculate total laba rugi: kumulatif + bulan_ini
+//     formData.value.total_laba = kumulatif + bulanIni;
+//   },
+//   { immediate: true },
+// );
 
 // Watch for auto calculation - Saldo Akhir Modal
-watch(
-  [() => formData.value.modal, () => formData.value.total_laba, () => formData.value.penarikan],
-  () => {
-    const modal = safeNumber(formData.value.modal);
-    const totalLaba = safeNumber(formData.value.total_laba);
-    const penarikan = safeNumber(formData.value.penarikan);
+// watch(
+//   [() => formData.value.modal, () => formData.value.total_laba, () => formData.value.penarikan],
+//   () => {
+//     const modal = safeNumber(formData.value.modal);
+//     const totalLaba = safeNumber(formData.value.total_laba);
+//     const penarikan = safeNumber(formData.value.penarikan);
 
-    // Calculate saldo akhir: modal + total_laba - penarikan
-    formData.value.saldo_akhir = modal + totalLaba - penarikan;
-  },
-  { immediate: true },
-);
+//     // Calculate saldo akhir: modal + total_laba - penarikan
+//     formData.value.saldo_akhir = modal + totalLaba - penarikan;
+//   },
+//   { immediate: true },
+// );
 
 const fetchList = async (page = 1) => {
   try {
@@ -369,8 +369,8 @@ function validateForm(): boolean {
     penarikan: safeNumber(formData.value.penarikan),
     modal: safeNumber(formData.value.modal),
     bulanIni: safeNumber(formData.value.bulan_ini),
-    totalLaba: safeNumber(formData.value.total_laba),
-    saldoAkhir: safeNumber(formData.value.saldo_akhir),
+    // totalLaba: safeNumber(formData.value.total_laba),
+    // saldoAkhir: safeNumber(formData.value.saldo_akhir),
   });
 
   if (!result.success) {
@@ -442,8 +442,8 @@ function editRow(id: number): void {
     penarikan: Number(row.penarikan),
     modal: Number(row.modal),
     bulan_ini: Number(row.bulan_ini),
-    total_laba: Number(row.total_laba),
-    saldo_akhir: Number(row.saldo_akhir),
+    // total_laba: Number(row.total_laba),
+    // saldo_akhir: Number(row.saldo_akhir),
     year: row.year,
     month: row.month,
   };

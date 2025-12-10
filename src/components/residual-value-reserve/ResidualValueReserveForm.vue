@@ -82,14 +82,14 @@
                     </td>
                   </tr>
                   <tr class="table-row result-row">
-                    <td class="field-label">
+                    <!-- <td class="field-label">
                       <label for="net-receivables">
                         <i class="fas fa-calculator icon"></i>
                         Net Receivables Reserve
                         <span class="total-badge">Net</span>
                       </label>
-                    </td>
-                    <td class="field-input">
+                    </td> -->
+                    <!-- <td class="field-input">
                       <FormField
                         id="net-receivables"
                         label=""
@@ -100,7 +100,7 @@
                         format="currency"
                         :readonly="true"
                       />
-                    </td>
+                    </td> -->
                   </tr>
                   <tr class="table-row adjustment-row">
                     <td class="field-label">
@@ -167,7 +167,7 @@
                         <span class="final-total-badge">Total</span>
                       </label>
                     </td>
-                    <td class="field-input">
+                    <!-- <td class="field-input">
                       <FormField
                         id="total-reserves"
                         label=""
@@ -178,7 +178,7 @@
                         format="currency"
                         :readonly="true"
                       />
-                    </td>
+                    </td> -->
                   </tr>
                 </tbody>
               </table>
@@ -251,8 +251,6 @@ import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
 import { useNotification } from "@/composables/useNotification";
-import { useAuthStore } from "@/stores/auth";
-import { cadanganData, isGlobalLoading } from "@/stores/globalState";
 import {
   residualValueReserveSchema,
   type ResidualValueReserveSchema,
@@ -263,12 +261,14 @@ import {
   postResidualValueReserve,
   putResidualValueReserve,
 } from "@/services/residualValueReserveService";
+import { useAuthStore } from "@/stores/auth";
+import { cadanganData, isGlobalLoading } from "@/stores/globalState";
 import type {
   ResidualValueReserveData,
   ResidualValueReserveFrm,
   ResidualValueReservePayload,
 } from "@/types/residual-value-reserve.type";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
 import ResidualValueReserveTable from "./ResidualValueReserveTable.vue";
 
@@ -310,8 +310,8 @@ const defaultSalesData: ResidualValueReserveFrm = {
   surplus_devist: 0,
   cadangan_stock: 0,
   cadangan_stock_data: 0,
-  net_receivables: 0,
-  total_reserves: 0,
+  // net_receivables: 0,
+  // total_reserves: 0,
 };
 
 const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
@@ -320,43 +320,42 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
   surplusDevist: "",
   cadanganStock: "",
   cadanganStockData: "",
-  netReceivables: "",
-  totalReserves: "",
+  // netReceivables: "",
+  // totalReserves: "",
 });
 
 // Watch for auto calculation - Net Receivables Reserve
-watch(
-  [() => formData.value.cadangan_piutang, () => formData.value.macet_real],
-  () => {
-    const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
-    const macetReal = safeNumber(formData.value.macet_real);
+// watch(
+//   [() => formData.value.cadangan_piutang, () => formData.value.macet_real],
+//   () => {
+//     const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
+//     const macetReal = safeNumber(formData.value.macet_real);
 
-    // Calculate net receivables: cadangan_piutang - macet_real
-    formData.value.net_receivables = cadanganPiutang - macetReal;
-  },
-  { immediate: true },
-);
+//     // Calculate net receivables: cadangan_piutang - macet_real
+//     formData.value.net_receivables = cadanganPiutang - macetReal;
+//   },
+//   { immediate: true },
+// );
 
 // Watch for auto calculation - Total Reserves
-watch(
-  [
-    () => formData.value.net_receivables,
-    () => formData.value.surplus_devist,
-    () => formData.value.cadangan_stock,
-    () => formData.value.cadangan_stock_data,
-  ],
-  () => {
-    const netReceivables = safeNumber(formData.value.net_receivables);
-    const surplusDevist = safeNumber(formData.value.surplus_devist);
-    const cadanganStock = safeNumber(formData.value.cadangan_stock);
-    const cadanganStockData = safeNumber(formData.value.cadangan_stock_data);
+// watch(
+//   [
+//     () => formData.value.net_receivables,
+//     () => formData.value.surplus_devist,
+//     () => formData.value.cadangan_stock,
+//     () => formData.value.cadangan_stock_data,
+//   ],
+//   () => {
+//     // const netReceivables = safeNumber(formData.value.net_receivables);
+//     const surplusDevist = safeNumber(formData.value.surplus_devist);
+//     const cadanganStock = safeNumber(formData.value.cadangan_stock);
+//     const cadanganStockData = safeNumber(formData.value.cadangan_stock_data);
 
-    // Calculate total reserves: net_receivables + surplus_devist + cadangan_stock + cadangan_stock_data
-    formData.value.total_reserves =
-      netReceivables + surplusDevist + cadanganStock + cadanganStockData;
-  },
-  { immediate: true },
-);
+//     // Calculate total reserves: net_receivables + surplus_devist + cadangan_stock + cadangan_stock_data
+//     formData.value.total_reserves = surplusDevist + cadanganStock + cadanganStockData;
+//   },
+//   { immediate: true },
+// );
 
 const fetchList = async (page = 1) => {
   try {
@@ -400,8 +399,8 @@ function validateForm(): boolean {
     surplusDevist: safeNumber(formData.value.surplus_devist),
     cadanganStock: safeNumber(formData.value.cadangan_stock),
     cadanganStockData: safeNumber(formData.value.cadangan_stock_data),
-    netReceivables: safeNumber(formData.value.net_receivables),
-    totalReserves: safeNumber(formData.value.total_reserves),
+    // netReceivables: safeNumber(formData.value.net_receivables),
+    // totalReserves: safeNumber(formData.value.total_reserves),
   });
 
   if (!result.success) {
@@ -474,8 +473,8 @@ function editRow(id: number): void {
     surplus_devist: Number(row.surplus_devist),
     cadangan_stock: Number(row.cadangan_stock),
     cadangan_stock_data: Number(row.cadangan_stock_data),
-    net_receivables: Number(row.net_receivables || 0),
-    total_reserves: Number(row.total_reserves || 0),
+    // net_receivables: Number(row.net_receivables || 0),
+    // total_reserves: Number(row.total_reserves || 0),
     year: row.year,
     month: row.month,
   };

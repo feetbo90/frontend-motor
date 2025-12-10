@@ -134,8 +134,8 @@
                     <span class="total-value">{{
                       formatCurrency(
                         safeNumber(
-                          item.row.total_laba ||
-                            safeNumber(item.row.kumulatif) + safeNumber(item.row.bulan_ini),
+                          // item.row.total_laba ||
+                          safeNumber(item.row.kumulatif) + safeNumber(item.row.bulan_ini),
                         ),
                       )
                     }}</span>
@@ -159,11 +159,11 @@
                   <span class="grand-total">{{
                     formatCurrency(
                       safeNumber(
-                        item.row.saldo_akhir ||
-                          safeNumber(item.row.modal) +
-                            safeNumber(item.row.kumulatif) +
-                            safeNumber(item.row.bulan_ini) -
-                            safeNumber(item.row.penarikan),
+                        // item.row.saldo_akhir ||
+                        safeNumber(item.row.modal) +
+                          safeNumber(item.row.kumulatif) +
+                          safeNumber(item.row.bulan_ini) -
+                          safeNumber(item.row.penarikan),
                       ),
                     )
                   }}</span>
@@ -251,7 +251,7 @@ const visibleEntries = computed(() => {
 const totalProfit = computed(() => {
   return visibleEntries.value.reduce((sum, item) => {
     const totalLaba =
-      safeNumber(item.row.total_laba) ||
+      // safeNumber(item.row.total_laba) ||
       safeNumber(item.row.kumulatif) + safeNumber(item.row.bulan_ini);
     return sum + totalLaba;
   }, 0);
@@ -261,11 +261,11 @@ const avgEquity = computed(() => {
   if (visibleEntries.value.length === 0) return 0;
   const total = visibleEntries.value.reduce((sum, item) => {
     const saldoAkhir =
-      safeNumber(item.row.saldo_akhir) ||
+      // safeNumber(item.row.saldo_akhir) ||
       safeNumber(item.row.modal) +
-        safeNumber(item.row.kumulatif) +
-        safeNumber(item.row.bulan_ini) -
-        safeNumber(item.row.penarikan);
+      safeNumber(item.row.kumulatif) +
+      safeNumber(item.row.bulan_ini) -
+      safeNumber(item.row.penarikan);
     return sum + saldoAkhir;
   }, 0);
   return total / visibleEntries.value.length;
