@@ -65,7 +65,7 @@
                     <td class="field-label">
                       <label for="tambahan">
                         <i class="fas fa-plus-circle icon"></i>
-                        Tambahan
+                        Pembiayaan
                       </label>
                     </td>
                     <td class="field-input">

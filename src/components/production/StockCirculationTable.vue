@@ -133,6 +133,18 @@
                         formatNumber(safeNumber(item.row.pembelian_tambahan_data))
                       }}</span>
                     </span>
+                    <span class="movement-item positive">
+                      <span class="movement-label">Mutasi Masuk:</span>
+                      <span class="movement-value">{{
+                        formatNumber(safeNumber(item.row.mutasi_masuk))
+                      }}</span>
+                    </span>
+                    <span class="movement-item negative">
+                      <span class="movement-label">Mutasi Keluar:</span>
+                      <span class="movement-value">{{
+                        formatNumber(safeNumber(item.row.mutasi_keluar))
+                      }}</span>
+                    </span>
                     <span class="movement-item negative">
                       <span class="movement-label">Terjual:</span>
                       <span class="movement-value">{{

@@ -42,7 +42,7 @@
               <th class="table-th index-col">#</th>
               <th class="table-th">Period</th>
               <th class="table-th amount-col">Saldo Awal</th>
-              <th class="table-th amount-col">Tambahan</th>
+              <th class="table-th amount-col">Pembiayaan</th>
               <th class="table-th amount-col">Real. Pokok</th>
               <th class="table-th amount-col">Real. Bunga</th>
               <th class="table-th amount-col highlight-col">Jumlah Angsuran</th>

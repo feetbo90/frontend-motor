@@ -117,6 +117,42 @@
                   </tr>
                   <tr class="table-row">
                     <td class="field-label">
+                      <label for="mutasi-masuk">
+                        <i class="fas fa-arrow-right icon"></i>
+                        Mutasi Masuk
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="mutasi-masuk"
+                        label=""
+                        type="number"
+                        v-model="formData.mutasi_masuk"
+                        placeholder="0"
+                        :error="errors.mutasiMasuk"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="mutasi-keluar">
+                        <i class="fas fa-arrow-left icon"></i>
+                        Mutasi Keluar
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="mutasi-keluar"
+                        label=""
+                        type="number"
+                        v-model="formData.mutasi_keluar"
+                        placeholder="0"
+                        :error="errors.mutasiKeluar"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
                       <label for="terjual">
                         <i class="fas fa-handshake icon"></i>
                         Terjual
