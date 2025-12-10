@@ -358,20 +358,22 @@ watch(
 // Watch for auto calculation - Total Beban & Biaya
 watch(
   [
+    () => formData.value.gaji,
     () => formData.value.beban_umum_operasional,
     () => formData.value.penyusutan_aktiva,
     () => formData.value.cadangan_piutang,
     () => formData.value.cadangan_stock,
   ],
   () => {
+    const gaji = safeNumber(formData.value.gaji);
     const bebanUmumOperasional = safeNumber(formData.value.beban_umum_operasional);
     const penyusutanAktiva = safeNumber(formData.value.penyusutan_aktiva);
     const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
     const cadanganStock = safeNumber(formData.value.cadangan_stock);
 
-    // Calculate total: beban_umum_operasional + penyusutan_aktiva + cadangan_piutang + cadangan_stock
+    // Calculate total:gaji+ beban_umum_operasional + penyusutan_aktiva + cadangan_piutang + cadangan_stock
     formData.value.total =
-      bebanUmumOperasional + penyusutanAktiva + cadanganPiutang + cadanganStock;
+      gaji+bebanUmumOperasional + penyusutanAktiva + cadanganPiutang + cadanganStock;
   },
   { immediate: true },
 );
