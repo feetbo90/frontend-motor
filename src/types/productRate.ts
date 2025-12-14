@@ -215,6 +215,7 @@ interface RasioTujuhItem {
   year: number;
   month: number;
   jumlah_pendapatan: string;
+  jumlah_pendapatan_lain:string
   denda: string;
   administrasi: string;
   rasio_pendapatan_lainnya_per_jumlah_pendapatan: string;

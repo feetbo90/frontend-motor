@@ -751,7 +751,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ item.jumlah_pendapatan }}</td>
                       <td>{{ item.beban_umum_operasional }}</td>
-                      <td>{{formatPercentage(item.rasio_beban_operasional_per_pendapatan) }}</td>
+                      <td>{{formatPercentage(Number(item.rasio_beban_operasional_per_pendapatan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
