@@ -1,38 +1,20 @@
 <template>
   <div ref="formSection">
     <form @submit.prevent="handleSave">
-      <ConfirmModal
-        v-if="showConfirmModal"
-        title="Hapus Item?"
+      <ConfirmModal v-if="showConfirmModal" title="Hapus Item?"
         description="Apakah kamu yakin ingin menghapus item ini? Tindakan ini tidak bisa dibatalkan."
-        confirmText="Delete"
-        cancelText="Cancel"
-        @confirm="handleConfirmDelete"
-        @cancel="handleCancelDelete"
-      />
-      <FormSection
-        title="Data Sumber Daya Manusia (SDM)"
+        confirmText="Delete" cancelText="Cancel" @confirm="handleConfirmDelete" @cancel="handleCancelDelete" />
+      <FormSection title="Data Sumber Daya Manusia (SDM)"
         description="Input data sumber daya manusia, formasi tenaga, dan aset inventaris berdasarkan kategori"
-        :class="{ highlight: highlightForm }"
-      >
+        :class="{ highlight: highlightForm }">
         <!-- Slot untuk content -->
         <template #content>
           <div class="form-grid">
             <div class="date-fields">
-              <FormSelect
-                id="tahun"
-                label="Tahun"
-                v-model="formData.year"
-                placeholder="Pilih Tahun"
-                :options="yearOptions"
-              />
-              <FormSelect
-                id="bulan"
-                label="Bulan"
-                v-model="formData.month"
-                placeholder="Pilih Bulan"
-                :options="monthOptions"
-              />
+              <FormSelect id="tahun" label="Tahun" v-model="formData.year" placeholder="Pilih Tahun"
+                :options="yearOptions" />
+              <FormSelect id="bulan" label="Bulan" v-model="formData.month" placeholder="Pilih Bulan"
+                :options="monthOptions" />
             </div>
             <div class="form-table">
               <table class="data-input-table">
@@ -52,14 +34,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="jumlah-karyawan"
-                        label=""
-                        type="number"
-                        v-model="formData.jumlah_karyawan"
-                        placeholder="0"
-                        :error="errors.jumlahKaryawan"
-                      />
+                      <FormField id="jumlah-karyawan" label="" type="number" v-model="formData.jumlah_karyawan"
+                        placeholder="0" :error="errors.jumlahKaryawan" />
                     </td>
                   </tr>
                   <tr class="table-row personnel-row">
@@ -70,14 +46,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="formasi-tenaga"
-                        label=""
-                        type="number"
-                        v-model="formData.formasi_tenaga"
-                        placeholder="0"
-                        :error="errors.formasiTenaga"
-                      />
+                      <FormField id="formasi-tenaga" label="" type="number" v-model="formData.formasi_tenaga"
+                        placeholder="0" :error="errors.formasiTenaga" />
                     </td>
                   </tr>
 
@@ -90,14 +60,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="pimpinan"
-                        label=""
-                        type="number"
-                        v-model="formData.pimpinan"
-                        placeholder="0"
-                        :error="errors.pimpinan"
-                      />
+                      <FormField id="pimpinan" label="" type="number" v-model="formData.pimpinan" placeholder="0"
+                        :error="errors.pimpinan" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -108,14 +72,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="kasir"
-                        label=""
-                        type="number"
-                        v-model="formData.kasir"
-                        placeholder="0"
-                        :error="errors.kasir"
-                      />
+                      <FormField id="kasir" label="" type="number" v-model="formData.kasir" placeholder="0"
+                        :error="errors.kasir" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -126,14 +84,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="administrasi"
-                        label=""
-                        type="number"
-                        v-model="formData.administrasi"
-                        placeholder="0"
-                        :error="errors.administrasi"
-                      />
+                      <FormField id="administrasi" label="" type="number" v-model="formData.administrasi"
+                        placeholder="0" :error="errors.administrasi" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -144,14 +96,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="pdl"
-                        label=""
-                        type="number"
-                        v-model="formData.pdl"
-                        placeholder="0"
-                        :error="errors.pdl"
-                      />
+                      <FormField id="pdl" label="" type="number" v-model="formData.pdl" placeholder="0"
+                        :error="errors.pdl" />
                     </td>
                   </tr>
                   <tr class="table-row result-row">
@@ -163,14 +109,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="formasi-kurang"
-                        label=""
-                        type="number"
-                        v-model="formData.formasi_kurang"
-                        placeholder="0"
-                        :error="errors.formasiKurang"
-                      />
+                      <FormField id="formasi-kurang" label="" type="number" v-model="formData.formasi_kurang"
+                        placeholder="0" :error="errors.formasiKurang" />
                     </td>
                   </tr>
 
@@ -184,14 +124,8 @@
                         </label>
                       </td>
                       <td class="field-input">
-                        <FormField
-                          id="kontrak-kantor"
-                          label=""
-                          type="number"
-                          v-model="formData.kontrak_kantor"
-                          placeholder="0"
-                          :error="errors.kontrakKantor"
-                        />
+                        <FormField id="kontrak-kantor" label="" type="number" v-model="formData.kontrak_kantor"
+                          placeholder="0" :error="errors.kontrakKantor" />
                       </td>
                     </tr>
                     <tr class="table-row asset-row">
@@ -202,14 +136,8 @@
                         </label>
                       </td>
                       <td class="field-input">
-                        <FormField
-                          id="inventaris-mobil"
-                          label=""
-                          type="number"
-                          v-model="formData.inventaris_mobil"
-                          placeholder="0"
-                          :error="errors.inventarisMobil"
-                        />
+                        <FormField id="inventaris-mobil" label="" type="number" v-model="formData.inventaris_mobil"
+                          placeholder="0" :error="errors.inventarisMobil" />
                       </td>
                     </tr>
                     <tr class="table-row asset-row">
@@ -220,14 +148,9 @@
                         </label>
                       </td>
                       <td class="field-input">
-                        <FormField
-                          id="inventaris-mobil-ket"
-                          label=""
-                          type="text"
-                          v-model="formData.inventaris_mobil_ket"
-                          placeholder="Keterangan inventaris mobil"
-                          :error="errors.inventarisMobilKet"
-                        />
+                        <FormField id="inventaris-mobil-ket" label="" type="text"
+                          v-model="formData.inventaris_mobil_ket" placeholder="Keterangan inventaris mobil"
+                          :error="errors.inventarisMobilKet" />
                       </td>
                     </tr>
 
@@ -240,15 +163,9 @@
                         </label>
                       </td>
                       <td class="field-input">
-                        <FormField
-                          id="sisa-inventaris"
-                          label=""
-                          type="number"
-                          v-model="formData.sisa_inventaris_pendirian"
-                          placeholder="0"
-                          :error="errors.sisaInventarisPendirian"
-                          format="currency"
-                        />
+                        <FormField id="sisa-inventaris" label="" type="number"
+                          v-model="formData.sisa_inventaris_pendirian" placeholder="0"
+                          :error="errors.sisaInventarisPendirian" format="currency" />
                       </td>
                     </tr>
                     <tr class="table-row depreciation-row">
@@ -260,15 +177,8 @@
                         </label>
                       </td>
                       <td class="field-input">
-                        <FormField
-                          id="penyusutan-bulan"
-                          label=""
-                          type="number"
-                          v-model="formData.penyusutan_bulan"
-                          placeholder="0"
-                          :error="errors.penyusutanBulan"
-                          format="currency"
-                        />
+                        <FormField id="penyusutan-bulan" label="" type="number" v-model="formData.penyusutan_bulan"
+                          placeholder="0" :error="errors.penyusutanBulan" format="currency" />
                       </td>
                     </tr>
                   </template>
@@ -294,38 +204,22 @@
           </div>
         </template>
       </FormSection>
-      <FormSection
-        title="Daftar SDM"
-        description="Kumpulan item sumber daya manusia yang telah ditambahkan"
-      >
+      <FormSection title="Daftar SDM" description="Kumpulan item sumber daya manusia yang telah ditambahkan">
         <template #content>
           <div class="list-table">
-            <ResourcesTable
-              :current-page="currentPage"
-              :page-size="pageSize"
-              :entries="entries"
-              @edit="editRow"
-              @delete="deleteRow"
-            />
+            <ResourcesTable :current-page="currentPage" :page-size="pageSize" :entries="entries" @edit="editRow"
+              @delete="deleteRow" />
             <!-- PAGINATION -->
             <div class="pagination">
-              <button
-                type="button"
-                :class="['btn btn-reset', { disabled: currentPage === 1 }]"
-                :disabled="currentPage === 1"
-                @click="goToPage(currentPage - 1)"
-              >
+              <button type="button" :class="['btn btn-reset', { disabled: currentPage === 1 }]"
+                :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
                 Prev
               </button>
 
               <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-              <button
-                type="button"
-                :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
-                :disabled="currentPage === totalPages"
-                @click="goToPage(currentPage + 1)"
-              >
+              <button type="button" :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
+                :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
                 Next
               </button>
             </div>
@@ -524,12 +418,13 @@ function handleReset() {
 }
 
 function editRow(id: number) {
+    console.log({ id })
+    if (!id) return; // jaga-jaga id tidak valid
   try {
-    const row = entries.value.find((item) => Number(item.id) === id);
-    if (!row) {
-      console.error("Row not found for editing");
-      return;
-    }
+    const row = entries.value.find((item) => Number(item.id) === Number(id));
+    if (!row) return;
+    isEditing.value = true;
+    idSelected.value = id;
 
     // Highlight form untuk user experience
     highlightForm.value = true;
@@ -576,8 +471,9 @@ function cancelEdit() {
 function deleteRow(id: number) {
   try {
     const row = entries.value.find((item) => Number(item.id) === Number(id));
-    showConfirmModal.value = true;
-    idSelected.value = id;
+    if (!row) return;
+  idSelected.value = id;
+  showConfirmModal.value = true;
   } catch (error) {
     console.error("Error deleting row:", error);
   }

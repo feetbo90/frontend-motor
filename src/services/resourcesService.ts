@@ -9,7 +9,15 @@ export const getResourcesList: GetResourcesList = async (
     const { notifyError } = useNotification()
     try {
         const { data } = await axios.get('sumber-daya', { params });
-        return data
+        const ress = {
+            data: data.data,
+            meta: {
+                total: data.total,
+                totalPages: data.totalPages,
+                currentPage: data.currentPage,
+            }
+        }
+        return ress
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data sumber daya.'
         if (isAxiosError(error)) {

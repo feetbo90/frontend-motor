@@ -15,17 +15,77 @@
               <FormSelect id="bulan" label="Bulan" v-model="formData.month" placeholder="Pilih Bulan"
                 :options="monthOptions" />
             </div>
-            <div class="form-fields">
-              <FormField id="penjualan-pk" label="Penjualan PK" type="number" v-model="formData.penjualan_pk"
-                placeholder="0" :error="errors.penjualanPk" />
-              <FormField id="komisi" label="Komisi" type="number" v-model="formData.komisi" placeholder="0"
-                :error="errors.komisi" />
-              <FormField id="denda-keterlambatan" label="Denda Keterlambatan" type="number"
-                v-model="formData.denda_keterlambatan" placeholder="0" :error="errors.dendaKeterlambatan" />
-              <FormField id="diskon-denda" label="Diskon Denda" type="number" v-model="formData.diskon_denda"
-                placeholder="0" :error="errors.diskonDenda" />
-              <FormField id="jumlah-pendapatan-lain" label="Jumlah Pendapatan Lainnya" type="number"
-                v-model="formData.jumlah_pendapatan_lain" placeholder="0" :error="errors.jumlahPendapatanLain" />
+            <div class="form-table">
+              <table class="data-input-table">
+                <thead>
+                  <tr>
+                    <th class="field-header">Field Name</th>
+                    <th class="value-header">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="table-row income-row">
+                    <td class="field-label">
+                      <label for="penjualan-pk">
+                        <i class="fas fa-money-bill-wave icon"></i>
+                        Penjualan PK
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="penjualan-pk" label="" type="number" v-model="formData.penjualan_pk"
+                        placeholder="0" :error="errors.penjualanPk" />
+                    </td>
+                  </tr>
+                  <tr class="table-row income-row">
+                    <td class="field-label">
+                      <label for="komisi">
+                        <i class="fas fa-percent icon"></i>
+                        Komisi
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="komisi" label="" type="number" v-model="formData.komisi" placeholder="0"
+                        :error="errors.komisi" />
+                    </td>
+                  </tr>
+                  <tr class="table-row penalty-row">
+                    <td class="field-label">
+                      <label for="denda-keterlambatan">
+                        <i class="fas fa-clock icon"></i>
+                        Denda Keterlambatan
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="denda-keterlambatan" label="" type="number"
+                        v-model="formData.denda_keterlambatan" placeholder="0" :error="errors.dendaKeterlambatan" />
+                    </td>
+                  </tr>
+                  <tr class="table-row penalty-row">
+                    <td class="field-label">
+                      <label for="diskon-denda">
+                        <i class="fas fa-tag icon"></i>
+                        Diskon Denda
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="diskon-denda" label="" type="number" v-model="formData.diskon_denda"
+                        placeholder="0" :error="errors.diskonDenda" />
+                    </td>
+                  </tr>
+                  <tr class="table-row total-row">
+                    <td class="field-label">
+                      <label for="jumlah-pendapatan-lain">
+                        <i class="fas fa-calculator icon"></i>
+                        Jumlah Pendapatan Lainnya
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="jumlah-pendapatan-lain" label="" type="number"
+                        v-model="calculatedTotal" placeholder="0" :error="errors.jumlahPendapatanLain" :readonly="true" />
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </template>
@@ -83,7 +143,7 @@ import { deleteOtherIncome, getOtherIncomeList, postOtherIncome, putOtherIncome 
 import { useAuthStore } from '@/stores/auth'
 import { isGlobalLoading, produksiData } from '@/stores/globalState'
 import type { OtherIncomeData, OtherIncomeFrm, OtherIncomePayload } from '@/types/other-income.type'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import ConfirmModal from '../ui/ConfirmModal.vue'
 import OtherIncomeTable from './OtherIncomeTable.vue'
 
@@ -111,6 +171,35 @@ const formData = computed({
   get: () => produksiData.value.pendapatanLain,
   set: (value: OtherIncomePayload) => emit('update:modelValue', value)
 })
+
+function safeNumber(n: unknown): number {
+  const num = typeof n === 'number' ? n : Number(n)
+  return Number.isFinite(num) ? num : 0
+}
+
+// Computed property untuk menghitung total: penjualan PK - komisi + denda - diskon denda
+const calculatedTotal = computed(() => {
+  const penjualanPk = safeNumber(formData.value.penjualan_pk)
+  const komisi = safeNumber(formData.value.komisi)
+  const denda = safeNumber(formData.value.denda_keterlambatan)
+  const diskon = safeNumber(formData.value.diskon_denda)
+  return penjualanPk - komisi + denda - diskon
+})
+
+// Watch untuk mengupdate formData.jumlah_pendapatan_lain ketika field input berubah
+watch(
+  () => [
+    formData.value.penjualan_pk,
+    formData.value.komisi,
+    formData.value.denda_keterlambatan,
+    formData.value.diskon_denda
+  ],
+  () => {
+    // Update formData dengan nilai yang dihitung
+    produksiData.value.pendapatanLain.jumlah_pendapatan_lain = calculatedTotal.value
+  },
+  { immediate: true }
+)
 
 const { monthOptions, getYearOptions, getCurrentDate } = useDate()
 const yearOptions = getYearOptions(5) // Current year ± 5 years
@@ -166,11 +255,6 @@ const goToPage = (page: number) => {
     fetchList(page);
   }
 };
-
-function safeNumber(n: unknown): number {
-  const num = typeof n === 'number' ? n : Number(n)
-  return Number.isFinite(num) ? num : 0
-}
 
 function validateForm(): boolean {
   // Object.assign(errors.value, { kontan: '', kredit: '', leasing: '' })
@@ -297,15 +381,205 @@ function handleCancelDelete() {
 </script>
 
 <style scoped>
-.pagination {
-  margin-top: 16px;
+.form-grid {
   display: flex;
-  justify-content: end;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.date-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.form-table {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.data-input-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.data-input-table thead th {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-weight: 600;
+  text-align: left;
+  padding: 16px 20px;
+}
+
+.field-header {
+  width: 40%;
+}
+
+.value-header {
+  width: 60%;
+}
+
+.table-row {
+  transition: background-color 0.2s ease;
+}
+
+.table-row:hover {
+  background-color: #f8fafc;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+.field-label {
+  padding: 16px 20px;
+  vertical-align: middle;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.field-label label {
+  display: flex;
   align-items: center;
-  gap: 1rem;
+  font-weight: 500;
+  color: #374151;
+  gap: 8px;
+}
+
+.icon {
+  width: 16px;
+  color: #6b7280;
+}
+
+.field-input {
+  padding: 12px 20px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.field-input :deep(.form-field) {
+  margin: 0;
+}
+
+.field-input :deep(.form-input) {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 8px 12px;
+  transition: all 0.2s ease;
+  background: #fafafa;
+}
+
+.field-input :deep(.form-input:focus) {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  background: white;
+}
+
+/* Income Section Styling */
+.income-row {
+  background: #f0fdf4;
+}
+
+.income-row .field-label {
+  border-left: 4px solid #10b981;
+}
+
+.income-row .icon {
+  color: #10b981;
+}
+
+.income-row .field-input {
+  background: #f0fdf4;
+}
+
+.income-row .field-input :deep(.form-input) {
+  background: white;
+  border-color: #bbf7d0;
+}
+
+/* Penalty Section Styling */
+.penalty-row {
+  background: #fef2f2;
+}
+
+.penalty-row .field-label {
+  border-left: 4px solid #ef4444;
+}
+
+.penalty-row .icon {
+  color: #ef4444;
+}
+
+.penalty-row .field-input {
+  background: #fef2f2;
+}
+
+.penalty-row .field-input :deep(.form-input) {
+  background: white;
+  border-color: #fecaca;
+}
+
+/* Total Row Styling */
+.total-row {
+  background: #fefce8;
+}
+
+.total-row .field-label {
+  border-left: 4px solid #eab308;
+}
+
+.total-row .icon {
+  color: #eab308;
+}
+
+.total-row .field-input {
+  background: #fefce8;
+}
+
+.total-row .field-input :deep(.form-input) {
+  background: white;
+  border-color: #fde047;
+}
+
+@media (max-width: 768px) {
+  .data-input-table thead {
+    display: none;
+  }
+
+  .table-row {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    margin-bottom: 16px;
+  }
+
+  .field-label,
+  .field-input {
+    display: block;
+    width: 100%;
+    border-bottom: none;
+  }
+
+  .field-label {
+    background: #f8fafc;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .field-input {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .date-fields {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 }
 
 .list-table {
+  margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -314,21 +588,20 @@ function handleCancelDelete() {
 .footer-btn {
   display: flex;
   gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .footer-btn .btn {
-  min-width: 140px;
-  font-weight: 600;
-  border-radius: 10px;
-  transition: all 0.3s ease;
   position: relative;
+  padding: 10px 20px;
+  border-radius: 6px;
+  font-weight: 500;
+  transition: all 0.3s ease;
   overflow: hidden;
 }
 
 .footer-btn .btn::before {
-  content: '';
+  content: "";
   position: absolute;
   top: 0;
   left: -100%;
@@ -343,38 +616,45 @@ function handleCancelDelete() {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
   color: white;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  border: none;
 }
 
 .btn-primary:hover {
+  background: linear-gradient(135deg, #2563eb, #1e40af);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
 }
 
 .btn-reset {
-  background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  background: linear-gradient(135deg, #6b7280, #4b5563);
   color: white;
-  box-shadow: 0 4px 15px rgba(100, 116, 139, 0.4);
+  border: none;
 }
 
 .btn-reset:hover {
+  background: linear-gradient(135deg, #5b6470, #374151);
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(100, 116, 139, 0.6);
 }
 
 .btn-outline {
   background: transparent;
-  color: #667eea;
-  border: 2px solid #667eea;
-  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.2);
+  color: #6b7280;
+  border: 2px solid #d1d5db;
 }
 
 .btn-outline:hover {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
+  background: #f3f4f6;
+  border-color: #9ca3af;
+  color: #374151;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+}
+
+.pagination {
+  margin-top: 16px;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 1rem;
 }
 </style>

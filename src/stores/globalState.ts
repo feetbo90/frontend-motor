@@ -204,6 +204,15 @@ export const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+// percentage
+export const formatPercentage = (value: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "percent",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value / 100);
+};
+
 export function resetPeriodeFilter() {
   const { getCurrentDate } = useDate();
   // const now = getCurrentDate()

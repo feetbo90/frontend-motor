@@ -469,7 +469,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
                       <td>{{ formatCurrency(Number(item.realisasi_pokok)) }}</td>
-                      <td>{{ formatCurrency(Number(item.pembiayaan_per_realisasi_pokok)) }}</td>
+                      <td>{{ formatPercentage(Number(item.pembiayaan_per_realisasi_pokok)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -504,7 +504,7 @@
                       <td>{{ formatCurrency(Number(item.macet_lama)) }}</td>
                       <td>{{ formatCurrency(Number(item.stock_kredit)) }}</td>
                       <td>{{ formatCurrency(Number(item.leasing)) }}</td>
-                      <td>{{ formatCurrency(Number(item.rasio_kemacetan_pembiayaan)) }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_kemacetan_pembiayaan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -537,7 +537,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
                       <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.rasio_markup)) }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_markup)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -571,7 +571,7 @@
                       <td>{{ formatCurrency(Number(item.realisasi_bunga)) }}</td>
                       <td>{{ formatCurrency(Number(item.total)) }}</td>
                       <td>
-                        {{ formatCurrency(Number(item.rasio_realisasi_bunga_per_total_piutang)) }}
+                        {{ formatPercentage(Number(item.rasio_realisasi_bunga_per_total_piutang)) }}
                       </td>
                     </tr>
                   </tbody>
@@ -589,7 +589,7 @@
                       <th>Bulan / Tahun</th>
                       <th>Jumlah Pendapatan</th>
                       <th>Total Markup</th>
-                      <th>Ratio Markup / Jumlah Pendapatan</th>
+                      <th>Ratio Markup / Jumlah Pendapatan </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -605,7 +605,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
                       <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
-                      <td>{{ formatCurrency(Number(item.rasio_markup_per_jumlah_pendapatan)) }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_markup_per_jumlah_pendapatan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -640,7 +640,7 @@
                       <td>{{ formatCurrency(Number(item.realisasi_bunga)) }}</td>
                       <td>
                         {{
-                          formatCurrency(Number(item.rasio_pendapatan_bunga_per_jumlah_pendapatan))
+                          formatPercentage(Number(item.rasio_pendapatan_bunga_per_jumlah_pendapatan))
                         }}
                       </td>
                     </tr>
@@ -651,7 +651,7 @@
 
             <!-- Rasio Pendapatan Lainnya / Jumlah Pendapatan -->
             <div class="metric-card">
-              <div class="card-header yellow">Ratio Pendapatan Lainnya / Jumlah Pendapatan</div>
+              <div class="card-header yellow">Rasio Pendapatan Lainnya / Jumlah Pendapatan</div>
               <div class="card-body">
                 <table class="table">
                   <thead>
@@ -660,7 +660,8 @@
                       <th>Jumlah Pendapatan</th>
                       <th>Denda</th>
                       <th>Administrasi</th>
-                      <th>Ratio Pendapatan Lainnya / Jumlah Pendapatan</th>
+                      <th>Pendapatan Lainnya</th>
+                      <th>Rasio Pendapatan Lainnya / Jumlah Pendapatan</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -677,9 +678,10 @@
                       <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
                       <td>{{ formatCurrency(Number(item.denda)) }}</td>
                       <td>{{ formatCurrency(Number(item.administrasi)) }}</td>
+                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan_lain)) }}</td>
                       <td>
                         {{
-                          formatCurrency(
+                          formatPercentage(
                             Number(item.rasio_pendapatan_lainnya_per_jumlah_pendapatan),
                           )
                         }}
@@ -716,7 +718,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
                       <td>{{ formatCurrency(Number(item.gaji)) }}</td>
-                      <td>{{ formatCurrency(Number(item.rasio_gaji_per_pendapatan)) }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_gaji_per_pendapatan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -749,7 +751,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ item.jumlah_pendapatan }}</td>
                       <td>{{ item.beban_umum_operasional }}</td>
-                      <td>{{ item.rasio_beban_operasional_per_pendapatan }}</td>
+                      <td>{{formatPercentage(item.rasio_beban_operasional_per_pendapatan) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -782,7 +784,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ item.jumlah_pendapatan }}</td>
                       <td>{{ item.penyusutan_aktiva }}</td>
-                      <td>{{ item.rasio_penyusutan_aktiva_per_jumlah_pendapatan }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_penyusutan_aktiva_per_jumlah_pendapatan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -817,7 +819,7 @@
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ item.jumlah_pendapatan }}</td>
                       <td>{{ item.cadangan_piutang }}</td>
-                      <td>{{ item.rasio_cadangan_piutang_per_jumlah_pendapatan }}</td>
+                      <td>{{ formatPercentage(Number(item.rasio_cadangan_piutang_per_jumlah_pendapatan)) }}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -835,6 +837,7 @@ import { getProductRate, getProductRatio } from "@/services/productRateService";
 import { useAuthStore } from "@/stores/auth";
 import {
   formatCurrency,
+  formatPercentage,
   isGlobalLoading,
   selectedEntityId,
   selectedMonth,

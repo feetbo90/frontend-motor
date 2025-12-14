@@ -489,7 +489,7 @@ function handleReset() {
 
 function editRow(id: number) {
   try {
-    const row = entries.value.find((item) => Number(item.id) === id);
+    const row = entries.value.find((item) => Number(item.id) === Number(id));
     if (!row) {
       console.error("Row not found for editing");
       return;
