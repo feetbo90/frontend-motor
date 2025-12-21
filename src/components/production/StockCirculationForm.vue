@@ -1,38 +1,19 @@
 <template>
   <div ref="formSection">
     <form @submit.prevent="handleSave">
-      <ConfirmModal
-        v-if="showConfirmModal"
-        title="Hapus Item?"
+      <ConfirmModal v-if="showConfirmModal" title="Hapus Item?"
         description="Apakah kamu yakin ingin menghapus item ini? Tindakan ini tidak bisa dibatalkan."
-        confirmText="Delete"
-        cancelText="Cancel"
-        @confirm="handleConfirmDelete"
-        @cancel="handleCancelDelete"
-      />
-      <FormSection
-        title="Sirkulasi Stock dan PK"
-        description="Input data sirkulasi stock berdasarkan kategori"
-        :class="{ highlight: highlightForm }"
-      >
+        confirmText="Delete" cancelText="Cancel" @confirm="handleConfirmDelete" @cancel="handleCancelDelete" />
+      <FormSection title="Sirkulasi Stock dan PK" description="Input data sirkulasi stock berdasarkan kategori"
+        :class="{ highlight: highlightForm }">
         <!-- Slot untuk content -->
         <template #content>
           <div class="form-grid">
             <div class="date-fields">
-              <FormSelect
-                id="tahun"
-                label="Tahun"
-                v-model="formData.year"
-                placeholder="Pilih Tahun"
-                :options="yearOptions"
-              />
-              <FormSelect
-                id="bulan"
-                label="Bulan"
-                v-model="formData.month"
-                placeholder="Pilih Bulan"
-                :options="monthOptions"
-              />
+              <FormSelect id="tahun" label="Tahun" v-model="formData.year" placeholder="Pilih Tahun"
+                :options="yearOptions" />
+              <FormSelect id="bulan" label="Bulan" v-model="formData.month" placeholder="Pilih Bulan"
+                :options="monthOptions" />
             </div>
             <div class="form-table">
               <table class="data-input-table">
@@ -51,14 +32,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="unit-awal"
-                        label=""
-                        type="number"
-                        v-model="formData.unit_awal"
-                        placeholder="0"
-                        :error="errors.unitAwal"
-                      />
+                      <FormField id="unit-awal" label="" type="number" v-model="formData.unit_awal" placeholder="0"
+                        :error="errors.unitAwal" @keydown.enter.prevent="focusNextInput('unit-awal-data')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -69,14 +44,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="unit-awal-data"
-                        label=""
-                        type="number"
-                        v-model="formData.unit_awal_data"
-                        placeholder="0"
-                        :error="errors.unitAwalData"
-                      />
+                      <FormField id="unit-awal-data" label="" type="number" v-model="formData.unit_awal_data"
+                        placeholder="0" :error="errors.unitAwalData" @keydown.enter.prevent="focusNextInput('pembelian-tambahan')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -87,14 +56,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="pembelian-tambahan"
-                        label=""
-                        type="number"
-                        v-model="formData.pembelian_tambahan"
-                        placeholder="0"
-                        :error="errors.pembelianTambahan"
-                      />
+                      <FormField id="pembelian-tambahan" label="" type="number" v-model="formData.pembelian_tambahan"
+                        placeholder="0" :error="errors.pembelianTambahan" @keydown.enter.prevent="focusNextInput('pembelian-tambahan-data')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -105,14 +68,9 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="pembelian-tambahan-data"
-                        label=""
-                        type="number"
-                        v-model="formData.pembelian_tambahan_data"
-                        placeholder="0"
-                        :error="errors.pembelianTambahanData"
-                      />
+                      <FormField id="pembelian-tambahan-data" label="" type="number"
+                        v-model="formData.pembelian_tambahan_data" placeholder="0"
+                        :error="errors.pembelianTambahanData" @keydown.enter.prevent="focusNextInput('mutasi-masuk')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -123,14 +81,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="mutasi-masuk"
-                        label=""
-                        type="number"
-                        v-model="formData.mutasi_masuk"
-                        placeholder="0"
-                        :error="errors.mutasiMasuk"
-                      />
+                      <FormField id="mutasi-masuk" label="" type="number" v-model="formData.mutasi_masuk"
+                        placeholder="0" :error="errors.mutasiMasuk" @keydown.enter.prevent="focusNextInput('mutasi-keluar')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -141,14 +93,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="mutasi-keluar"
-                        label=""
-                        type="number"
-                        v-model="formData.mutasi_keluar"
-                        placeholder="0"
-                        :error="errors.mutasiKeluar"
-                      />
+                      <FormField id="mutasi-keluar" label="" type="number" v-model="formData.mutasi_keluar"
+                        placeholder="0" :error="errors.mutasiKeluar" @keydown.enter.prevent="focusNextInput('terjual')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -159,14 +105,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="terjual"
-                        label=""
-                        type="number"
-                        v-model="formData.terjual"
-                        placeholder="0"
-                        :error="errors.terjual"
-                      />
+                      <FormField id="terjual" label="" type="number" v-model="formData.terjual" placeholder="0"
+                        :error="errors.terjual" @keydown.enter.prevent="focusNextInput('terjual-data')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -177,14 +117,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="terjual-data"
-                        label=""
-                        type="number"
-                        v-model="formData.terjual_data"
-                        placeholder="0"
-                        :error="errors.terjualData"
-                      />
+                      <FormField id="terjual-data" label="" type="number" v-model="formData.terjual_data"
+                        placeholder="0" :error="errors.terjualData" @keydown.enter.prevent="focusSubmitButton" />
                     </td>
                   </tr>
                   <tr class="table-row result-row">
@@ -196,15 +130,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="unit-akhir"
-                        label=""
-                        type="number"
-                        v-model="formData.unit_akhir"
-                        placeholder="0"
-                        :error="errors.unitAkhir"
-                        :readonly="true"
-                      />
+                      <FormField id="unit-akhir" label="" type="number" v-model="formData.unit_akhir" placeholder="0"
+                        :error="errors.unitAkhir" :readonly="true" />
                     </td>
                   </tr>
                   <tr class="table-row final-result-row">
@@ -216,15 +143,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="unit-akhir-data"
-                        label=""
-                        type="number"
-                        v-model="formData.unit_akhir_data"
-                        placeholder="0"
-                        :error="errors.unitAkhirData"
-                        :readonly="true"
-                      />
+                      <FormField id="unit-akhir-data" label="" type="number" v-model="formData.unit_akhir_data"
+                        placeholder="0" :error="errors.unitAkhirData" :readonly="true" />
                     </td>
                   </tr>
                 </tbody>
@@ -236,7 +156,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -250,38 +170,22 @@
         </template>
       </FormSection>
 
-      <FormSection
-        title="Daftar Sirkulasi Stock"
-        description="Kumpulan item sirkulasi stock yang telah ditambahkan"
-      >
+      <FormSection title="Daftar Sirkulasi Stock" description="Kumpulan item sirkulasi stock yang telah ditambahkan">
         <template #content>
           <div class="list-table">
-            <StockCirculationTable
-              :current-page="currentPage"
-              :page-size="pageSize"
-              :entries="entries"
-              @edit="editRow"
-              @delete="deleteRow"
-            />
+            <StockCirculationTable :current-page="currentPage" :page-size="pageSize" :entries="entries" @edit="editRow"
+              @delete="deleteRow" />
             <!-- PAGINATION -->
             <div class="pagination">
-              <button
-                type="button"
-                :class="['btn btn-reset', { disabled: currentPage === 1 }]"
-                :disabled="currentPage === 1"
-                @click="goToPage(currentPage - 1)"
-              >
+              <button type="button" :class="['btn btn-reset', { disabled: currentPage === 1 }]"
+                :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
                 Prev
               </button>
 
               <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-              <button
-                type="button"
-                :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
-                :disabled="currentPage === totalPages"
-                @click="goToPage(currentPage + 1)"
-              >
+              <button type="button" :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
+                :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
                 Next
               </button>
             </div>
@@ -297,6 +201,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { useAuthStore } from "@/stores/auth";
 import { isGlobalLoading, produksiData } from "@/stores/globalState";
@@ -338,6 +243,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => produksiData.value.sirkulasiStock,
@@ -383,14 +289,18 @@ watch(
     () => formData.value.unit_awal,
     () => formData.value.pembelian_tambahan,
     () => formData.value.terjual,
+    () => formData.value.mutasi_masuk,
+    () => formData.value.mutasi_keluar,
   ],
   () => {
     const unitAwal = safeNumber(formData.value.unit_awal);
+    const mutasiMasuk = safeNumber(formData.value.mutasi_masuk);
+    const mutasiKeluar = safeNumber(formData.value.mutasi_keluar);
     const pembelianTambahan = safeNumber(formData.value.pembelian_tambahan);
     const terjual = safeNumber(formData.value.terjual);
 
-    // Calculate unit akhir: unit awal + pembelian tambahan - terjual
-    formData.value.unit_akhir = unitAwal + pembelianTambahan - terjual;
+    // Calculate unit akhir: unit awal + pembelian tambahan + mutasi masuk - mutasi keluar - terjual
+    formData.value.unit_akhir = unitAwal + pembelianTambahan + mutasiMasuk - mutasiKeluar - terjual;
   },
   { immediate: true },
 );

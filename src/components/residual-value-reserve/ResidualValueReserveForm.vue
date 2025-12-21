@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.cadanganPiutang"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('macet-real')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.macetReal"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('surplus-devist')"
                       />
                     </td>
                   </tr>
@@ -118,6 +120,7 @@
                         placeholder="0"
                         :error="errors.surplusDevist"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('cadangan-stock')"
                       />
                     </td>
                   </tr>
@@ -136,7 +139,7 @@
                         v-model="formData.cadangan_stock"
                         placeholder="0"
                         :error="errors.cadanganStock"
-                        format="currency"
+                        @keydown.enter.prevent="focusNextInput('cadangan-stock-data')"
                       />
                     </td>
                   </tr>
@@ -156,6 +159,7 @@
                         placeholder="0"
                         :error="errors.cadanganStockData"
                         format="currency"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -189,7 +193,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -250,6 +254,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import {
   residualValueReserveSchema,
@@ -268,7 +273,7 @@ import type {
   ResidualValueReserveFrm,
   ResidualValueReservePayload,
 } from "@/types/residual-value-reserve.type";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
 import ResidualValueReserveTable from "./ResidualValueReserveTable.vue";
 
@@ -291,6 +296,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => cadanganData.value,
@@ -337,25 +343,21 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
 //   { immediate: true },
 // );
 
-// Watch for auto calculation - Total Reserves
-// watch(
-//   [
-//     () => formData.value.net_receivables,
-//     () => formData.value.surplus_devist,
-//     () => formData.value.cadangan_stock,
-//     () => formData.value.cadangan_stock_data,
-//   ],
-//   () => {
-//     // const netReceivables = safeNumber(formData.value.net_receivables);
-//     const surplusDevist = safeNumber(formData.value.surplus_devist);
-//     const cadanganStock = safeNumber(formData.value.cadangan_stock);
-//     const cadanganStockData = safeNumber(formData.value.cadangan_stock_data);
+// Watch for auto surplus devisit - Total Reserves
+watch(
+  [
+    () => formData.value.cadangan_piutang,
+    () => formData.value.surplus_devist,
+    () => formData.value.macet_real,
+  ],
+  () => {
+    const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
+    const macetReal = safeNumber(formData.value.macet_real);
 
-//     // Calculate total reserves: net_receivables + surplus_devist + cadangan_stock + cadangan_stock_data
-//     formData.value.total_reserves = surplusDevist + cadanganStock + cadanganStockData;
-//   },
-//   { immediate: true },
-// );
+    formData.value.surplus_devist = cadanganPiutang- macetReal
+  },
+  { immediate: true },
+);
 
 const fetchList = async (page = 1) => {
   try {

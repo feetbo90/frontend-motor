@@ -58,6 +58,7 @@
                         v-model="formData.saldo_awal"
                         placeholder="0"
                         :error="errors.saldoAwal"
+                        @keydown.enter.prevent="focusNextInput('tambahan')"
                       />
                     </td>
                   </tr>
@@ -76,6 +77,7 @@
                         v-model="formData.tambahan"
                         placeholder="0"
                         :error="errors.tambahan"
+                        @keydown.enter.prevent="focusNextInput('realisasi-pokok')"
                       />
                     </td>
                   </tr>
@@ -94,6 +96,7 @@
                         v-model="formData.realisasi_pokok"
                         placeholder="0"
                         :error="errors.realisasiPokok"
+                        @keydown.enter.prevent="focusNextInput('realisasi-bunga-piutang')"
                       />
                     </td>
                   </tr>
@@ -112,6 +115,7 @@
                         v-model="formData.realisasi_bunga"
                         placeholder="0"
                         :error="errors.realisasiBunga"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -164,7 +168,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -225,6 +229,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import {
   accountReceivableSchema,
@@ -266,6 +271,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => produksiData.value.piutang,

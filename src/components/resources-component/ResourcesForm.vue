@@ -35,7 +35,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="jumlah-karyawan" label="" type="number" v-model="formData.jumlah_karyawan"
-                        placeholder="0" :error="errors.jumlahKaryawan" />
+                        placeholder="0" :error="errors.jumlahKaryawan" @keydown.enter.prevent="focusNextInput('formasi-tenaga')" />
                     </td>
                   </tr>
                   <tr class="table-row personnel-row">
@@ -47,7 +47,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="formasi-tenaga" label="" type="number" v-model="formData.formasi_tenaga"
-                        placeholder="0" :error="errors.formasiTenaga" />
+                        placeholder="0" :error="errors.formasiTenaga" @keydown.enter.prevent="focusNextInput('pimpinan')" />
                     </td>
                   </tr>
 
@@ -61,7 +61,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="pimpinan" label="" type="number" v-model="formData.pimpinan" placeholder="0"
-                        :error="errors.pimpinan" />
+                        :error="errors.pimpinan" @keydown.enter.prevent="focusNextInput('kasir')" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -73,7 +73,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="kasir" label="" type="number" v-model="formData.kasir" placeholder="0"
-                        :error="errors.kasir" />
+                        :error="errors.kasir" @keydown.enter.prevent="focusNextInput('administrasi')" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -85,7 +85,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="administrasi" label="" type="number" v-model="formData.administrasi"
-                        placeholder="0" :error="errors.administrasi" />
+                        placeholder="0" :error="errors.administrasi" @keydown.enter.prevent="focusNextInput('pdl')" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -97,7 +97,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="pdl" label="" type="number" v-model="formData.pdl" placeholder="0"
-                        :error="errors.pdl" />
+                        :error="errors.pdl" @keydown.enter.prevent="focusNextInput('formasi-kurang')" />
                     </td>
                   </tr>
                   <tr class="table-row result-row">
@@ -110,7 +110,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="formasi-kurang" label="" type="number" v-model="formData.formasi_kurang"
-                        placeholder="0" :error="errors.formasiKurang" />
+                        placeholder="0" :error="errors.formasiKurang" @keydown.enter.prevent="isCabangRole ? focusNextInput('kontrak-kantor') : focusSubmitButton" />
                     </td>
                   </tr>
 
@@ -125,7 +125,7 @@
                       </td>
                       <td class="field-input">
                         <FormField id="kontrak-kantor" label="" type="number" v-model="formData.kontrak_kantor"
-                          placeholder="0" :error="errors.kontrakKantor" />
+                          placeholder="0" :error="errors.kontrakKantor" @keydown.enter.prevent="focusNextInput('inventaris-mobil')" />
                       </td>
                     </tr>
                     <tr class="table-row asset-row">
@@ -137,7 +137,7 @@
                       </td>
                       <td class="field-input">
                         <FormField id="inventaris-mobil" label="" type="number" v-model="formData.inventaris_mobil"
-                          placeholder="0" :error="errors.inventarisMobil" />
+                          placeholder="0" :error="errors.inventarisMobil" @keydown.enter.prevent="focusNextInput('inventaris-mobil-ket')" />
                       </td>
                     </tr>
                     <tr class="table-row asset-row">
@@ -150,7 +150,7 @@
                       <td class="field-input">
                         <FormField id="inventaris-mobil-ket" label="" type="text"
                           v-model="formData.inventaris_mobil_ket" placeholder="Keterangan inventaris mobil"
-                          :error="errors.inventarisMobilKet" />
+                          :error="errors.inventarisMobilKet" @keydown.enter.prevent="focusNextInput('sisa-inventaris')" />
                       </td>
                     </tr>
 
@@ -165,7 +165,7 @@
                       <td class="field-input">
                         <FormField id="sisa-inventaris" label="" type="number"
                           v-model="formData.sisa_inventaris_pendirian" placeholder="0"
-                          :error="errors.sisaInventarisPendirian" format="currency" />
+                          :error="errors.sisaInventarisPendirian" format="currency" @keydown.enter.prevent="focusNextInput('penyusutan-bulan')" />
                       </td>
                     </tr>
                     <tr class="table-row depreciation-row">
@@ -178,7 +178,7 @@
                       </td>
                       <td class="field-input">
                         <FormField id="penyusutan-bulan" label="" type="number" v-model="formData.penyusutan_bulan"
-                          placeholder="0" :error="errors.penyusutanBulan" format="currency" />
+                          placeholder="0" :error="errors.penyusutanBulan" format="currency" @keydown.enter.prevent="focusSubmitButton" />
                       </td>
                     </tr>
                   </template>
@@ -191,7 +191,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -235,6 +235,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { useRole } from "@/composables/useRole";
 import { resourcesSchema, type ResourcesSchema } from "@/schemas/resourcesSchema";
@@ -271,6 +272,7 @@ const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
 const { hasRole } = useRole();
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 const isCabangRole = computed(() => hasRole("CABANG"));
 const { getMonthName } = useDate();
 

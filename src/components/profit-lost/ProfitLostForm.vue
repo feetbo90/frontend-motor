@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.modal"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('kumulatif')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.kumulatif"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('bulan-ini')"
                       />
                     </td>
                   </tr>
@@ -97,6 +99,7 @@
                         placeholder="0"
                         :error="errors.bulanIni"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('penarikan')"
                       />
                     </td>
                   </tr>
@@ -137,6 +140,7 @@
                         placeholder="0"
                         :error="errors.penarikan"
                         format="currency"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -170,7 +174,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -231,6 +235,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { profitLostSchema, type ProfitLostSchema } from "@/schemas/profitLostSchema";
 import {
@@ -266,6 +271,7 @@ const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
 const { getMonthName } = useDate();
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => labaRugiData.value,

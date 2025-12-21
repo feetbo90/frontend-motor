@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.markupKontan"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('markup-kredit')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.markupKredit"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('realisasi-bunga')"
                       />
                     </td>
                   </tr>
@@ -118,6 +120,7 @@
                         placeholder="0"
                         :error="errors.realisasiBunga"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('diskon-bunga')"
                       />
                     </td>
                   </tr>
@@ -137,6 +140,7 @@
                         placeholder="0"
                         :error="errors.diskonBunga"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('denda')"
                       />
                     </td>
                   </tr>
@@ -156,6 +160,7 @@
                         placeholder="0"
                         :error="errors.denda"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('administrasi')"
                       />
                     </td>
                   </tr>
@@ -175,6 +180,7 @@
                         placeholder="0"
                         :error="errors.administrasi"
                         format="currency"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -208,7 +214,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -269,6 +275,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { incomeSchema, type IncomeSchema } from "@/schemas/incomeSchema";
 import { deleteIncome, getIncomeList, postIncome, putIncome } from "@/services/incomeService";
@@ -298,6 +305,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => produksiData.value.pendapatan,
@@ -392,37 +400,6 @@ const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
     fetchList(page);
   }
-};
-
-const getVisiblePages = (): (number | string)[] => {
-  const total = totalPages.value;
-  const current = currentPage.value;
-  const delta = 2;
-
-  if (total <= 5) {
-    return Array.from({ length: total }, (_, i) => i + 1);
-  }
-
-  const left = Math.max(1, current - delta);
-  const right = Math.min(total, current + delta);
-
-  const pages: (number | string)[] = [];
-
-  if (left > 1) {
-    pages.push(1);
-    if (left > 2) pages.push("...");
-  }
-
-  for (let i = left; i <= right; i++) {
-    pages.push(i);
-  }
-
-  if (right < total) {
-    if (right < total - 1) pages.push("...");
-    pages.push(total);
-  }
-
-  return pages;
 };
 
 function safeNumber(n: unknown): number {

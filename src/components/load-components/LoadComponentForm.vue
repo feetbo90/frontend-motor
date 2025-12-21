@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.gaji"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('admin')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.admin"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('operasional')"
                       />
                     </td>
                   </tr>
@@ -97,6 +99,7 @@
                         placeholder="0"
                         :error="errors.operasional"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('penyusutan-aktiva')"
                       />
                     </td>
                   </tr>
@@ -137,6 +140,7 @@
                         placeholder="0"
                         :error="errors.penyusutanAktiva"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('cadangan-piutang')"
                       />
                     </td>
                   </tr>
@@ -156,6 +160,7 @@
                         placeholder="0"
                         :error="errors.cadanganPiutang"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('cadangan-stock')"
                       />
                     </td>
                   </tr>
@@ -175,6 +180,7 @@
                         placeholder="0"
                         :error="errors.cadanganStock"
                         format="currency"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -208,7 +214,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -269,6 +275,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { loadComponentSchema, type LoadComponentSchema } from "@/schemas/loadComponentSchema";
 import {
@@ -307,6 +314,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => bebanData.value,

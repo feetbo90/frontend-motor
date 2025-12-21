@@ -33,7 +33,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="penjualan-pk" label="" type="number" v-model="formData.penjualan_pk"
-                        placeholder="0" :error="errors.penjualanPk" />
+                        placeholder="0" :error="errors.penjualanPk" @keydown.enter.prevent="focusNextInput('komisi')" />
                     </td>
                   </tr>
                   <tr class="table-row income-row">
@@ -45,7 +45,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="komisi" label="" type="number" v-model="formData.komisi" placeholder="0"
-                        :error="errors.komisi" />
+                        :error="errors.komisi" @keydown.enter.prevent="focusNextInput('denda-keterlambatan')" />
                     </td>
                   </tr>
                   <tr class="table-row penalty-row">
@@ -57,7 +57,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="denda-keterlambatan" label="" type="number"
-                        v-model="formData.denda_keterlambatan" placeholder="0" :error="errors.dendaKeterlambatan" />
+                        v-model="formData.denda_keterlambatan" placeholder="0" :error="errors.dendaKeterlambatan" @keydown.enter.prevent="focusNextInput('diskon-denda')" />
                     </td>
                   </tr>
                   <tr class="table-row penalty-row">
@@ -69,7 +69,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="diskon-denda" label="" type="number" v-model="formData.diskon_denda"
-                        placeholder="0" :error="errors.diskonDenda" />
+                        placeholder="0" :error="errors.diskonDenda" @keydown.enter.prevent="focusSubmitButton" />
                     </td>
                   </tr>
                   <tr class="table-row total-row">
@@ -93,7 +93,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit"> <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
+            <button ref="submitButton" class="btn btn-primary" type="submit"> <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{
                 isEditing ? 'Simpan Perubahan' : 'Tambah ke Daftar'
               }}</button>
@@ -137,6 +137,7 @@ import FormField from '@/components/FormField.vue'
 import FormSection from '@/components/FormSection.vue'
 import FormSelect from '@/components/FormSelect.vue'
 import { useDate } from '@/composables/useDate'
+import { useFormNavigation } from '@/composables/useFormNavigation'
 import { useNotification } from '@/composables/useNotification'
 import { otherIncomeSchema, type OtherIncomeSchema } from '@/schemas/incomeOtherSchema'
 import { deleteOtherIncome, getOtherIncomeList, postOtherIncome, putOtherIncome } from '@/services/otherIncomeService'
@@ -166,6 +167,7 @@ const idSelected = ref<number | null>(null)
 const authStore = useAuthStore()
 const { notifySuccess } = useNotification()
 const showConfirmModal = ref(false)
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation()
 
 const formData = computed({
   get: () => produksiData.value.pendapatanLain,

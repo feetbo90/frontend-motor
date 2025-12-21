@@ -1,38 +1,20 @@
 <template>
   <div ref="formSection">
     <form @submit.prevent="handleSave">
-      <ConfirmModal
-        v-if="showConfirmModal"
-        title="Hapus Item?"
+      <ConfirmModal v-if="showConfirmModal" title="Hapus Item?"
         description="Apakah kamu yakin ingin menghapus item ini? Tindakan ini tidak bisa dibatalkan."
-        confirmText="Delete"
-        cancelText="Cancel"
-        @confirm="handleConfirmDelete"
-        @cancel="handleCancelDelete"
-      />
-      <FormSection
-        title="Kas & Keuangan"
+        confirmText="Delete" cancelText="Cancel" @confirm="handleConfirmDelete" @cancel="handleCancelDelete" />
+      <FormSection title="Kas & Keuangan"
         description="Input data kas tunai, rekening bank, dan BON kas berdasarkan kategori"
-        :class="{ highlight: highlightForm }"
-      >
+        :class="{ highlight: highlightForm }">
         <!-- Slot untuk content -->
         <template #content>
           <div class="form-grid">
             <div class="date-fields">
-              <FormSelect
-                id="tahun"
-                label="Tahun"
-                v-model="formData.year"
-                placeholder="Pilih Tahun"
-                :options="yearOptions"
-              />
-              <FormSelect
-                id="bulan"
-                label="Bulan"
-                v-model="formData.month"
-                placeholder="Pilih Bulan"
-                :options="monthOptions"
-              />
+              <FormSelect id="tahun" label="Tahun" v-model="formData.year" placeholder="Pilih Tahun"
+                :options="yearOptions" />
+              <FormSelect id="bulan" label="Bulan" v-model="formData.month" placeholder="Pilih Bulan"
+                :options="monthOptions" />
             </div>
             <div class="form-table">
               <table class="data-input-table">
@@ -52,15 +34,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="kas-tunai"
-                        label=""
-                        type="number"
-                        v-model="formData.kas_tunai"
-                        placeholder="0"
-                        :error="errors.kasTunai"
-                        format="currency"
-                      />
+                      <FormField id="kas-tunai" label="" type="number" v-model="formData.kas_tunai" placeholder="0"
+                        :error="errors.kasTunai" format="currency" @keydown.enter.prevent="focusNextInput('rekening-bank')" />
                     </td>
                   </tr>
                   <tr class="table-row cash-row">
@@ -71,15 +46,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="rekening-bank"
-                        label=""
-                        type="number"
-                        v-model="formData.rekening_bank"
-                        placeholder="0"
-                        :error="errors.rekeningBank"
-                        format="currency"
-                      />
+                      <FormField id="rekening-bank" label="" type="number" v-model="formData.rekening_bank"
+                        placeholder="0" :error="errors.rekeningBank" format="currency" @keydown.enter.prevent="focusNextInput('bon-karyawan')" />
                     </td>
                   </tr>
                   <tr class="table-row result-row">
@@ -91,16 +59,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="jumlah-kas-lancar"
-                        label=""
-                        type="number"
-                        v-model="formData.jumlah_kas_lancar"
-                        placeholder="0"
-                        :error="errors.jumlahKasLancar"
-                        format="currency"
-                        :readonly="true"
-                      />
+                      <FormField id="jumlah-kas-lancar" label="" type="number" v-model="formData.jumlah_kas_lancar"
+                        placeholder="0" :error="errors.jumlahKasLancar" format="currency" :readonly="true" />
                     </td>
                   </tr>
 
@@ -113,15 +73,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="bon-karyawan"
-                        label=""
-                        type="number"
-                        v-model="formData.bon_karyawan"
-                        placeholder="0"
-                        :error="errors.bonKaryawan"
-                        format="currency"
-                      />
+                      <FormField id="bon-karyawan" label="" type="number" v-model="formData.bon_karyawan"
+                        placeholder="0" :error="errors.bonKaryawan" format="currency" @keydown.enter.prevent="focusNextInput('bon-pusat')" />
                     </td>
                   </tr>
                   <tr class="table-row bon-row">
@@ -132,15 +85,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="bon-pusat"
-                        label=""
-                        type="number"
-                        v-model="formData.bon_pusat"
-                        placeholder="0"
-                        :error="errors.bonPusat"
-                        format="currency"
-                      />
+                      <FormField id="bon-pusat" label="" type="number" v-model="formData.bon_pusat" placeholder="0"
+                        :error="errors.bonPusat" format="currency" @keydown.enter.prevent="focusNextInput('bon-operasional')" />
                     </td>
                   </tr>
                   <tr class="table-row bon-row">
@@ -151,15 +97,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="bon-operasional"
-                        label=""
-                        type="number"
-                        v-model="formData.bon_operasional"
-                        placeholder="0"
-                        :error="errors.bonOperasional"
-                        format="currency"
-                      />
+                      <FormField id="bon-operasional" label="" type="number" v-model="formData.bon_operasional"
+                        placeholder="0" :error="errors.bonOperasional" format="currency" @keydown.enter.prevent="focusNextInput('bon-gantung')" />
                     </td>
                   </tr>
                   <tr class="table-row bon-row">
@@ -170,15 +109,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="bon-gantung"
-                        label=""
-                        type="number"
-                        v-model="formData.bon_gantung"
-                        placeholder="0"
-                        :error="errors.bonGantung"
-                        format="currency"
-                      />
+                      <FormField id="bon-gantung" label="" type="number" v-model="formData.bon_gantung" placeholder="0"
+                        :error="errors.bonGantung" format="currency" @keydown.enter.prevent="focusNextInput('jumlah-kas-macet')" />
                     </td>
                   </tr>
 
@@ -192,15 +124,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="jumlah-kas-macet"
-                        label=""
-                        type="number"
-                        v-model="formData.jumlah_kas_macet"
-                        placeholder="0"
-                        :error="errors.jumlahKasMacet"
-                        format="currency"
-                      />
+                      <FormField id="jumlah-kas-macet" label="" type="number" v-model="formData.jumlah_kas_macet"
+                        placeholder="0" :error="errors.jumlahKasMacet" format="currency" @keydown.enter.prevent="focusSubmitButton" />
                     </td>
                   </tr>
                   <tr class="table-row final-result-row">
@@ -212,16 +137,8 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField
-                        id="saldo-akhir"
-                        label=""
-                        type="number"
-                        v-model="formData.saldo_akhir"
-                        placeholder="0"
-                        :error="errors.saldoAkhir"
-                        format="currency"
-                        :readonly="true"
-                      />
+                      <FormField id="saldo-akhir" label="" type="number" v-model="formData.saldo_akhir" placeholder="0"
+                        :error="errors.saldoAkhir" format="currency" :readonly="true" />
                     </td>
                   </tr>
                 </tbody>
@@ -233,7 +150,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -246,38 +163,22 @@
           </div>
         </template>
       </FormSection>
-      <FormSection
-        title="Daftar Kas & Keuangan"
-        description="Kumpulan item kas & keuangan yang telah ditambahkan"
-      >
+      <FormSection title="Daftar Kas & Keuangan" description="Kumpulan item kas & keuangan yang telah ditambahkan">
         <template #content>
           <div class="list-table">
-            <CashFlowTable
-              :current-page="currentPage"
-              :page-size="pageSize"
-              :entries="entries"
-              @edit="editRow"
-              @delete="deleteRow"
-            />
+            <CashFlowTable :current-page="currentPage" :page-size="pageSize" :entries="entries" @edit="editRow"
+              @delete="deleteRow" />
             <!-- PAGINATION -->
             <div class="pagination">
-              <button
-                type="button"
-                :class="['btn btn-reset', { disabled: currentPage === 1 }]"
-                :disabled="currentPage === 1"
-                @click="goToPage(currentPage - 1)"
-              >
+              <button type="button" :class="['btn btn-reset', { disabled: currentPage === 1 }]"
+                :disabled="currentPage === 1" @click="goToPage(currentPage - 1)">
                 Prev
               </button>
 
               <span>Page {{ currentPage }} of {{ totalPages }}</span>
 
-              <button
-                type="button"
-                :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
-                :disabled="currentPage === totalPages"
-                @click="goToPage(currentPage + 1)"
-              >
+              <button type="button" :class="['btn btn-primary', { disabled: currentPage === totalPages }]"
+                :disabled="currentPage === totalPages" @click="goToPage(currentPage + 1)">
                 Next
               </button>
             </div>
@@ -293,6 +194,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { cashFlowSchema, type CashFlowSchema } from "@/schemas/cashFlowSchema";
 import {
@@ -327,6 +229,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => cashFlowData.value,
@@ -367,11 +270,8 @@ const errors = ref<Record<keyof CashFlowSchema, string>>({
 // Auto-calculation watchers
 const kasTunai = computed(() => safeNumber(formData.value.kas_tunai));
 const rekeningBank = computed(() => safeNumber(formData.value.rekening_bank));
-const bonKaryawan = computed(() => safeNumber(formData.value.bon_karyawan));
-const bonPusat = computed(() => safeNumber(formData.value.bon_pusat));
-const bonOperasional = computed(() => safeNumber(formData.value.bon_operasional));
-const bonGantung = computed(() => safeNumber(formData.value.bon_gantung));
 const jumlahKasMacet = computed(() => safeNumber(formData.value.jumlah_kas_macet));
+const jumlahKasLancar = computed(() => safeNumber(formData.value.jumlah_kas_lancar));
 
 // Watch for kas lancar calculation
 watch(
@@ -384,15 +284,31 @@ watch(
 
 // Watch for saldo akhir calculation
 watch(
-  [kasTunai, rekeningBank, bonKaryawan, bonPusat, bonOperasional, bonGantung, jumlahKasMacet],
+  [jumlahKasLancar, jumlahKasMacet],
   () => {
-    const totalKasLancar = kasTunai.value + rekeningBank.value;
-    const totalBon = bonKaryawan.value + bonPusat.value + bonOperasional.value + bonGantung.value;
-    formData.value.saldo_akhir = totalKasLancar - totalBon - jumlahKasMacet.value;
+    formData.value.saldo_akhir = Math.max(0, jumlahKasLancar.value - jumlahKasMacet.value);
   },
   { immediate: true },
 );
 
+watch(
+  [
+    () => formData.value.jumlah_kas_macet,
+    () => formData.value.bon_karyawan,
+    () => formData.value.bon_pusat,
+    () => formData.value.bon_operasional,
+    () => formData.value.bon_gantung,
+  ],
+  () => {
+    const bonKaryawan = safeNumber(formData.value.bon_karyawan);
+    const bonPusat = safeNumber(formData.value.bon_pusat);
+    const bonOperasional = safeNumber(formData.value.bon_operasional);
+    const bonGantung = safeNumber(formData.value.bon_gantung);
+
+    formData.value.jumlah_kas_macet = bonKaryawan + bonPusat + bonOperasional + bonGantung;
+  },
+  { immediate: true },
+);
 const fetchList = async () => {
   try {
     isGlobalLoading.value = true;
@@ -918,6 +834,7 @@ onMounted(() => {
   color: #374151;
   transform: translateY(-2px);
 }
+
 .pagination {
   margin-top: 16px;
   display: flex;

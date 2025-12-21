@@ -58,6 +58,7 @@
                         v-model="formData.unit_awal"
                         placeholder="0"
                         :error="errors.unitAwal"
+                        @keydown.enter.prevent="focusNextInput('unit-awal-data')"
                       />
                     </td>
                   </tr>
@@ -76,6 +77,7 @@
                         v-model="formData.unit_awal_data"
                         placeholder="0"
                         :error="errors.unitAwalData"
+                        @keydown.enter.prevent="focusNextInput('pk-tambahan')"
                       />
                     </td>
                   </tr>
@@ -94,6 +96,7 @@
                         v-model="formData.pk_tambahan"
                         placeholder="0"
                         :error="errors.pkTambahan"
+                        @keydown.enter.prevent="focusNextInput('pk-tambahan-data')"
                       />
                     </td>
                   </tr>
@@ -112,6 +115,7 @@
                         v-model="formData.pk_tambahan_data"
                         placeholder="0"
                         :error="errors.pkTambahanData"
+                        @keydown.enter.prevent="focusNextInput('terjual')"
                       />
                     </td>
                   </tr>
@@ -130,6 +134,7 @@
                         v-model="formData.terjual"
                         placeholder="0"
                         :error="errors.terjual"
+                        @keydown.enter.prevent="focusNextInput('terjual-data')"
                       />
                     </td>
                   </tr>
@@ -148,6 +153,7 @@
                         v-model="formData.terjual_data"
                         placeholder="0"
                         :error="errors.terjualData"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -200,7 +206,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -261,10 +267,8 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
-import { deleteAccountReceivable } from "@/services/accountReceivable";
-import { useAuthStore } from "@/stores/auth";
-import { isGlobalLoading, produksiData } from "@/stores/globalState";
 import { pkColleteralGoodsSchema, type PkColleteralGoodsSchema } from "@/schemas/pkColleteralGoods";
 import {
   deletePkColleteralGoods,
@@ -272,6 +276,8 @@ import {
   postPkColleteralGoods,
   putPkColleteralGoods,
 } from "@/services/pkColleteralGoods";
+import { useAuthStore } from "@/stores/auth";
+import { isGlobalLoading, produksiData } from "@/stores/globalState";
 import type {
   PkColleteralGoodsData,
   PkColleteralGoodsFrm,
@@ -300,6 +306,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => produksiData.value.barangPK,

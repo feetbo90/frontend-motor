@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.lancar"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('piutang-kurang-lancar')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.kurangLancar"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('piutang-ragu-ragu')"
                       />
                     </td>
                   </tr>
@@ -97,6 +99,7 @@
                         placeholder="0"
                         :error="errors.raguRagu"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('piutang-macet-baru')"
                       />
                     </td>
                   </tr>
@@ -116,6 +119,7 @@
                         placeholder="0"
                         :error="errors.macetBaru"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('piutang-macet-lama')"
                       />
                     </td>
                   </tr>
@@ -135,6 +139,7 @@
                         placeholder="0"
                         :error="errors.macetLama"
                         format="currency"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -168,7 +173,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -229,6 +234,7 @@ import FormField from "@/components/FormField.vue";
 import FormSection from "@/components/FormSection.vue";
 import FormSelect from "@/components/FormSelect.vue";
 import { useDate } from "@/composables/useDate";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 import { useNotification } from "@/composables/useNotification";
 import { useAuthStore } from "@/stores/auth";
 import { isGlobalLoading, produksiData } from "@/stores/globalState";
@@ -270,6 +276,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => produksiData.value.sirkulasiPiutang,

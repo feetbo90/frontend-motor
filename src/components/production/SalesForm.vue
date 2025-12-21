@@ -59,6 +59,7 @@
                         placeholder="0"
                         :error="errors.kontan"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('penjualan-kredit')"
                       />
                     </td>
                   </tr>
@@ -78,6 +79,7 @@
                         placeholder="0"
                         :error="errors.kredit"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('penjualan-leasing')"
                       />
                     </td>
                   </tr>
@@ -97,6 +99,7 @@
                         placeholder="0"
                         :error="errors.leasing"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('unit-penjualan-kontan')"
                       />
                     </td>
                   </tr>
@@ -115,6 +118,7 @@
                         v-model="salesData.unit_jualkontan"
                         placeholder="0"
                         :error="errors.unit_jualkontan"
+                        @keydown.enter.prevent="focusNextInput('unit-penjualan-kredit')"
                       />
                     </td>
                   </tr>
@@ -133,6 +137,7 @@
                         v-model="salesData.unit_jualkredit"
                         placeholder="0"
                         :error="errors.unit_jualkredit"
+                        @keydown.enter.prevent="focusNextInput('unit-penjualan-leasing')"
                       />
                     </td>
                   </tr>
@@ -151,6 +156,7 @@
                         v-model="salesData.unit_jualleasing"
                         placeholder="0"
                         :error="errors.unit_jualleasing"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
@@ -163,7 +169,7 @@
         <!-- Slot untuk footer -->
         <template #footer>
           <div class="footer-btn">
-            <button class="btn btn-primary" type="submit">
+            <button ref="submitButton" class="btn btn-primary" type="submit">
               <i class="fas" :class="isEditing ? 'fa-save' : 'fa-plus'" />
               {{ isEditing ? "Simpan Perubahan" : "Tambah ke Daftar" }}
             </button>
@@ -239,6 +245,7 @@ import {
 import type { SalesData, SalesResponse } from "@/types/sales.type";
 import { computed, onMounted, ref, watch } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
+import { useFormNavigation } from "@/composables/useFormNavigation";
 
 interface Props {
   modelValue: SalesData;
@@ -294,6 +301,7 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
+const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const fetchSales = async (
   page = 1,

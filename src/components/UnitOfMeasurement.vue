@@ -658,15 +658,15 @@
                     <tr>
                       <th>Bulan / Tahun</th>
                       <th>Jumlah Pendapatan</th>
-                      <th>Denda</th>
-                      <th>Administrasi</th>
+                      <!-- <th>Denda</th>
+                      <th>Administrasi</th> -->
                       <th>Pendapatan Lainnya</th>
                       <th>Rasio Pendapatan Lainnya / Jumlah Pendapatan</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-if="getRasioTujuh(entity.name, entity.type).length === 0">
-                      <td :colspan="5" class="empty">
+                      <td :colspan="6" class="empty">
                         Data Ratio Pendapatan Lainnya / Jumlah Pendapatan tidak ditemukan.
                       </td>
                     </tr>
@@ -676,8 +676,8 @@
                     >
                       <td>{{ item.month }}/{{ item.year }}</td>
                       <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.denda)) }}</td>
-                      <td>{{ formatCurrency(Number(item.administrasi)) }}</td>
+                      <!-- <td>{{ formatCurrency(Number(item.denda)) }}</td>
+                      <td>{{ formatCurrency(Number(item.administrasi)) }}</td> -->
                       <td>{{ formatCurrency(Number(item.jumlah_pendapatan_lain)) }}</td>
                       <td>
                         {{
@@ -802,7 +802,7 @@
                     <tr>
                       <th>Bulan / Tahun</th>
                       <th>Jumlah Pendapatan</th>
-                      <th>Cadangan Piutang</th>
+                      <th>Cadangan Ph.p/stock</th>
                       <th>Ratio Cadangan Piutang / Jumlah Pendapatan</th>
                     </tr>
                   </thead>
