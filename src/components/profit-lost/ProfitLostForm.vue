@@ -99,6 +99,7 @@
                         placeholder="0"
                         :error="errors.bulanIni"
                         format="currency"
+                        :allowNegative="true"
                         @keydown.enter.prevent="focusNextInput('penarikan')"
                       />
                     </td>
@@ -247,7 +248,7 @@ import {
 import { useAuthStore } from "@/stores/auth";
 import { isGlobalLoading, labaRugiData } from "@/stores/globalState";
 import type { ProfitLostData, ProfitLostFrm, ProfitLostPayload } from "@/types/profit-lost.type";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
 import ProfitLostTable from "./ProfitLostTable.vue";
 

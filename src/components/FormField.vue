@@ -39,6 +39,7 @@ const props = defineProps<{
   required?: boolean;
   error?: string | null;
   format?: "currency" | "none";
+  allowNegative?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -79,18 +80,39 @@ const formatNumber = (value: number | string): string => {
 
 // Parse number back to number (removes thousand separators)
 const parseNumber = (value: string): number => {
-  // Remove all dots (thousand separators) but keep other digits
-  const cleanValue = value.replace(/\./g, "").replace(/[^\d]/g, "");
-  // Return 0 if empty string, otherwise parse as integer
-  return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+  // Remove all dots (thousand separators)
+  let cleanValue = value.replace(/\./g, "");
+  // If allowNegative is true, keep minus sign at the start, otherwise remove all non-digits
+  if (props.allowNegative) {
+    const isNegative = cleanValue.startsWith("-");
+    cleanValue = cleanValue.replace(/[^\d]/g, "");
+    // Return 0 if empty string, otherwise parse as integer with sign
+    if (cleanValue === "") return 0;
+    return isNegative ? -parseInt(cleanValue, 10) : parseInt(cleanValue, 10);
+  } else {
+    cleanValue = cleanValue.replace(/[^\d]/g, "");
+    // Return 0 if empty string, otherwise parse as integer
+    return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+  }
 };
 
 // Parse currency back to number
 const parseCurrency = (value: string): number => {
-  // Remove all non-digit characters including currency symbols and separators
-  const cleanValue = value.replace(/[^\d]/g, "");
-  // Return 0 if empty string, otherwise parse as integer
-  return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+  // If allowNegative is true, check for minus sign before removing non-digits
+  if (props.allowNegative) {
+    // Check if minus exists (could be at start or after currency symbol)
+    const isNegative = /-/.test(value);
+    // Remove all non-digit characters including currency symbols and separators
+    const cleanValue = value.replace(/[^\d]/g, "");
+    // Return 0 if empty string, otherwise parse as integer with sign
+    if (cleanValue === "") return 0;
+    return isNegative ? -parseInt(cleanValue, 10) : parseInt(cleanValue, 10);
+  } else {
+    // Remove all non-digit characters including currency symbols and separators
+    const cleanValue = value.replace(/[^\d]/g, "");
+    // Return 0 if empty string, otherwise parse as integer
+    return cleanValue === "" ? 0 : parseInt(cleanValue, 10);
+  }
 };
 
 // Input type based on format
