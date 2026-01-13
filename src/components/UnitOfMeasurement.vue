@@ -1,16 +1,17 @@
 <template>
   <div class="container">
-    <!--RATE -->
-    <div class="section-header">
-      <h2>Tingkat Produksi (Rata - rata)</h2>
-      <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi</p>
-    </div>
     <MessageAlert
       type="warning"
       title="Perhatian!"
       message="Pastikan filter di menu sidebar yang Anda pilih sudah sesuai agar data yang ditampilkan akurat."
     />
 
+    <!--RATE -->
+    <div class="section-header">
+      <h2>Tingkat Produksi (Rata - rata)</h2>
+      <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi</p>
+    </div>
+   
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="apiData.entityIds.length < 1" class="empty-container">
       <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
