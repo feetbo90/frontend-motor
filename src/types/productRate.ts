@@ -247,6 +247,8 @@ interface RasioDuaItem {
   stock_kredit: string;
   leasing: string;
   rasio_kemacetan_pembiayaan: string;
+  cadangan_piutang:string;
+  tambahan:string
 }
 
 interface RasioSepuluhItem {

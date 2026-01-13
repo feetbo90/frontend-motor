@@ -484,9 +484,8 @@
                   <thead>
                     <tr>
                       <th>Bulan / Tahun</th>
-                      <th>Macet Lama</th>
-                      <th>Stock Kredit</th>
-                      <th>Leasing</th>
+                      <th>Kenaikan Macet</th>
+                      <th>Pembiayaan</th>
                       <th>Ratio Kemacetan / Pembiayaan</th>
                     </tr>
                   </thead>
@@ -501,9 +500,8 @@
                       :key="`${item.year}-${item.month}`"
                     >
                       <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.macet_lama)) }}</td>
-                      <td>{{ formatCurrency(Number(item.stock_kredit)) }}</td>
-                      <td>{{ formatCurrency(Number(item.leasing)) }}</td>
+                      <td>{{ formatCurrency(Number(item.cadangan_piutang)) }}</td>
+                      <td>{{ formatCurrency(Number(item.tambahan)) }}</td>
                       <td>{{ formatPercentage(Number(item.rasio_kemacetan_pembiayaan)) }}</td>
                     </tr>
                   </tbody>
