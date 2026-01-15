@@ -11,7 +11,7 @@
       <h2>Tingkat Produksi (Rata - rata)</h2>
       <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi</p>
     </div>
-   
+
     <div v-if="loading" class="loading">Loading...</div>
     <div v-if="apiData.entityIds.length < 1" class="empty-container">
       <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
@@ -748,8 +748,8 @@
                       :key="`${item.year}-${item.month}`"
                     >
                       <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ item.jumlah_pendapatan }}</td>
-                      <td>{{ item.beban_umum_operasional }}</td>
+                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.beban_umum_operasional)) }}</td>
                       <td>{{formatPercentage(Number(item.rasio_beban_operasional_per_pendapatan)) }}</td>
                     </tr>
                   </tbody>
@@ -781,8 +781,8 @@
                       :key="`${item.year}-${item.month}`"
                     >
                       <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ item.jumlah_pendapatan }}</td>
-                      <td>{{ item.penyusutan_aktiva }}</td>
+                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.penyusutan_aktiva)) }}</td>
                       <td>{{ formatPercentage(Number(item.rasio_penyusutan_aktiva_per_jumlah_pendapatan)) }}</td>
                     </tr>
                   </tbody>
@@ -816,8 +816,8 @@
                       :key="`${item.year}-${item.month}`"
                     >
                       <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ item.jumlah_pendapatan }}</td>
-                      <td>{{ item.cadangan_piutang }}</td>
+                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.cadangan_piutang)) }}</td>
                       <td>{{ formatPercentage(Number(item.rasio_cadangan_piutang_per_jumlah_pendapatan)) }}</td>
                     </tr>
                   </tbody>
