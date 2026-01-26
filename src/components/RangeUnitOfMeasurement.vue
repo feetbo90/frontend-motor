@@ -465,420 +465,20 @@
         </transition>
       </div>
     </div>
-    <!-- RATIO -->
-    <div class="section-header" style="margin-top: 20px">
-      <h2>Ratio Produksi - Range</h2>
-      <p>Analisis rasio pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi dalam periode range</p>
-    </div>
-    <div v-if="apiRatioData.entityIds.length < 1" class="empty-container">
-      <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
-      <p class="empty">Satuan pengukuran (Rasio) tidak ditemukan!</p>
-    </div>
-    <div v-else>
-      <div v-for="entity in apiRatioData.entityIds" :key="entity.id" class="entity-card">
-        <!-- Header Collapsible -->
-        <div class="entity-header" @click="toggleCollapse(`ratio-${entity.id}`)">
-          <span class="entity-name">{{ entity.name }} ({{ entity.type }})</span>
-          <span class="arrow" :class="{ rotated: !collapsed[`ratio-${entity.id}`] }">&#9654;</span>
-        </div>
-        <!-- Collapsible Content -->
-        <transition name="slide-fade">
-          <div v-show="!collapsed[`ratio-${entity.id}`]" class="entity-content">
-            <!-- Rasio Pembiayaan & Realisasi Pokok -->
-            <div class="metric-card">
-              <div class="card-header blue">Ratio Pembiayaan / Realisasi Pokok</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Pembiayaan</th>
-                      <th>Realisasi Pokok</th>
-                      <th>Pembiayaan / Realisasi Pokok</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioSatu(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Pembiayaan / Realisasi Pokok tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioSatu(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.realisasi_pokok)) }}</td>
-                      <td>{{ formatPercentage(Number(item.pembiayaan_per_realisasi_pokok)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Kn /T Kemacetan / Pembiayaan -->
-            <div class="metric-card">
-              <div class="card-header green">Ratio Kn /T Kemacetan / Pembiayaan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Kenaikan Macet</th>
-                      <th>Pembiayaan</th>
-                      <th>Ratio Kemacetan / Pembiayaan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioDua(entity.name, entity.type).length === 0">
-                      <td :colspan="5" class="empty">
-                        Data Ratio Kn /T Kemacetan / Pembiayaan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioDua(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.cadangan_piutang)) }}</td>
-                      <td>{{ formatCurrency(Number(item.tambahan)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_kemacetan_pembiayaan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Mark up / Pembiayaan -->
-            <div class="metric-card">
-              <div class="card-header yellow">Ratio Mark up / Pembiayaan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Total Markup</th>
-                      <th>Pembiayaan</th>
-                      <th>Ratio Markup</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioTiga(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Mark up / Pembiayaan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioTiga(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
-                      <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_markup)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Pendapatan Bunga / So. Piutang Akhir -->
-            <div class="metric-card">
-              <div class="card-header purple">Ratio Pendapatan Bunga / So. Piutang Akhir</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Realisasi Bunga</th>
-                      <th>Total Piutang</th>
-                      <th>Ratio Realisasi Bunga / Total Piutang</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioEmpat(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Pendapatan Bunga / So. Piutang Akhir tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioEmpat(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.realisasi_bunga)) }}</td>
-                      <td>{{ formatCurrency(Number(item.total)) }}</td>
-                      <td>
-                        {{ formatPercentage(Number(item.rasio_realisasi_bunga_per_total_piutang)) }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Mark up / Jumlah Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header blue">Ratio Mark up / Jumlah Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Total Markup</th>
-                      <th>Ratio Markup / Jumlah Pendapatan </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioLima(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Mark up / Jumlah Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioLima(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_markup_per_jumlah_pendapatan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Pendapatan Bunga / Jumlah Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header green">Ratio Pendapatan Bunga / Jumlah Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Realisasi Bunga</th>
-                      <th>Ratio Pendapatan Bunga / Jumlah Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioEnam(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Pendapatan Bunga / Jumlah Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioEnam(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.realisasi_bunga)) }}</td>
-                      <td>
-                        {{
-                          formatPercentage(Number(item.rasio_pendapatan_bunga_per_jumlah_pendapatan))
-                        }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Pendapatan Lainnya / Jumlah Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header yellow">Rasio Pendapatan Lainnya / Jumlah Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Pendapatan Lainnya</th>
-                      <th>Rasio Pendapatan Lainnya / Jumlah Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioTujuh(entity.name, entity.type).length === 0">
-                      <td :colspan="6" class="empty">
-                        Data Ratio Pendapatan Lainnya / Jumlah Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioTujuh(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan_lain)) }}</td>
-                      <td>
-                        {{
-                          formatPercentage(
-                            Number(item.rasio_pendapatan_lainnya_per_jumlah_pendapatan),
-                          )
-                        }}
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Gaji / Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header purple">Ratio Gaji / Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Gaji</th>
-                      <th>Ratio Gaji / Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioDelapan(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Gaji / Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioDelapan(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.gaji)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_gaji_per_pendapatan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Biaya Admin dan operasi / Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header blue">Ratio Biaya Admin dan operasi / Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Beban Umum Operasional</th>
-                      <th>Ratio Beban Operasional / Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioSembilan(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Biaya Admin dan operasi / Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioSembilan(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.beban_umum_operasional)) }}</td>
-                      <td>{{formatPercentage(Number(item.rasio_beban_operasional_per_pendapatan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Biaya Tetap (Penyusutan ) / Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header green">Ratio Biaya Tetap (Penyusutan) / Pendapatan</div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Penyusutan Aktiva</th>
-                      <th>Ratio Penyusutan Aktiva / Jumlah Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioSepuluh(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Biaya Tetap (Penyusutan) / Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioSepuluh(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.penyusutan_aktiva)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_penyusutan_aktiva_per_jumlah_pendapatan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <!-- Rasio Biaya Tidak Tetap (Ph.p/stock ) / Pendapatan -->
-            <div class="metric-card">
-              <div class="card-header yellow">
-                Ratio Biaya Tidak Tetap (Ph.p/stock) / Pendapatan
-              </div>
-              <div class="card-body">
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th>Bulan / Tahun</th>
-                      <th>Jumlah Pendapatan</th>
-                      <th>Cadangan Ph.p/stock</th>
-                      <th>Ratio Cadangan Piutang / Jumlah Pendapatan</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-if="getRasioSebelas(entity.name, entity.type).length === 0">
-                      <td :colspan="4" class="empty">
-                        Data Ratio Biaya Tidak Tetap (Ph.p/stock) / Pendapatan tidak ditemukan.
-                      </td>
-                    </tr>
-                    <tr
-                      v-for="item in getRasioSebelas(entity.name, entity.type)"
-                      :key="`${item.year}-${item.month}`"
-                    >
-                      <td>{{ item.month }}/{{ item.year }}</td>
-                      <td>{{ formatCurrency(Number(item.jumlah_pendapatan)) }}</td>
-                      <td>{{ formatCurrency(Number(item.cadangan_piutang)) }}</td>
-                      <td>{{ formatPercentage(Number(item.rasio_cadangan_piutang_per_jumlah_pendapatan)) }}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </transition>
-      </div>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { useDate } from "@/composables/useDate";
-import { getProductRateRange, getProductRatioRange } from "@/services/productRateService";
+import { getProductRateRange } from "@/services/productRateService";
 import { useAuthStore } from "@/stores/auth";
 import {
   formatCurrency,
-  formatPercentage,
   isGlobalLoading,
   selectedEntityId,
   selectedYear,
 } from "@/stores/globalState";
-import type { entityIds, ProductRateData, ProductRatioData } from "@/types/productRate";
+import type { entityIds, ProductRateData } from "@/types/productRate";
 import { onMounted, reactive, ref, watch } from "vue";
 import FormSelect from "./FormSelect.vue";
 import MessageAlert from "./ui/MessageAlert.vue";
@@ -905,22 +505,6 @@ const apiData = ref<ProductRateData>({
   rate_tujuh: {},
 });
 
-const apiRatioData = ref<ProductRatioData>({
-  success: false,
-  entity_id: "",
-  entityIds: [],
-  rasioSatu: {},
-  rasioDua: {},
-  rasioTiga: {},
-  rasioEmpat: {},
-  rasioLima: {},
-  rasioEnam: {},
-  rasioTujuh: {},
-  rasioDelapan: {},
-  rasioSembilan: {},
-  rasioSepuluh: {},
-  rasioSebelas: {},
-});
 
 const loading = ref(false);
 
@@ -1006,82 +590,6 @@ const getRateSebelas = (entityName: string) => {
     : apiData.value.rate_sebelas?.[entityName] || [];
 };
 
-const getRasioSatu = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioSatu || []
-    : apiRatioData.value.rasioSatu[entityName] || [];
-};
-
-const getRasioDua = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioDua || []
-    : apiRatioData.value.rasioDua[entityName] || [];
-};
-
-const getRasioTiga = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioTiga || []
-    : apiRatioData.value.rasioTiga[entityName] || [];
-};
-
-const getRasioEmpat = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioEmpat || []
-    : apiRatioData.value.rasioEmpat[entityName] || [];
-};
-
-const getRasioLima = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioLima || []
-    : apiRatioData.value.rasioLima[entityName] || [];
-};
-
-const getRasioEnam = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioEnam || []
-    : apiRatioData.value.rasioEnam[entityName] || [];
-};
-
-const getRasioTujuh = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioTujuh || []
-    : apiRatioData.value.rasioTujuh[entityName] || [];
-};
-
-const getRasioDelapan = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioDelapan || []
-    : apiRatioData.value.rasioDelapan[entityName] || [];
-};
-
-const getRasioSembilan = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioSembilan || []
-    : apiRatioData.value.rasioSembilan[entityName] || [];
-};
-
-const getRasioSepuluh = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioSepuluh || []
-    : apiRatioData.value.rasioSepuluh[entityName] || [];
-};
-
-const getRasioSebelas = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioSebelas || []
-    : apiRatioData.value.rasioSebelas[entityName] || [];
-};
 
 const fetchRateListRange = async (year: number, monthStart: number, monthEnd: number) => {
   try {
@@ -1098,20 +606,6 @@ const fetchRateListRange = async (year: number, monthStart: number, monthEnd: nu
   }
 };
 
-const fetchRatioListRange = async (year: number, monthStart: number, monthEnd: number) => {
-  try {
-    const response = await getProductRatioRange({
-      year,
-      month_start: monthStart,
-      month_end: monthEnd,
-      branch_id: Number(selectedEntityId.value) ?? undefined,
-    });
-    return response;
-  } catch (err) {
-    console.error(err);
-    return null;
-  }
-};
 
 // Clear error when user changes month input
 const clearMonthError = () => {
@@ -1165,32 +659,10 @@ const applyRangeFilter = async () => {
       rate_tujuh: {},
     };
 
-    apiRatioData.value = {
-      success: false,
-      entity_id: "",
-      entityIds: [],
-      rasioSatu: {},
-      rasioDua: {},
-      rasioTiga: {},
-      rasioEmpat: {},
-      rasioLima: {},
-      rasioEnam: {},
-      rasioTujuh: {},
-      rasioDelapan: {},
-      rasioSembilan: {},
-      rasioSepuluh: {},
-      rasioSebelas: {},
-    };
-
     // Fetch data for range in single API call
     const rateResponse = await fetchRateListRange(year, startM, endM);
     if (rateResponse && rateResponse.success) {
       apiData.value = rateResponse;
-    }
-
-    const ratioResponse = await fetchRatioListRange(year, startM, endM);
-    if (ratioResponse && ratioResponse.success) {
-      apiRatioData.value = ratioResponse;
     }
 
     // Clear error on success
@@ -1199,11 +671,6 @@ const applyRangeFilter = async () => {
     // Set all collapsed true by default
     apiData.value.entityIds.forEach((e: entityIds) => {
       const uniqueId = `rate-${e.id}`;
-      if (!(uniqueId in collapsed)) collapsed[uniqueId] = true;
-    });
-
-    apiRatioData.value.entityIds.forEach((e: entityIds) => {
-      const uniqueId = `ratio-${e.id}`;
       if (!(uniqueId in collapsed)) collapsed[uniqueId] = true;
     });
   } catch (err) {
