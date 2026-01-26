@@ -1,0 +1,1006 @@
+<template>
+  <div class="container">
+    <MessageAlert
+      type="warning"
+      title="Perhatian!"
+      message="Pastikan filter range yang Anda pilih sudah sesuai agar data yang ditampilkan akurat."
+    />
+
+    <!-- Range Filter -->
+    <div class="range-filter-section">
+      <h3>Filter Range Periode</h3>
+      <p class="range-info">
+        <i class="fas fa-info-circle"></i>
+        Tahun diambil dari filter sidebar. Pilih range bulan di bawah ini.
+      </p>
+      <div class="filter-row">
+        <div class="filter-group">
+          <FormSelect
+            id="start-month"
+            label="Bulan Mulai"
+            v-model="startMonth"
+            placeholder="Pilih Bulan Mulai"
+            :options="monthOptions"
+            :allowEmpty="true"
+            @update:modelValue="clearMonthError"
+          />
+        </div>
+        <div class="filter-group">
+          <FormSelect
+            id="end-month"
+            label="Bulan Akhir"
+            v-model="endMonth"
+            placeholder="Pilih Bulan Akhir"
+            :options="monthOptions"
+            :allowEmpty="true"
+            @update:modelValue="clearMonthError"
+          />
+        </div>
+        <div class="filter-group">
+          <button @click="applyRangeFilter" class="btn-apply" type="button">
+            <i class="fas fa-filter"></i>
+            Terapkan Filter
+          </button>
+        </div>
+      </div>
+      <p v-if="monthRangeError" class="error-text">{{ monthRangeError }}</p>
+    </div>
+
+    <!--RATE -->
+    <div class="section-header">
+      <h2>Tingkat Produksi (Rata - rata) - Range</h2>
+      <p>Analisis rata-rata pembiayaan, penjualan, markup, gaji, beban, dan laba/rugi dalam periode range</p>
+    </div>
+
+    <div v-if="loading" class="loading">Loading...</div>
+    <div v-if="apiData.entityIds.length < 1" class="empty-container">
+      <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
+      <p class="empty">Satuan pengukuran (Rata-rate) tidak ditemukan!</p>
+    </div>
+    <div v-else>
+      <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-card">
+        <!-- Header Collapsible -->
+        <div class="entity-header" @click="toggleCollapse(`rate-${entity.id}`)">
+          <span class="entity-name">{{ entity.name }} ({{ entity.type }})</span>
+          <span class="arrow" :class="{ rotated: !collapsed[`rate-${entity.id}`] }">&#9654;</span>
+        </div>
+
+        <!-- Collapsible Content -->
+        <transition name="slide-fade">
+          <div v-show="!collapsed[`rate-${entity.id}`]" class="entity-content">
+            <!-- Rate 1: Rata-rata Pembiayaan / Unit Penjualan -->
+            <div class="metric-card">
+              <div class="card-header blue">Rata-rata Pembiayaan / Unit Penjualan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Pembiayaan</th>
+                      <th>Total Unit Jual</th>
+                      <th>Pembiayaan / Unit Penjualan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateSatu(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Pembiayaan / Unit Penjualan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateSatu(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_pembiayaan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_unit_jual)) }}</td>
+                      <td>{{ formatCurrency(Number(item.pembiayaan_per_unit)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 2: Rata-rata Penjualan / Unit Penjualan -->
+            <div class="metric-card">
+              <div class="card-header green">Rata-rata Penjualan / Unit Penjualan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Penjualan</th>
+                      <th>Total Unit</th>
+                      <th>Penjualan / Unit Penjualan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateDua(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Penjualan / Unit Penjualan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr v-for="item in getRateDua(entity.name)" :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`">
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_penjualan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_unit)) }}</td>
+                      <td>{{ formatCurrency(Number(item.penjualan_per_unit)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 3: Rata-rata Penjualan / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header yellow">Rata-rata Penjualan / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Penjualan</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Penjualan / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateTiga(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Penjualan / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateTiga(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_penjualan)) }}</td>
+                      <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
+                      <td>{{ formatCurrency(Number(item.penjualan_per_karyawan)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 4: Rata-rata Mark up / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header purple">Rata-rata Mark up / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Markup</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Markup / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateEmpat(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Mark up / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateEmpat(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
+                      <td>
+                        {{
+                          typeof item.jumlah_karyawan === "string"
+                            ? Number(item.jumlah_karyawan)
+                            : item.jumlah_karyawan || item.total_karyawan || 0
+                        }}
+                      </td>
+                      <td>
+                        {{
+                          formatCurrency(Number(item.rate_empat || item.markup_per_karyawan || 0))
+                        }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 5: Rata-rata Gaji / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header blue">Rata-rata Gaji / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Gaji</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Gaji / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateLima(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Gaji / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateLima(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.gaji || item.total_gaji || 0)) }}</td>
+                      <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
+                      <td>{{ formatCurrency(Number(item.rate_gaji_per_karyawan)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 6: Rata-rata Biaya Operasional / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header green">Rata-rata Biaya Operasional / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Beban Operasional</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Biaya Operasional / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateEnam(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Biaya Operasional / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateEnam(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>
+                        {{
+                          formatCurrency(
+                            Number(item.beban_umum_operasional) ||
+                              Number(item.total_beban_umum_operasional) ||
+                              0,
+                          )
+                        }}
+                      </td>
+                      <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
+                      <td>
+                        {{ formatCurrency(Number(item.rate_beban_umum_operasional_per_karyawan)) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 7: Rata-rata Beban Tetap / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header yellow">Rata-rata Beban Tetap / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Penyusutan Aktiva</th>
+                      <th>Jumlah Karyawan</th>
+                      <th>Beban Tetap / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateTujuh(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Beban Tetap / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateTujuh(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>
+                        {{
+                          formatCurrency(
+                            Number(item.penyusutan || item.total_penyusutan_aktiva || 0),
+                          )
+                        }}
+                      </td>
+                      <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
+                      <td>
+                        {{ formatCurrency(Number(item.rate_penyusutan_aktiva_per_karyawan)) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 8: Rata-rata Beban Tetap / Satuan Kerja -->
+            <div class="metric-card">
+              <div class="card-header purple">Rata-rata Beban Tetap / Satuan Kerja</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Penyusutan Aktiva</th>
+                      <th>Total Unit</th>
+                      <th>Beban Tetap / Satuan Kerja</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateDelapan(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Beban Tetap / Satuan Kerja tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateDelapan(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_penyusutan_aktiva)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_unit)) }}</td>
+                      <td>{{ formatCurrency(Number(item.rate_penyusutan_aktiva_per_unit)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 9: Rata-rata Beban PH dan Penyusutan / Satuan Kerja -->
+            <div class="metric-card">
+              <div class="card-header blue">Rata-rata Beban PH dan Penyusutan / Satuan Kerja</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Penyusutan Aktiva</th>
+                      <th>Total Cadangan Piutang</th>
+                      <th>Total Cadangan Stock</th>
+                      <th>Total Unit</th>
+                      <th>Beban PH dan Penyusutan / Satuan Kerja</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateSembilan(entity.name).length === 0">
+                      <td :colspan="6" class="empty">
+                        Data Rata-rata Beban PH dan Penyusutan / Satuan Kerja tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateSembilan(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_penyusutan_aktiva)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_cadangan_piutang)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_cadangan_stock)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_unit)) }}</td>
+                      <td>
+                        {{ formatCurrency(Number(item.rate_penyusutan_dan_cadangan_per_unit)) }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 10: Rata-rata Laba/rugi nett / Satuan Kerja -->
+            <div class="metric-card">
+              <div class="card-header green">Rata-rata Laba/rugi nett / Satuan Kerja</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Kumulatif</th>
+                      <th>Total Unit</th>
+                      <th>Laba/rugi nett / Satuan Kerja</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateSepuluh(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Laba/rugi nett / Satuan Kerja tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateSepuluh(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_kumulatif)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_unit)) }}</td>
+                      <td>{{ formatCurrency(Number(item.kumulatif_per_unit)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Rate 11: Rata-rata Laba/rugi nett / Karyawan -->
+            <div class="metric-card">
+              <div class="card-header yellow">Rata-rata Laba/rugi nett / Karyawan</div>
+              <div class="card-body">
+                <table class="table">
+                  <thead>
+                    <tr>
+                      <th>Periode</th>
+                      <th>Total Kumulatif</th>
+                      <th>Total Karyawan</th>
+                      <th>Laba/rugi nett / Karyawan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-if="getRateSebelas(entity.name).length === 0">
+                      <td :colspan="4" class="empty">
+                        Data Rata-rata Laba/rugi nett / Karyawan tidak ditemukan.
+                      </td>
+                    </tr>
+                    <tr
+                      v-for="item in getRateSebelas(entity.name)"
+                      :key="`${item.year}-${item.month_start || item.month}-${item.month_end || item.month}`"
+                    >
+                      <td>{{ formatRangePeriod(item) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_kumulatif)) }}</td>
+                      <td>{{ formatCurrency(Number(item.total_karyawan)) }}</td>
+                      <td>{{ formatCurrency(Number(item.kumulatif_per_karyawan)) }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </transition>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { useDate } from "@/composables/useDate";
+import { getProductRateRange } from "@/services/productRateService";
+import { useAuthStore } from "@/stores/auth";
+import {
+  formatCurrency,
+  isGlobalLoading,
+  selectedEntityId,
+  selectedYear,
+} from "@/stores/globalState";
+import type { entityIds, ProductRateData } from "@/types/productRate";
+import { onMounted, reactive, ref, watch } from "vue";
+import FormSelect from "./FormSelect.vue";
+import MessageAlert from "./ui/MessageAlert.vue";
+
+const authStore = useAuthStore();
+const { monthOptions, currentMonth, getMonthName } = useDate();
+
+// Range filter state - hanya bulan mulai dan akhir, tahun dari sidebar
+// Default: bulan berjalan untuk kedua filter
+const startMonth = ref<string | number>(currentMonth);
+const endMonth = ref<string | number>(currentMonth);
+const monthRangeError = ref<string>("");
+
+const apiData = ref<ProductRateData>({
+  success: false,
+  entity_id: "",
+  entityIds: [],
+  rate_satu: {},
+  rate_dua: {},
+  rate_tiga: {},
+  rate_empat: {},
+  rate_lima: {},
+  rate_enam: {},
+  rate_tujuh: {},
+});
+
+const loading = ref(false);
+
+// Collapsed state per entity
+const collapsed = reactive<Record<string, boolean>>({});
+
+const toggleCollapse = (id: string) => {
+  collapsed[id] = !collapsed[id];
+};
+
+// Helper function to format range period
+const formatRangePeriod = (item: { year: number; month?: number; month_start?: number; month_end?: number }) => {
+  if (!item) return '';
+  const startMonthName = getMonthName(item.month_start || item.month || 1);
+  const endMonthName = getMonthName(item.month_end || item.month || 1);
+  const year = item.year;
+  
+  if (item.month_start === item.month_end) {
+    return `${startMonthName} ${year}`;
+  }
+  return `${startMonthName} - ${endMonthName} ${year}`;
+};
+
+// Helper methods to get rate data (with cabang support) - returns single item or empty array
+const getRateSatu = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_satu
+    : apiData.value.rate_satu[entityName];
+  
+  // For range, data is a single object, not an array
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateDua = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_dua
+    : apiData.value.rate_dua[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateTiga = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_tiga
+    : apiData.value.rate_tiga[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateEmpat = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_empat
+    : apiData.value.rate_empat[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateLima = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_lima
+    : apiData.value.rate_lima[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateEnam = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_enam
+    : apiData.value.rate_enam[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateTujuh = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_tujuh
+    : apiData.value.rate_tujuh[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateDelapan = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_delapan
+    : apiData.value.rate_delapan?.[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateSembilan = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_sembilan
+    : apiData.value.rate_sembilan?.[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateSepuluh = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_sepuluh
+    : apiData.value.rate_sepuluh?.[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const getRateSebelas = (entityName: string) => {
+  const isCabang = apiData.value.cabang?.name === entityName;
+  const data = isCabang
+    ? apiData.value.cabang?.rate_sebelas
+    : apiData.value.rate_sebelas?.[entityName];
+  
+  if (!data) return [];
+  return Array.isArray(data) ? data : [data];
+};
+
+const fetchRateListRange = async (year: number, monthStart: number, monthEnd: number) => {
+  try {
+    const response = await getProductRateRange({
+      year,
+      month_start: monthStart,
+      month_end: monthEnd,
+      branch_id: Number(selectedEntityId.value) ?? undefined,
+    });
+    return response;
+  } catch (err) {
+    console.error(err);
+    return null;
+  }
+};
+
+// Clear error when user changes month input
+const clearMonthError = () => {
+  monthRangeError.value = "";
+};
+
+const applyRangeFilter = async () => {
+  // Clear previous errors
+  monthRangeError.value = "";
+
+  if (!selectedYear.value) {
+    monthRangeError.value = "Silakan pilih tahun di filter sidebar terlebih dahulu!";
+    return;
+  }
+
+  if (!startMonth.value || !endMonth.value) {
+    monthRangeError.value = "Silakan lengkapi bulan mulai dan bulan akhir!";
+    return;
+  }
+
+  if (!selectedEntityId.value) {
+    monthRangeError.value = "Silakan pilih entity (cabang/unit) di filter sidebar terlebih dahulu!";
+    return;
+  }
+
+  const year = Number(selectedYear.value);
+  const startM = Number(startMonth.value);
+  const endM = Number(endMonth.value);
+
+  // Validate range - bulan mulai harus <= bulan akhir
+  if (startM > endM) {
+    monthRangeError.value = "Bulan mulai harus lebih kecil atau sama dengan bulan akhir!";
+    return;
+  }
+
+  try {
+    loading.value = true;
+    isGlobalLoading.value = true;
+
+    // Reset data
+    apiData.value = {
+      success: false,
+      entity_id: "",
+      entityIds: [],
+      rate_satu: {},
+      rate_dua: {},
+      rate_tiga: {},
+      rate_empat: {},
+      rate_lima: {},
+      rate_enam: {},
+      rate_tujuh: {},
+    };
+
+    // Fetch data for range in single API call
+    const rateResponse = await fetchRateListRange(year, startM, endM);
+    if (rateResponse && rateResponse.success) {
+      apiData.value = rateResponse;
+    }
+
+    // Clear error on success
+    monthRangeError.value = "";
+
+    // Set all collapsed true by default
+    apiData.value.entityIds.forEach((e: entityIds) => {
+      const uniqueId = `rate-${e.id}`;
+      if (!(uniqueId in collapsed)) collapsed[uniqueId] = true;
+    });
+  } catch (err) {
+    console.error(err);
+  } finally {
+    loading.value = false;
+    isGlobalLoading.value = false;
+  }
+};
+
+// Auto-apply filter when all required values are available
+const checkAndApplyFilter = async () => {
+  if (
+    selectedYear.value &&
+    startMonth.value &&
+    endMonth.value &&
+    selectedEntityId.value
+  ) {
+    await applyRangeFilter();
+  }
+};
+
+// Watch for changes in required filters and auto-apply
+watch([selectedYear, selectedEntityId], () => {
+  checkAndApplyFilter();
+});
+
+onMounted(() => {
+  if (!authStore.user?.value) return;
+  // Auto-apply filter on mount if all conditions are met
+  checkAndApplyFilter();
+});
+</script>
+
+<style scoped>
+.container {
+  width: 100%;
+  margin: 0 auto;
+}
+
+.range-filter-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.range-filter-section h3 {
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.range-info {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.range-info i {
+  font-size: 1rem;
+}
+
+.filter-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.filter-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+.error-text {
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 0.875rem;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-left: 4px solid #dc2626;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.error-text::before {
+  content: "⚠";
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.btn-apply {
+  background-color: #3b82f6;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-apply:hover {
+  background-color: #2563eb;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.section-header h2 {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.section-header p {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.loading {
+  text-align: center;
+  padding: 80px 0;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.entity-card {
+  margin-bottom: 24px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.entity-header {
+  padding: 16px 24px;
+  background-color: #f3f4f6;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+}
+
+.entity-header:hover {
+  background-color: #e5e7eb;
+}
+
+.entity-name {
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.arrow {
+  transition: transform 0.2s ease;
+}
+
+.arrow.rotated {
+  transform: rotate(90deg);
+}
+
+.entity-content {
+  padding: 24px;
+  background-color: #fff;
+}
+
+.metric-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  overflow: hidden;
+}
+
+.card-header {
+  font-weight: 600;
+  padding: 12px 16px;
+  color: #fff;
+}
+
+.card-header.blue {
+  background-color: #3b82f6;
+}
+
+.card-header.green {
+  background-color: #10b981;
+}
+
+.card-header.yellow {
+  background-color: #f59e0b;
+}
+
+.card-header.purple {
+  background-color: #8b5cf6;
+}
+
+.card-body {
+  padding: 20px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  border: 1px solid #ddd;
+  padding: 12px 16px;
+}
+
+thead th {
+  text-align: left;
+  background-color: #f9fafb;
+  color: #374151;
+}
+
+td {
+  text-align: right;
+}
+
+td:first-child {
+  text-align: left;
+}
+
+tbody tr:hover {
+  background-color: #f3f4f6;
+}
+
+/* Collapse animation */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  max-height: 0;
+  opacity: 0;
+  padding: 0 24px;
+}
+
+.slide-fade-enter-to,
+.slide-fade-leave-from {
+  max-height: 2000px;
+  opacity: 1;
+  padding: 24px;
+}
+
+.table .empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty {
+  text-align: center;
+  color: #6b7280;
+}
+
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  color: #6b7280;
+}
+</style>
