@@ -22,6 +22,7 @@
             placeholder="Pilih Bulan Mulai"
             :options="monthOptions"
             :allowEmpty="true"
+            @update:modelValue="clearMonthError"
           />
         </div>
         <div class="filter-group">
@@ -32,6 +33,7 @@
             placeholder="Pilih Bulan Akhir"
             :options="monthOptions"
             :allowEmpty="true"
+            @update:modelValue="clearMonthError"
           />
         </div>
         <div class="filter-group">
@@ -41,6 +43,7 @@
           </button>
         </div>
       </div>
+      <p v-if="monthRangeError" class="error-text">{{ monthRangeError }}</p>
     </div>
 
     <!--RATE -->
@@ -887,6 +890,7 @@ const { monthOptions, currentMonth } = useDate();
 // Default: bulan berjalan untuk kedua filter
 const startMonth = ref<string | number>(currentMonth);
 const endMonth = ref<string | number>(currentMonth);
+const monthRangeError = ref<string>("");
 
 const apiData = ref<ProductRateData>({
   success: false,
@@ -1109,19 +1113,27 @@ const fetchRatioListRange = async (year: number, monthStart: number, monthEnd: n
   }
 };
 
+// Clear error when user changes month input
+const clearMonthError = () => {
+  monthRangeError.value = "";
+};
+
 const applyRangeFilter = async () => {
+  // Clear previous errors
+  monthRangeError.value = "";
+
   if (!selectedYear.value) {
-    alert("Silakan pilih tahun di filter sidebar terlebih dahulu!");
+    monthRangeError.value = "Silakan pilih tahun di filter sidebar terlebih dahulu!";
     return;
   }
 
   if (!startMonth.value || !endMonth.value) {
-    alert("Silakan lengkapi bulan mulai dan bulan akhir!");
+    monthRangeError.value = "Silakan lengkapi bulan mulai dan bulan akhir!";
     return;
   }
 
   if (!selectedEntityId.value) {
-    alert("Silakan pilih entity (cabang/unit) di filter sidebar terlebih dahulu!");
+    monthRangeError.value = "Silakan pilih entity (cabang/unit) di filter sidebar terlebih dahulu!";
     return;
   }
 
@@ -1131,7 +1143,7 @@ const applyRangeFilter = async () => {
 
   // Validate range - bulan mulai harus <= bulan akhir
   if (startM > endM) {
-    alert("Bulan mulai harus lebih kecil atau sama dengan bulan akhir!");
+    monthRangeError.value = "Bulan mulai harus lebih kecil atau sama dengan bulan akhir!";
     return;
   }
 
@@ -1180,6 +1192,9 @@ const applyRangeFilter = async () => {
     if (ratioResponse && ratioResponse.success) {
       apiRatioData.value = ratioResponse;
     }
+
+    // Clear error on success
+    monthRangeError.value = "";
 
     // Set all collapsed true by default
     apiData.value.entityIds.forEach((e: entityIds) => {
@@ -1271,6 +1286,26 @@ onMounted(() => {
 .filter-group {
   flex: 1;
   min-width: 150px;
+}
+
+.error-text {
+  margin-top: 12px;
+  padding: 12px;
+  font-size: 0.875rem;
+  color: #dc2626;
+  background-color: #fef2f2;
+  border-left: 4px solid #dc2626;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.error-text::before {
+  content: "⚠";
+  font-size: 1rem;
+  flex-shrink: 0;
 }
 
 .btn-apply {
