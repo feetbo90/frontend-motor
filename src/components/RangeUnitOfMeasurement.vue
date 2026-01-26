@@ -926,12 +926,7 @@ const collapsed = reactive<Record<string, boolean>>({});
 const toggleCollapse = (id: string) => {
   collapsed[id] = !collapsed[id];
 };
-
-// Removed generateDateRange - no longer needed as we use single API call with range params
-
-// Removed mergeRateData and mergeRatioData - no longer needed as backend returns all data in single response
-
-// Helper methods to get rate data (with cabang support) - same as original
+// Helper methods to get rate data (with cabang support) 
 const getRateSatu = (entityName: string) => {
   const isCabang = apiData.value.cabang?.name === entityName;
   return isCabang
