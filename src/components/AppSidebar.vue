@@ -28,27 +28,34 @@
 
           <transition name="collapse">
             <div v-show="isFilterOpen" class="filter-content">
-              <div class="filter-year-month">
-                <div class="filter-group">
-                  <FormSelect
-                    id="year"
-                    label="Tahun"
-                    v-model="selectedYear"
-                    placeholder="Pilih Tahun"
-                    :options="years"
-                    :allowEmpty="true"
-                  />
-                </div>
-                <div class="filter-group">
-                  <FormSelect
-                    id="month"
-                    label="Bulan"
-                    v-model="selectedMonth"
-                    placeholder="Pilih Bulan"
-                    :options="months"
-                    :allowEmpty="true"
-                  />
-                </div>
+              <!-- Filter Tahun - Tampilkan untuk semua halaman -->
+              <div class="filter-group">
+                <FormSelect
+                  id="year"
+                  label="Tahun"
+                  v-model="selectedYear"
+                  placeholder="Pilih Tahun"
+                  :options="years"
+                  :allowEmpty="true"
+                />
+              </div>
+              
+              <!-- Filter Bulan - Sembunyikan di halaman range-satuan-pengukuran -->
+              <div v-if="!isRangeSatuanPengukuran" class="filter-group">
+                <FormSelect
+                  id="month"
+                  label="Bulan"
+                  v-model="selectedMonth"
+                  placeholder="Pilih Bulan"
+                  :options="months"
+                  :allowEmpty="true"
+                />
+              </div>
+              <div v-else class="filter-info">
+                <p class="info-text">
+                  <i class="fas fa-info-circle"></i>
+                  Gunakan filter range bulan di halaman untuk memilih periode
+                </p>
               </div>
 
               <div class="filter-group">
@@ -183,6 +190,17 @@
             </router-link>
           </li>
 
+          <li v-if="canAccessRoute('/range-satuan-pengukuran')">
+            <router-link
+              to="/range-satuan-pengukuran"
+              class="nav-link"
+              :class="{ active: $route.name === 'range-satuan-pengukuran' }"
+            >
+              <i class="fas fa-ruler-combined"></i>
+              <span>Range Satuan Pengukuran</span>
+            </router-link>
+          </li>
+
           <!-- Export with access -->
           <li v-if="canAccessRoute('/export')">
             <router-link
@@ -213,6 +231,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from "vue";
+import { useRoute } from "vue-router";
 import {
   selectedCabang,
   selectedMonth,
@@ -228,12 +247,20 @@ import { getCabangs } from "@/services/entitiesService";
 import { useAuthStore } from "@/stores/auth";
 import type { Entities } from "@/types/entities.type";
 
+// Router
+const route = useRoute();
+
 // Role-based navigation
 const { hasRole } = useRole();
 
 // Auth store
 const authStore = useAuthStore();
 const user = computed(() => authStore.user.value);
+
+// Check if current route is range-satuan-pengukuran
+const isRangeSatuanPengukuran = computed(() => {
+  return route.name === 'range-satuan-pengukuran';
+});
 
 // Helper function to check if user can access specific route
 const canAccessRoute = (path: string): boolean => {
@@ -375,7 +402,10 @@ const fetchCabangs = async () => {
 // Fungsi untuk reset semua filter
 const resetFilters = () => {
   selectedYear.value = "";
-  selectedMonth.value = "";
+  // Hanya reset bulan jika bukan di halaman range-satuan-pengukuran
+  if (!isRangeSatuanPengukuran.value) {
+    selectedMonth.value = "";
+  }
   selectedCabang.value = "";
   selectedUnit.value = "";
 };
@@ -395,6 +425,29 @@ const toggleFilters = () => {
   flex-direction: column;
   gap: 0.875rem;
   margin-bottom: 1rem;
+}
+
+.filter-info {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.info-text {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  line-height: 1.4;
+}
+
+.info-text i {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .sidebar {

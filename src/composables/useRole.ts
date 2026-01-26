@@ -37,7 +37,8 @@ export function useRole() {
       '/cadangan-nilai-sisa': ['PUSAT'],
       '/sumber-daya': ['PUSAT'],
       '/kas-keuangan': ['PUSAT'],
-      '/satuan-pengukuran': ['PUSAT']
+      '/satuan-pengukuran': ['PUSAT'],
+      '/range-satuan-pengukuran': ['PUSAT']
     }
 
     const allowedRoles = routeMap[path]
@@ -52,7 +53,7 @@ export function useRole() {
     const routeMap: Record<string, string[]> = {
       unit: ['/', '/komponen-produksi'],
       cabang: ['/', '/komponen-beban'],
-      pusat: ['/', '/laba-rugi', '/cadangan-nilai-sisa', '/sumber-daya', '/kas-keuangan', '/satuan-pengukuran']
+      pusat: ['/', '/laba-rugi', '/cadangan-nilai-sisa', '/sumber-daya', '/kas-keuangan', '/satuan-pengukuran', '/range-satuan-pengukuran']
     }
 
     return routeMap[role] || []

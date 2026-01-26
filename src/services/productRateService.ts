@@ -11,7 +11,9 @@ export const getProductRate: GetProductRateList = async (
         const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants`, { 
             params: {
                 year: params.year,
-                month: params.month
+                month: params.month,
+                month_start: params.month_start,
+                month_end: params.month_end
             }
          });
         return data
@@ -36,7 +38,64 @@ export const getProductRatio: GetProductRatioList = async (
         const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, { 
             params: {
                 year: params.year,
-                month: params.month
+                month: params.month,
+                month_start: params.month_start,
+                month_end: params.month_end
+            }
+         });
+        return data
+    } catch (error: unknown) {
+        let message = 'Gagal mendapatkan data rasio.'
+        if (isAxiosError(error)) {
+            message =
+                error.response?.data?.message ??
+                error.message ??
+                message
+        }
+        notifyError({ title: 'Error Message', msg: message })
+        throw error
+    }
+}
+
+// New functions for range queries
+export const getProductRateRange: GetProductRateList = async (
+    params: ParamsProductRate
+) => {
+    const axios = useAxios();
+    const { notifyError } = useNotification()
+    try {
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants`, { 
+            params: {
+                year: params.year,
+                month_start: params.month_start,
+                month_end: params.month_end
+            }
+         });
+        return data
+    } catch (error: unknown) {
+        let message = 'Gagal mendapatkan data sirkulasi stok.'
+        if (isAxiosError(error)) {
+            message =
+                error.response?.data?.message ??
+                error.message ??
+                message
+        }
+        notifyError({ title: 'Error Message', msg: message })
+        throw error
+    }
+}
+
+export const getProductRatioRange: GetProductRatioList = async (
+    params: ParamsProductRate
+) => {
+    const axios = useAxios();
+    const { notifyError } = useNotification()
+    try {
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, { 
+            params: {
+                year: params.year,
+                month_start: params.month_start,
+                month_end: params.month_end
             }
          });
         return data

@@ -10,6 +10,7 @@ import ProfitLostView from '@/views/ProfitLostView.vue'
 import ResidualValueReserveView from '@/views/ResidualValueReserveView.vue'
 import ResourcesView from '@/views/ResourcesView.vue'
 import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
+import RangeUnitOfMeasurementView from '@/views/RangeUnitOfMeasurementView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 // Type definition untuk route meta
@@ -76,6 +77,12 @@ const routes = [
     name: 'satuan-pengukuran',
     component: UnitOfMeasurementView,
     meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG','PUSAT'] }
+  },
+  {
+    path: '/range-satuan-pengukuran',
+    name: 'range-satuan-pengukuran',
+    component: RangeUnitOfMeasurementView,
+    meta: { title: 'Range Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG','PUSAT'] }
   },
   {
     path: '/export',

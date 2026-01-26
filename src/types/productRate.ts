@@ -332,6 +332,8 @@ export interface ParamsProductRate {
   branch_id: number | undefined;
   year?: number | undefined;
   month?: number| undefined;
+  month_start?: number | undefined;
+  month_end?: number | undefined;
 }
 
 export type GetProductRateList = (
