@@ -4,7 +4,9 @@ import type { ResponseData } from "./response-data.type";
 interface RateSatuItem {
   type: string;
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_pembiayaan: number;
   total_unit_jual: number;
   pembiayaan_per_unit: number;
@@ -12,7 +14,9 @@ interface RateSatuItem {
 
 interface RateDuaItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   type: string;
   total_penjualan: number;
   total_unit: number;
@@ -20,7 +24,9 @@ interface RateDuaItem {
 }
 interface RateTigaItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_penjualan: number;
   jumlah_karyawan?: number;
   total_karyawan?: number;
@@ -30,7 +36,9 @@ interface RateTigaItem {
 
 interface RateEmpatItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_markup: number;
   jumlah_karyawan?: number | string;
   total_karyawan?: number;
@@ -40,7 +48,9 @@ interface RateEmpatItem {
 
 interface RateLimaItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   branch_id?: string;
   gaji?: number;
   total_gaji?: number;
@@ -51,7 +61,9 @@ interface RateLimaItem {
 }
 interface RateEnamItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   branch_id?: string;
   type?: string;
   jumlah_karyawan?: number;
@@ -62,7 +74,9 @@ interface RateEnamItem {
 }
 interface RateTujuhItem {
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   branch_id?: string;
   type?: string;
   jumlah_karyawan?: number;
@@ -75,7 +89,9 @@ interface RateTujuhItem {
 interface RateDelapanItem {
   type: string;
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_penyusutan_aktiva: number;
   total_unit: number;
   rate_penyusutan_aktiva_per_unit: number;
@@ -84,7 +100,9 @@ interface RateDelapanItem {
 interface RateSembilanItem {
   type: string;
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_penyusutan_aktiva: number;
   total_cadangan_piutang: number;
   total_cadangan_stock: number;
@@ -95,7 +113,9 @@ interface RateSembilanItem {
 interface RateSepuluhItem {
   type: string;
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_kumulatif: number;
   total_unit: number;
   kumulatif_per_unit: number;
@@ -104,7 +124,9 @@ interface RateSepuluhItem {
 interface RateSebelasItem {
   type: string;
   year: number;
-  month: number;
+  month?: number;
+  month_start?: number;
+  month_end?: number;
   total_kumulatif: number;
   total_karyawan: number;
   kumulatif_per_karyawan: number;

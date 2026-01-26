@@ -64,7 +64,7 @@ export const getProductRateRange: GetProductRateList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants`, { 
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants/range`, { 
             params: {
                 year: params.year,
                 month_start: params.month_start,
