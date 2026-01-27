@@ -178,27 +178,44 @@
             </router-link>
           </li>
 
-          <!-- Satuan Pengukuran - Only for Pusat role -->
-          <li v-if="canAccessRoute('/satuan-pengukuran')">
-            <router-link
-              to="/satuan-pengukuran"
-              class="nav-link"
-              :class="{ active: $route.name === 'satuan-pengukuran' }"
-            >
-              <i class="fas fa-ruler-combined"></i>
-              <span>Satuan Pengukuran</span>
-            </router-link>
-          </li>
-
-          <li v-if="canAccessRoute('/range-satuan-pengukuran')">
-            <router-link
-              to="/range-satuan-pengukuran"
-              class="nav-link"
-              :class="{ active: $route.name === 'range-satuan-pengukuran' }"
-            >
-              <i class="fas fa-ruler-combined"></i>
-              <span>Range Satuan Pengukuran</span>
-            </router-link>
+          <!-- Satuan Pengukuran - Sub Menu -->
+          <li v-if="canAccessRoute('/satuan-pengukuran') || canAccessRoute('/range-satuan-pengukuran')">
+            <div class="nav-submenu">
+              <button
+                type="button"
+                class="nav-submenu-header"
+                :class="{ active: $route.name === 'satuan-pengukuran' || $route.name === 'range-satuan-pengukuran' }"
+                @click="toggleSubmenu('satuan-pengukuran')"
+              >
+                <i class="fas fa-ruler-combined"></i>
+                <span>Satuan Pengukuran</span>
+                <i class="fas fa-chevron-down submenu-arrow" :class="{ rotated: openSubmenus['satuan-pengukuran'] }"></i>
+              </button>
+              <transition name="submenu">
+                <ul v-show="openSubmenus['satuan-pengukuran']" class="nav-submenu-list">
+                  <li v-if="canAccessRoute('/satuan-pengukuran')">
+                    <router-link
+                      to="/satuan-pengukuran"
+                      class="nav-submenu-link"
+                      :class="{ active: $route.name === 'satuan-pengukuran' }"
+                    >
+                      <i class="fas fa-circle"></i>
+                      <span>Satuan Pengukuran</span>
+                    </router-link>
+                  </li>
+                  <li v-if="canAccessRoute('/range-satuan-pengukuran')">
+                    <router-link
+                      to="/range-satuan-pengukuran"
+                      class="nav-submenu-link"
+                      :class="{ active: $route.name === 'range-satuan-pengukuran' }"
+                    >
+                      <i class="fas fa-circle"></i>
+                      <span>Range Satuan Pengukuran</span>
+                    </router-link>
+                  </li>
+                </ul>
+              </transition>
+            </div>
           </li>
 
           <!-- Export with access -->
@@ -212,8 +229,47 @@
               <span>Ekspor</span>
             </router-link>
           </li>
-          <!-- Import with access -->
-          <li v-if="canAccessRoute('/import')">
+          <!-- Laporan - Sub Menu -->
+          <li v-if="canAccessRoute('/laporan') || canAccessRoute('/laporan-range')">
+            <div class="nav-submenu">
+              <button
+                type="button"
+                class="nav-submenu-header"
+                :class="{ active: $route.name === 'laporan' || $route.name === 'laporan-range' }"
+                @click="toggleSubmenu('laporan')"
+              >
+                <i class="fas fa-file-alt"></i>
+                <span>Laporan</span>
+                <i class="fas fa-chevron-down submenu-arrow" :class="{ rotated: openSubmenus['laporan'] }"></i>
+              </button>
+              <transition name="submenu">
+                <ul v-show="openSubmenus['laporan']" class="nav-submenu-list">
+                  <li v-if="canAccessRoute('/laporan')">
+                    <router-link
+                      to="/laporan"
+                      class="nav-submenu-link"
+                      :class="{ active: $route.name === 'laporan' }"
+                    >
+                      <i class="fas fa-circle"></i>
+                      <span>Report</span>
+                    </router-link>
+                  </li>
+                  <li v-if="canAccessRoute('/laporan-range')">
+                    <router-link
+                      to="/laporan-range"
+                      class="nav-submenu-link"
+                      :class="{ active: $route.name === 'laporan-range' }"
+                    >
+                      <i class="fas fa-circle"></i>
+                      <span>Report Range</span>
+                    </router-link>
+                  </li>
+                </ul>
+              </transition>
+            </div>
+          </li>
+            <!-- Import with access -->
+            <li v-if="canAccessRoute('/import')">
             <router-link
               to="/import"
               class="nav-link"
@@ -257,9 +313,9 @@ const { hasRole } = useRole();
 const authStore = useAuthStore();
 const user = computed(() => authStore.user.value);
 
-// Check if current route is range-satuan-pengukuran
+// Check if current route is range-satuan-pengukuran or laporan-range
 const isRangeSatuanPengukuran = computed(() => {
-  return route.name === 'range-satuan-pengukuran';
+  return route.name === 'range-satuan-pengukuran' || route.name === 'laporan-range';
 });
 
 // Helper function to check if user can access specific route
@@ -278,6 +334,31 @@ const allCabangsData = ref<Entities[]>([]);
 const cabangs = ref<string[]>([]);
 const cabangsData = ref<Entities[]>([]);
 const isFilterOpen = ref(false);
+
+// Sub menu state
+const openSubmenus = ref<Record<string, boolean>>({
+  'satuan-pengukuran': false,
+  'laporan': false,
+});
+
+// Toggle sub menu
+const toggleSubmenu = (menuKey: string) => {
+  openSubmenus.value[menuKey] = !openSubmenus.value[menuKey];
+};
+
+// Auto-open submenu if current route matches
+watch(
+  () => route.name,
+  (routeName) => {
+    if (routeName === 'satuan-pengukuran' || routeName === 'range-satuan-pengukuran') {
+      openSubmenus.value['satuan-pengukuran'] = true;
+    }
+    if (routeName === 'laporan' || routeName === 'laporan-range') {
+      openSubmenus.value['laporan'] = true;
+    }
+  },
+  { immediate: true }
+);
 
 // Computed property untuk filter cabang berdasarkan user.entity_id
 const filteredCabangs = computed(() => {
@@ -894,5 +975,179 @@ const toggleFilters = () => {
 
 .reset-button:hover i {
   transform: rotate(180deg);
+}
+
+/* Sub Menu Styles */
+.nav-submenu {
+  margin: 0.5rem 0.75rem;
+}
+
+.nav-submenu-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  padding: 0.875rem 1.25rem;
+  color: rgba(255, 255, 255, 0.85);
+  background: transparent;
+  border: none;
+  border-left: 3px solid transparent;
+  border-radius: 8px;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-submenu-header span {
+  flex: 1;
+}
+
+.nav-submenu-header::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 3px;
+  background: linear-gradient(180deg, #ffd700, #ffed4e);
+  transform: scaleY(0);
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: bottom;
+}
+
+.nav-submenu-header:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: white;
+  transform: translateX(4px);
+  border-left-color: rgba(255, 215, 0, 0.6);
+}
+
+.nav-submenu-header:hover::before {
+  transform: scaleY(1);
+}
+
+.nav-submenu-header.active {
+  background: rgba(255, 255, 255, 0.18);
+  color: white;
+  border-left-color: #ffd700;
+  font-weight: 600;
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.nav-submenu-header.active::before {
+  transform: scaleY(1);
+}
+
+.nav-submenu-header i:first-child {
+  width: 20px;
+  text-align: center;
+  font-size: 1.0625rem;
+  opacity: 0.9;
+  transition: all 0.25s ease;
+}
+
+.nav-submenu-header:hover i:first-child,
+.nav-submenu-header.active i:first-child {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.submenu-arrow {
+  font-size: 0.75rem;
+  opacity: 0.7;
+  transition: transform 0.3s ease;
+  margin-left: auto;
+}
+
+.submenu-arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.nav-submenu-list {
+  list-style: none;
+  margin: 0.5rem 0 0 0;
+  padding: 0;
+  padding-left: 0;
+  border-left: 2px solid rgba(255, 255, 255, 0.15);
+  margin-left: 2.5rem;
+}
+
+.nav-submenu-list li {
+  margin: 0.25rem 0;
+}
+
+.nav-submenu-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 1rem 0.625rem 1.5rem;
+  color: rgba(255, 255, 255, 0.75);
+  text-decoration: none;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  position: relative;
+  margin-left: 0.5rem;
+}
+
+.nav-submenu-link i:first-child {
+  font-size: 0.5rem;
+  opacity: 0.6;
+  transition: all 0.25s ease;
+}
+
+.nav-submenu-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.95);
+  transform: translateX(4px);
+}
+
+.nav-submenu-link:hover i:first-child {
+  opacity: 1;
+  transform: scale(1.2);
+}
+
+.nav-submenu-link.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  font-weight: 600;
+}
+
+.nav-submenu-link.active i:first-child {
+  opacity: 1;
+  color: #ffd700;
+}
+
+/* Submenu transition */
+.submenu-enter-active,
+.submenu-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.submenu-enter-from {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-10px);
+}
+
+.submenu-leave-to {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-10px);
+}
+
+.submenu-enter-to,
+.submenu-leave-from {
+  opacity: 1;
+  max-height: 200px;
+  transform: translateY(0);
 }
 </style>

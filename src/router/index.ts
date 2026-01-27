@@ -11,6 +11,8 @@ import ResidualValueReserveView from '@/views/ResidualValueReserveView.vue'
 import ResourcesView from '@/views/ResourcesView.vue'
 import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
 import RangeUnitOfMeasurementView from '@/views/RangeUnitOfMeasurementView.vue'
+import LaporanView from '@/views/LaporanView.vue'
+import LaporanRangeView from '@/views/LaporanRangeView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 // Type definition untuk route meta
@@ -95,6 +97,18 @@ const routes = [
     name: 'import',
     component: ImportView,
     meta: { title: 'Data Impor', requiresAuth: true, allowedRoles: ['PUSAT', 'CABANG'] }
+  },
+  {
+    path: '/laporan',
+    name: 'laporan',
+    component: LaporanView,
+    meta: { title: 'Laporan', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
+  },
+  {
+    path: '/laporan-range',
+    name: 'laporan-range',
+    component: LaporanRangeView,
+    meta: { title: 'Laporan Range', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
   }
 ]
 
