@@ -2,14 +2,28 @@
   <div class="container">
     <div class="header-actions">
       <h2>Laporan Satuan Pengukuran</h2>
-      <button class="btn-download" @click="downloadPDF" :disabled="loading || apiData.entityIds.length < 1">
-        <i class="fas fa-file-pdf"></i>
-        Download PDF
-      </button>
+      <div class="download-buttons">
+        <button
+          class="btn-download"
+          :disabled="loading || excelDataByEntity.length < 1"
+          @click="downloadExcelWithStyle"
+        >
+          <i class="fas fa-file-excel"></i>
+          Download Excel
+        </button>
+      </div>
+    </div>
+
+    <div class="filter-info-section">
+      <h3>Filter Laporan</h3>
+      <p class="range-info">
+        <i class="fas fa-info-circle"></i>
+        Tahun, bulan, dan satuan kerja diambil dari filter di sidebar. Pastikan ketiga filter sudah dipilih agar data laporan tampil.
+      </p>
     </div>
 
     <div v-if="loading" class="loading">Loading...</div>
-    <div v-if="apiData.entityIds.length < 1" class="empty-container">
+    <div v-if="!loading&&apiData.entityIds.length < 1" class="empty-container">
       <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
       <p class="empty">Data satuan pengukuran tidak ditemukan!</p>
     </div>
@@ -17,301 +31,112 @@
       <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-section">
         <h3 class="entity-title">{{ entity.name }} ({{ entity.type }})</h3>
         
-        <!-- Rate Tables -->
+        <!-- Tabel laporan: No, Uraian, kolom bulan + R mengikuti visibleMonthEnds (selectedMonth atau 1–12) -->
         <div class="table-section">
-          <h4 class="section-title">Tingkat Produksi (Rata - rata)</h4>
-          
-          <!-- Rate 1: Rata-rata Pembiayaan / Unit Penjualan -->
           <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Pembiayaan / Unit Penjualan</h5>
-            <table class="data-table">
+            <table class="data-table laporan-bulanan">
               <thead>
                 <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Pembiayaan</th>
-                  <th>Total Unit Jual</th>
-                  <th>Pembiayaan / Unit Penjualan</th>
+                  <th class="col-no">No.</th>
+                  <th class="col-uraian">Uraian</th>
+                  <template v-for="m in visibleMonthEnds" :key="m">
+                    <th class="col-bulan">{{ MONTH_NAMES[m - 1] }}</th>
+                    <th class="col-r">R{{ m }}</th>
+                  </template>
                 </tr>
               </thead>
               <tbody>
-                <tr v-if="getRateSatu(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
+                <tr v-for="row in URAIAN_ROWS" :key="row.no">
+                  <td class="col-no">{{ row.no }}</td>
+                  <td class="col-uraian">{{ row.uraian }}</td>
+                  <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
+                    <td class="col-bulan">
+                      <template v-if="row.config && 'type' in row.config && row.config.type === 'unit_count'">
+                        {{ getUnitCount(ratesRatiosData) }}
+                      </template>
+                      <template v-else-if="row.config && 'key' in row.config">
+                           {{ formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.monthField)) }}
+                      </template>
+                      <template v-else>—</template>
+                    </td>
+                    <td class="col-r">
+                      {{ getRKey(row.config) != null && getRFieldForMonth(row.config, monthEnd) ? formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, getRKey(row.config)!, getRFieldForMonth(row.config, monthEnd)!)) : "—" }}
+                    </td>
+                  </template>
                 </tr>
-                <tr v-for="item in getRateSatu(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.total_pembiayaan)) }}</td>
-                  <td>{{ formatCurrency(Number(item.total_unit_jual)) }}</td>
-                  <td>{{ formatCurrency(Number(item.pembiayaan_per_unit)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 2: Rata-rata Penjualan / Unit Penjualan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Penjualan / Unit Penjualan</h5>
-            <table class="data-table">
-              <thead>
+                <!-- Subheader: Tingkat Produksi -->
                 <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Penjualan</th>
-                  <th>Total Unit</th>
-                  <th>Penjualan / Unit Penjualan</th>
+                  <td class="col-no">No.</td>
+                  <td  class="col-uraian subheader">Tingkat Produksi</td>
+                  <template v-for="monthEnd in visibleMonthEnds" :key="'h-' + monthEnd">
+                    <td class="col-bulan"></td>
+                    <td class="col-r"></td>
+                  </template>
                 </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateDua(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
+                <tr v-for="row in TINGKAT_PRODUKSI_ROWS" :key="'tp-' + row.no">
+                  <td class="col-no">{{ row.no }}</td>
+                  <td class="col-uraian">{{ row.uraian }}</td>
+                  <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
+                    <td class="col-bulan">-</td>
+                    <td class="col-r">
+                      {{ row.config ? formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.rField)) : '-' }}
+                    </td>
+                  </template>
                 </tr>
-                <tr v-for="item in getRateDua(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.total_penjualan)) }}</td>
-                  <td>{{ formatCurrency(Number(item.total_unit)) }}</td>
-                  <td>{{ formatCurrency(Number(item.penjualan_per_unit)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 3: Rata-rata Penjualan / Karyawan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Penjualan / Karyawan</h5>
-            <table class="data-table">
-              <thead>
+                <!-- Subheader: Ratio Produksi -->
                 <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Penjualan</th>
-                  <th>Jumlah Karyawan</th>
-                  <th>Penjualan / Karyawan</th>
+                  <td class="col-no">No</td>
+                  <td class="col-uraian subheader">Ratio Produksi</td>
+                  <template v-for="monthEnd in visibleMonthEnds" :key="'rp-h-' + monthEnd">
+                    <td class="col-bulan"></td>
+                    <td class="col-r"></td>
+                  </template>
                 </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateTiga(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRateTiga(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.total_penjualan)) }}</td>
-                  <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
-                  <td>{{ formatCurrency(Number(item.penjualan_per_karyawan)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 4: Rata-rata Mark up / Karyawan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Mark up / Karyawan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Markup</th>
-                  <th>Jumlah Karyawan</th>
-                  <th>Markup / Karyawan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateEmpat(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRateEmpat(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
-                  <td>{{ typeof item.jumlah_karyawan === "string" ? Number(item.jumlah_karyawan) : item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
-                  <td>{{ formatCurrency(Number(item.rate_empat || item.markup_per_karyawan || 0)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 5: Rata-rata Gaji / Karyawan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Gaji / Karyawan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Gaji</th>
-                  <th>Jumlah Karyawan</th>
-                  <th>Gaji / Karyawan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateLima(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRateLima(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.gaji || item.total_gaji || 0)) }}</td>
-                  <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
-                  <td>{{ formatCurrency(Number(item.rate_gaji_per_karyawan)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 6: Rata-rata Biaya Operasional / Karyawan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Biaya Operasional / Karyawan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Beban Operasional</th>
-                  <th>Jumlah Karyawan</th>
-                  <th>Biaya Operasional / Karyawan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateEnam(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRateEnam(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.beban_umum_operasional || item.total_beban_umum_operasional || 0)) }}</td>
-                  <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
-                  <td>{{ formatCurrency(Number(item.rate_beban_umum_operasional_per_karyawan)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rate 7: Rata-rata Beban Tetap / Karyawan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Rata-rata Beban Tetap / Karyawan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Penyusutan Aktiva</th>
-                  <th>Jumlah Karyawan</th>
-                  <th>Beban Tetap / Karyawan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRateTujuh(entity.name).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRateTujuh(entity.name)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.penyusutan || item.total_penyusutan_aktiva || 0)) }}</td>
-                  <td>{{ item.jumlah_karyawan || item.total_karyawan || 0 }}</td>
-                  <td>{{ formatCurrency(Number(item.rate_penyusutan_aktiva_per_karyawan)) }}</td>
+                <tr v-for="row in RATIO_PRODUKSI_ROWS" :key="'rp-' + row.no">
+                  <td class="col-no">{{ row.no }}</td>
+                  <td class="col-uraian">{{ row.uraian }}</td>
+                  <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
+                    <td class="col-bulan">-</td>
+                    <td class="col-r">
+                      {{ row.config ? formatPercentage(Number(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.rField))) : '-' }}
+                    </td>
+                  </template>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
-
         <!-- Ratio Tables -->
-        <div class="table-section" style="margin-top: 40px;">
-          <h4 class="section-title">Ratio Produksi</h4>
-          
-          <!-- Rasio 1: Ratio Pembiayaan / Realisasi Pokok -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Ratio Pembiayaan / Realisasi Pokok</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Pembiayaan</th>
-                  <th>Realisasi Pokok</th>
-                  <th>Pembiayaan / Realisasi Pokok</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRasioSatu(entity.name, entity.type).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRasioSatu(entity.name, entity.type)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
-                  <td>{{ formatCurrency(Number(item.realisasi_pokok)) }}</td>
-                  <td>{{ formatPercentage(Number(item.pembiayaan_per_realisasi_pokok)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rasio 2: Ratio Kn /T Kemacetan / Pembiayaan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Ratio Kn /T Kemacetan / Pembiayaan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Kenaikan Macet</th>
-                  <th>Pembiayaan</th>
-                  <th>Ratio Kemacetan / Pembiayaan</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRasioDua(entity.name, entity.type).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRasioDua(entity.name, entity.type)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.cadangan_piutang)) }}</td>
-                  <td>{{ formatCurrency(Number(item.tambahan)) }}</td>
-                  <td>{{ formatPercentage(Number(item.rasio_kemacetan_pembiayaan)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <!-- Rasio 3: Ratio Mark up / Pembiayaan -->
-          <div class="table-wrapper">
-            <h5 class="table-title">Ratio Mark up / Pembiayaan</h5>
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>Bulan / Tahun</th>
-                  <th>Total Markup</th>
-                  <th>Pembiayaan</th>
-                  <th>Ratio Markup</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-if="getRasioTiga(entity.name, entity.type).length === 0">
-                  <td :colspan="4" class="empty">Data tidak ditemukan.</td>
-                </tr>
-                <tr v-for="item in getRasioTiga(entity.name, entity.type)" :key="`${item.year}-${item.month}`">
-                  <td>{{ item.month }}/{{ item.year }}</td>
-                  <td>{{ formatCurrency(Number(item.total_markup)) }}</td>
-                  <td>{{ formatCurrency(Number(item.pembiayaan)) }}</td>
-                  <td>{{ formatPercentage(Number(item.rasio_markup)) }}</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { getProductRate, getProductRatio } from "@/services/productRateService";
+import { getProductRatesRatios } from "@/services/productRateService";
 import { useAuthStore } from "@/stores/auth";
 import {
-  formatCurrency,
+  formatNumber,
   formatPercentage,
   isGlobalLoading,
   selectedEntityId,
   selectedMonth,
   selectedYear,
 } from "@/stores/globalState";
-import type { ProductRateData, ProductRatioData } from "@/types/productRate";
-import { onMounted, ref, watch } from "vue";
-import { useNotification } from "@/composables/useNotification";
-
-// Import jsPDF - akan throw error jika tidak terinstall
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
+import type {
+  ProductRateData,
+  ProductRatesRatiosData,
+} from "@/types/productRate";
+import type { RateOrRatioKey } from "@/utils/productRateMapper";
+import {
+  getMonthlyValueByKey,
+  getUnitCount,
+  mapRatesRatiosToProductRateData,
+} from "@/utils/productRateMapper";
+import { computed, onMounted, ref, watch } from "vue";
+import ExcelJS from "exceljs";
 
 const authStore = useAuthStore();
-const { notifyError, notifySuccess } = useNotification();
 const apiData = ref<ProductRateData>({
   success: false,
   entity_id: "",
@@ -325,567 +150,348 @@ const apiData = ref<ProductRateData>({
   rate_tujuh: {},
 });
 
-const apiRatioData = ref<ProductRatioData>({
-  success: false,
-  entity_id: "",
-  entityIds: [],
-  rasioSatu: {},
-  rasioDua: {},
-  rasioTiga: {},
-  rasioEmpat: {},
-  rasioLima: {},
-  rasioEnam: {},
-  rasioTujuh: {},
-  rasioDelapan: {},
-  rasioSembilan: {},
-  rasioSepuluh: {},
-  rasioSebelas: {},
-});
-
 const loading = ref(false);
 
-// Helper methods to get rate data
-const getRateSatu = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_satu || []
-    : apiData.value.rate_satu[entityName] || [];
-};
+/** Raw response rates-ratios untuk tabel bulanan (pembiayaan_bulan_ini dll per month_end) */
+const ratesRatiosData = ref<ProductRatesRatiosData | null>(null);
 
-const getRateDua = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang ? apiData.value.cabang?.rate_dua || [] : apiData.value.rate_dua[entityName] || [];
-};
+const MONTH_NAMES = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+] as const;
 
-const getRateTiga = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_tiga || []
-    : apiData.value.rate_tiga[entityName] || [];
-};
+/** Bulan yang ditampilkan di tabel: 1..selectedMonth jika ada filter bulan, otherwise 1..12 */
+const visibleMonthEnds = computed(() => {
+  const m = selectedMonth.value;
+  if (m === "" || m === undefined || m === null) {
+    return Array.from({ length: 12 }, (_, i) => i + 1);
+  }
+  const n = typeof m === "string" ? Number(m) : m;
+  if (Number.isNaN(n) || n < 1) return [1];
+  const max = Math.min(Math.floor(n), 12);
+  return Array.from({ length: max }, (_, i) => i + 1);
+});
 
-const getRateEmpat = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_empat || []
-    : apiData.value.rate_empat[entityName] || [];
-};
+/** Maks indeks R mengikuti visibleMonthEnds (selectedMonth), cap 11 karena API hanya _r1.._r11 */
+const rMax = computed(() => {
+  const arr = visibleMonthEnds.value;
+  const maxMonth = arr.length ? arr[arr.length - 1] : 12;
+  return Math.min(maxMonth, 11);
+});
 
-const getRateLima = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_lima || []
-    : apiData.value.rate_lima[entityName] || [];
-};
+/** Kolom untuk export Excel: No., Uraian, lalu tiap bulan (nama bulan + R1, R2, ...) */
+const excelColumns = computed(() => {
+  const cols: string[] = ["No.", "Uraian"];
+  visibleMonthEnds.value.forEach((m) => {
+    cols.push(MONTH_NAMES[m - 1]);
+    cols.push(`R${m}`);
+  });
+  return cols;
+});
 
-const getRateEnam = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_enam || []
-    : apiData.value.rate_enam[entityName] || [];
-};
+/** Nama file export Excel */
+const excelFileName = computed(
+  () =>
+    `Laporan_Satuan_Pengukuran_${selectedYear.value || "All"}_${selectedMonth.value || "All"}.xlsx`
+);
 
-const getRateTujuh = (entityName: string) => {
-  const isCabang = apiData.value.cabang?.name === entityName;
-  return isCabang
-    ? apiData.value.cabang?.rate_tujuh || []
-    : apiData.value.rate_tujuh[entityName] || [];
-};
+/** Per entity: judul + baris data. Export: judul di atas, lalu header (No., Uraian, Januari, R1...), lalu data */
+type EntityExportBlock = { title: string; rows: Record<string, string | number>[] };
 
-// Helper methods to get ratio data
-const getRasioSatu = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioSatu || []
-    : apiRatioData.value.rasioSatu[entityName] || [];
-};
+const excelDataByEntity = computed(() => {
+  const blocks: EntityExportBlock[] = [];
+  const months = visibleMonthEnds.value;
+  const cols = excelColumns.value;
+  const dataSource = ratesRatiosData.value;
 
-const getRasioDua = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioDua || []
-    : apiRatioData.value.rasioDua[entityName] || [];
-};
+  if (!dataSource || !apiData.value.entityIds?.length) return blocks;
 
-const getRasioTiga = (entityName: string, entityType?: string) => {
-  const isCabang = entityType === "CABANG" && apiRatioData.value.cabang;
-  return isCabang
-    ? apiRatioData.value.cabang?.rasioTiga || []
-    : apiRatioData.value.rasioTiga[entityName] || [];
-};
+  const makeRow = (cells: (string | number)[]): Record<string, string | number> => {
+    const row: Record<string, string | number> = {};
+    cols.forEach((col, i) => {
+      row[col] = cells[i] ?? "";
+    });
+    return row;
+  };
+
+  apiData.value.entityIds.forEach((entity) => {
+    const entityName = String(entity.name);
+    const title = `${entityName} (${entity.type})`;
+    const rows: Record<string, string | number>[] = [];
+
+    // URAIAN_ROWS
+    URAIAN_ROWS.forEach((row) => {
+      const cells: (string | number)[] = [row.no, row.uraian];
+      months.forEach((monthEnd) => {
+        if (row.config && "type" in row.config && row.config.type === "unit_count") {
+          cells.push(getUnitCount(dataSource));
+        } else if (row.config && "key" in row.config) {
+          const val = getMonthlyValueByKey(
+            dataSource,
+            entityName,
+            monthEnd,
+            row.config.key,
+            row.config.monthField
+          );
+          cells.push(
+            formatNumber(val)
+          );
+        } else {
+          cells.push("—");
+        }
+        const rKey = getRKey(row.config);
+        const rField = getRFieldForMonth(row.config, monthEnd);
+        if (rKey != null && rField) {
+          const v = getMonthlyValueByKey(
+            dataSource,
+            entityName,
+            monthEnd,
+            rKey,
+            rField
+          );
+          cells.push(formatNumber(v));
+        } else {
+          cells.push("—");
+        }
+      });
+      rows.push(makeRow(cells));
+    });
+
+    // Subheader: Tingkat Produksi
+    const subhead1: (string | number)[] = ["", "Tingkat Produksi"];
+    for (let i = 2; i < cols.length; i++) subhead1.push("");
+    rows.push(makeRow(subhead1));
+
+    TINGKAT_PRODUKSI_ROWS.forEach((row) => {
+      const cells: (string | number)[] = [row.no, row.uraian];
+      months.forEach((monthEnd) => {
+        cells.push("-");
+        const val = getMonthlyValueByKey(
+          dataSource,
+          entityName,
+          monthEnd,
+          row.config.key,
+          row.config.rField
+        );
+        cells.push(formatNumber(val));
+      });
+      rows.push(makeRow(cells));
+    });
+
+    // Subheader: Ratio Produksi
+    const subhead2: (string | number)[] = ["", "Ratio Produksi"];
+    for (let i = 2; i < cols.length; i++) subhead2.push("");
+    rows.push(makeRow(subhead2));
+
+    RATIO_PRODUKSI_ROWS.forEach((row) => {
+      const cells: (string | number)[] = [row.no, row.uraian];
+      months.forEach((monthEnd) => {
+        cells.push("-");
+        const val = getMonthlyValueByKey(
+          dataSource,
+          entityName,
+          monthEnd,
+          row.config.key,
+          row.config.rField
+        );
+        cells.push(formatPercentage(Number(val)));
+      });
+      rows.push(makeRow(cells));
+    });
+
+    blocks.push({ title, rows });
+  });
+
+  return blocks;
+});
+
+/** Export Excel: tiap entity = judul di atas, lalu header (No., Uraian, Januari, R1...), lalu data. Kolom nilai rata kanan. */
+async function downloadExcelWithStyle() {
+  const blocks = excelDataByEntity.value;
+  const cols = excelColumns.value;
+  if (!blocks.length || !cols.length) return;
+
+  const wb = new ExcelJS.Workbook();
+  const ws = wb.addWorksheet("Laporan Satuan Pengukuran", { views: [{ state: "normal" }] });
+
+  const thinBorder = {
+    top: { style: "thin" as const },
+    left: { style: "thin" as const },
+    bottom: { style: "thin" as const },
+    right: { style: "thin" as const },
+  };
+
+  const applyBorderToRow = (rowNumber: number) => {
+    for (let c = 1; c <= cols.length; c++) {
+      const cell = ws.getCell(rowNumber, c);
+      cell.border = thinBorder;
+    }
+  };
+
+  const applyDataRowAlignment = (
+    row: { eachCell: (cb: (cell: unknown, colNumber: number) => void) => void }
+  ) => {
+    row.eachCell((cell: unknown, colNumber: number) => {
+      const c = cell as { alignment?: { horizontal?: string } };
+      if (colNumber >= 3) {
+        c.alignment = { horizontal: "right" };
+      } else if (colNumber === 1) {
+        c.alignment = { horizontal: "center" };
+      }
+    });
+  };
+
+  blocks.forEach((block) => {
+    // 1. Baris judul entity (di atas header), colspan 2 (No. + Uraian)
+    const titleRowValues = cols.map((_, i) => (i === 0 ? block.title : ""));
+    const titleRow = ws.addRow(titleRowValues);
+    titleRow.font = { bold: true };
+    ws.mergeCells(titleRow.number, 1, titleRow.number, 2);
+    applyBorderToRow(titleRow.number);
+
+    // 2. Baris header tabel: No., Uraian, Januari, R1, ...
+    const headerRow = ws.addRow(cols);
+    headerRow.font = { bold: true };
+    cols.forEach((_, colIndex) => {
+      const cell = ws.getCell(headerRow.number, colIndex + 1);
+      cell.alignment = { horizontal: colIndex >= 2 ? "right" : "left" };
+      cell.border = thinBorder;
+    });
+
+    // 3. Baris data (subheader Tingkat Produksi & Ratio Produksi: colspan 2 + bold)
+    block.rows.forEach((rowObj) => {
+      const rowValues = cols.map((col) => rowObj[col] ?? "");
+      const uraianVal = rowObj["Uraian"];
+      if (uraianVal === "Tingkat Produksi" || uraianVal === "Ratio Produksi") {
+        // Teks harus di kolom pertama agar tampil setelah merge (Excel pakai nilai sel kiri-atas)
+        rowValues[0] = uraianVal;
+      }
+      const row = ws.addRow(rowValues);
+      if (uraianVal === "Tingkat Produksi" || uraianVal === "Ratio Produksi") {
+        row.font = { bold: true };
+        ws.mergeCells(row.number, 1, row.number, 2);
+      } else {
+        applyDataRowAlignment(row);
+      }
+      applyBorderToRow(row.number);
+    });
+
+    // 4. Satu baris kosong antar entity (diberi border juga)
+    const blankRow = ws.addRow(cols.map(() => ""));
+    applyBorderToRow(blankRow.number);
+  });
+
+  const buffer = await wb.xlsx.writeBuffer();
+  const blob = new Blob([buffer], {
+    type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = excelFileName.value;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+type RowConfig =
+  | { key: RateOrRatioKey; monthField: string;  rFieldBase?: string }
+  | { type: 'unit_count'; rKey?: RateOrRatioKey; rFieldBase?: string };
+
+/** Field untuk kolom R(monthEnd): rFieldBase + min(monthEnd, rMax) */
+function getRFieldForMonth(config: RowConfig | undefined, monthEnd: number): string | undefined {
+  if (!config || !('rFieldBase' in config) || !config.rFieldBase) return undefined;
+  return config.rFieldBase + String(Math.min(monthEnd, rMax.value));
+}
+
+/** 19 baris uraian sesuai gambar laporan. Kolom R1–R11 pakai average_*_r1 … average_*_r11. */
+const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
+  { no: 1, uraian: "Pembiayaan", config: { key: "rate_satu", monthField: "pembiayaan_bulan_ini", rFieldBase: "average_pembiayaan_r" } },
+  { no: 2, uraian: "Penjualan", config: { key: "rate_dua", monthField: "penjualan_bulan_ini", rFieldBase: "average_penjualan_r" } },
+  { no: 3, uraian: "Unit Penjualan", config: { key: "rate_dua", monthField: "unit_penjualan_bulan_ini", rFieldBase: "average_unit_penjualan_r" } },
+  { no: 4, uraian: "Pendapatan Mark Up", config: { key: "rate_empat", monthField: "markup_bulan_ini", rFieldBase: "average_markup_r" } },
+  { no: 5, uraian: "Pendapatan Adminitrasi" },
+  { no: 6, uraian: "Pendapatan Bunga", config: { key: "ratio_empat", monthField: "realisasi_bunga_bulan_ini", rFieldBase: "average_realisasi_bunga_r" } },
+  { no: 7, uraian: "Pendapatan Denda" },
+  { no: 8, uraian: "Pendapatan Lain lain", config: { key: "ratio_tujuh", monthField: "jumlah_pendapatan_lain_bulan_ini", rFieldBase: "average_jumlah_pendapatan_lain_r" } },
+  { no: 9, uraian: "Jumlah Pendapatan", config: { key: "ratio_tujuh", monthField: "jumlah_pendapatan_bulan_ini", rFieldBase: "average_jumlah_pendapatan_r" } },
+  { no: 10, uraian: "Karyawan", config: { key: "rate_lima", monthField: "karyawan_bulan_ini", rFieldBase: "average_karyawan_r" } },
+  { no: 11, uraian: "Gaji Karyawan", config: { key: "rate_lima", monthField: "gaji_bulan_ini", rFieldBase: "average_gaji_r" } },
+  { no: 12, uraian: "Biaya Operasional", config: { key: "rate_enam", monthField: "operasional_bulan_ini", rFieldBase: "average_operasional_r" } },
+  { no: 13, uraian: "Penyusutan Inventaris", config: { key: "rate_delapan", monthField: "penyusutan_bulan_ini", rFieldBase: "average_penyusutan_r" } },
+  { no: 14, uraian: "Satuan Kerja", config: { type: "unit_count", rKey: "rate_delapan", rFieldBase: "average_satuan_kerja_r" } },
+  { no: 15, uraian: "Cad. PH/Peny Stock", config: { key: "rate_sembilan", monthField: "beban_gabungan_bulan_ini", rFieldBase: "average_beban_gabungan_r" } },
+  { no: 16, uraian: "Laba/Rugi", config: { key: "rate_sepuluh", monthField: "kumulatif_bulan_ini", rFieldBase: "average_kumulatif_r" } },
+  { no: 17, uraian: "Realisasi Pokok", config: { key: "ratio_satu", monthField: "realisasi_pokok_bulan_ini", rFieldBase: "average_realisasi_pokok_r" } },
+  { no: 18, uraian: "Kenaikan/T Macet", config: { key: "ratio_dua", monthField: "macet_lama_bulan_ini", rFieldBase: "average_macet_lama_r" } },
+  { no: 19, uraian: "Saldo Pokok Piutang Akhir", config: { key: "ratio_empat", monthField: "saldo_akhir_bulan_ini", rFieldBase: "average_saldo_akhir_r" } },
+];
+
+/** Config Tingkat Produksi: hanya isi kolom R1–R12 (key + rField) */
+type TingkatProduksiConfig = { key: RateOrRatioKey; rField: string };
+
+/** 11 baris Tingkat Produksi sesuai gambar laporan */
+const TINGKAT_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksiConfig }[] = [
+  { no: 1, uraian: "Rata-rata Pembiayaan / Unit Penjualan", config: { key: "rate_satu", rField: "pembiayaan_per_unit_penjualan" } },
+  { no: 2, uraian: "Rata-rata Penjualan / Unit Penjualan", config: { key: "rate_dua", rField: "penjualan_per_unit_penjualan" } },
+  { no: 3, uraian: "Rata-rata Penjualan / Karyawan", config: { key: "rate_tiga", rField: "penjualan_per_karyawan" } },
+  { no: 4, uraian: "Rata-rata Mark up / Karyawan", config: { key: "rate_empat", rField: "markup_per_karyawan" } },
+  { no: 5, uraian: "Rata-rata Gaji / Karyawan", config: { key: "rate_lima", rField: "gaji_per_karyawan" } },
+  { no: 6, uraian: "Rata-rata Biaya Operasional / Karyawan", config: { key: "rate_enam", rField: "operasional_per_karyawan" } },
+  { no: 7, uraian: "Rata-rata Penyusutan Inventaris / Karyawan", config: { key: "rate_tujuh", rField: "penyusutan_per_karyawan" } },
+  { no: 8, uraian: "Rata-rata Penyusutan Inventaris / Satuan Kerja", config: { key: "rate_delapan", rField: "penyusutan_per_satuan_kerja" } },
+  { no: 9, uraian: "Rata-rata Cad PH dan Peny Stock / Satuan Kerja", config: { key: "rate_sembilan", rField: "beban_gabungan_per_satuan_kerja" } },
+  { no: 10, uraian: "Rata-rata Laba/rugi nett / Satuan Kerja", config: { key: "rate_sepuluh", rField: "kumulatif_per_satuan_kerja" } },
+  { no: 11, uraian: "Rata-rata Laba/rugi nett / Karyawan", config: { key: "rate_sebelas", rField: "kumulatif_per_karyawan" } },
+];
+
+/** 11 baris Ratio Produksi (hanya kolom R1–R12, nilai sebagai persentase) */
+const RATIO_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksiConfig }[] = [
+  { no: 1, uraian: "Ratio Pembiayaan / Realisasi Pokok", config: { key: "ratio_satu", rField: "pembiayaan_per_realisasi_pokok" } },
+  { no: 2, uraian: "Ratio Kn /T macet / Pembiayaan", config: { key: "ratio_dua", rField: "rasio_kemacetan_pembiayaan" } },
+  { no: 3, uraian: "Ratio Mark up / Pembiayaan", config: { key: "ratio_tiga", rField: "rasio_markup" } },
+  { no: 4, uraian: "Ratio Pendapatan Bunga / So. Piutang Pokok Akhir", config: { key: "ratio_empat", rField: "rasio_realisasi_bunga_per_total_piutang" } },
+  { no: 5, uraian: "Ratio Mark up / Jumlah Pendapatan", config: { key: "ratio_lima", rField: "rasio_markup_per_jumlah_pendapatan" } },
+  { no: 6, uraian: "Ratio Pendapatan Bunga / Jumlah Pendapatan", config: { key: "ratio_enam", rField: "rasio_pendapatan_bunga_per_jumlah_pendapatan" } },
+  { no: 7, uraian: "Ratio Pendapatan Lainnya / Jumlah Pendapatan", config: { key: "ratio_tujuh", rField: "rasio_pendapatan_lainnya_per_jumlah_pendapatan" } },
+  { no: 8, uraian: "Ratio Gaji / Pendapatan", config: { key: "ratio_delapan", rField: "rasio_gaji_per_pendapatan" } },
+  { no: 9, uraian: "Ratio Biaya Operasional / Pendapatan", config: { key: "ratio_sembilan", rField: "rasio_beban_operasional_per_pendapatan" } },
+  { no: 10, uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan", config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_aktiva_per_jumlah_pendapatan" } },
+  { no: 11, uraian: "Ratio Biaya Cad PH dan Peny Stock / Pendapatan", config: { key: "ratio_sebelas", rField: "rasio_cadangan_piutang_per_jumlah_pendapatan" } },
+];
+
+/** Key untuk kolom R: config.key atau config.rKey (unit_count) */
+function getRKey(config: RowConfig | undefined): RateOrRatioKey | undefined {
+  if (!config) return undefined;
+  if ('rFieldBase' in config && config.rFieldBase) {
+    if ('key' in config) return config.key;
+    if ('rKey' in config) return config.rKey;
+  }
+  return undefined;
+}
 
 const fetchRateList = async (year: number | undefined, month: number | undefined) => {
   try {
     loading.value = true;
-    const response = await getProductRate({
+    const branchId = selectedEntityId.value ? Number(selectedEntityId.value) : undefined;
+    const response = await getProductRatesRatios({
       year,
       month,
-      branch_id: Number(selectedEntityId.value) ?? undefined,
+      branch_id: branchId,
     });
     if (response.success) {
-      apiData.value = response ?? {
-        entity_id: "",
-        entityIds: [],
-        rate_satu: {},
-        rate_tiga: {},
-        rate_empat: {},
-        rate_lima_enam_tujuh: {},
-      };
+      console.log(mapRatesRatiosToProductRateData(response),'xxx')
+      apiData.value = mapRatesRatiosToProductRateData(response);
+      ratesRatiosData.value = response;
+    } else {
+      ratesRatiosData.value = null;
     }
   } catch (err) {
     console.error(err);
+    ratesRatiosData.value = null;
   } finally {
     loading.value = false;
     isGlobalLoading.value = false;
   }
-};
-
-const fetchRatioList = async (year: number | undefined, month: number | undefined) => {
-  try {
-    loading.value = true;
-    const response = await getProductRatio({
-      year,
-      month,
-      branch_id: Number(selectedEntityId.value) ?? undefined,
-    });
-    if (response.success) {
-      apiRatioData.value = response ?? {
-        entity_id: "",
-        entityIds: [],
-        rasioSatu: {},
-        rasioDua: {},
-        rasioTiga: {},
-        rasioEmpat: {},
-        rasioLima: {},
-        rasioEnam: {},
-        rasioTujuh: {},
-        rasioDelapan: {},
-        rasioSembilan: {},
-        rasioSepuluh: {},
-        rasioSebelas: {},
-      };
-    }
-  } catch (err) {
-    console.error(err);
-  } finally {
-    loading.value = false;
-    isGlobalLoading.value = false;
-  }
-};
-
-const downloadPDF = () => {
-  /* eslint-disable @typescript-eslint/no-explicit-any */
-  try {
-    // Check if there's data to export
-    if (!apiData.value.entityIds || apiData.value.entityIds.length === 0) {
-      notifyError({ 
-        title: 'Error', 
-        msg: 'Tidak ada data untuk diekspor. Pastikan data sudah dimuat dengan benar.' 
-      });
-      return;
-    }
-
-    // Validate jsPDF is available
-    if (typeof jsPDF === 'undefined') {
-      throw new Error('Library jsPDF tidak ditemukan. Silakan refresh halaman atau hubungi administrator.');
-    }
-
-    // Validate autoTable is available
-    if (typeof autoTable === 'undefined') {
-      throw new Error('Library jspdf-autotable tidak ditemukan. Silakan refresh halaman atau hubungi administrator.');
-    }
-
-    const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
-    
-    let yPosition = 20;
-    
-    // Title
-    doc.setFontSize(16);
-    doc.text('Laporan Satuan Pengukuran', 14, yPosition);
-    yPosition += 10;
-    
-    const year = selectedYear.value !== "" ? selectedYear.value : 'Semua';
-    const month = selectedMonth.value !== "" ? selectedMonth.value : 'Semua';
-    doc.setFontSize(10);
-    doc.text(`Periode: Bulan ${month} Tahun ${year}`, 14, yPosition);
-    yPosition += 15;
-
-    // Process each entity
-    apiData.value.entityIds.forEach((entity) => {
-      // Check if we need a new page
-      if (yPosition > 180) {
-        doc.addPage();
-        yPosition = 20;
-      }
-
-      // Check if entity has any data
-      const rateSatu = getRateSatu(entity.name);
-      const rateDua = getRateDua(entity.name);
-      const rateTiga = getRateTiga(entity.name);
-      const rateEmpat = getRateEmpat(entity.name);
-      const rateLima = getRateLima(entity.name);
-      const rateEnam = getRateEnam(entity.name);
-      const rateTujuh = getRateTujuh(entity.name);
-      const rasioSatu = getRasioSatu(entity.name, entity.type);
-      const rasioDua = getRasioDua(entity.name, entity.type);
-      const rasioTiga = getRasioTiga(entity.name, entity.type);
-
-      // Skip entity if no data at all
-      const hasAnyData = rateSatu.length > 0 || rateDua.length > 0 || rateTiga.length > 0 || 
-                        rateEmpat.length > 0 || rateLima.length > 0 || rateEnam.length > 0 || 
-                        rateTujuh.length > 0 || rasioSatu.length > 0 || rasioDua.length > 0 || 
-                        rasioTiga.length > 0;
-
-      if (!hasAnyData) {
-        return; // Skip this entity if no data
-      }
-
-      // Entity header
-      doc.setFontSize(14);
-      doc.text(`${entity.name} (${entity.type})`, 14, yPosition);
-      yPosition += 8;
-
-
-      // Rate 1: Rata-rata Pembiayaan / Unit Penjualan
-      if (rateSatu.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Pembiayaan / Unit Penjualan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateSatuData = rateSatu.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.total_pembiayaan) || 0),
-          formatCurrency(Number(item.total_unit_jual) || 0),
-          formatCurrency(Number(item.pembiayaan_per_unit) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Pembiayaan', 'Total Unit Jual', 'Pembiayaan / Unit Penjualan']],
-          body: rateSatuData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 2: Rata-rata Penjualan / Unit Penjualan
-      if (rateDua.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Penjualan / Unit Penjualan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateDuaData = rateDua.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.total_penjualan) || 0),
-          formatCurrency(Number(item.total_unit) || 0),
-          formatCurrency(Number(item.penjualan_per_unit) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Penjualan', 'Total Unit', 'Penjualan / Unit Penjualan']],
-          body: rateDuaData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 3: Rata-rata Penjualan / Karyawan
-      if (rateTiga.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Penjualan / Karyawan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateTigaData = rateTiga.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.total_penjualan) || 0),
-          String(item.jumlah_karyawan || item.total_karyawan || 0),
-          formatCurrency(Number(item.penjualan_per_karyawan) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Penjualan', 'Jumlah Karyawan', 'Penjualan / Karyawan']],
-          body: rateTigaData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 4: Rata-rata Mark up / Karyawan
-      if (rateEmpat.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Mark up / Karyawan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateEmpatData = rateEmpat.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.total_markup) || 0),
-          String(typeof item.jumlah_karyawan === "string" ? Number(item.jumlah_karyawan) : item.jumlah_karyawan || item.total_karyawan || 0),
-          formatCurrency(Number(item.rate_empat || item.markup_per_karyawan || 0))
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Markup', 'Jumlah Karyawan', 'Markup / Karyawan']],
-          body: rateEmpatData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 5: Rata-rata Gaji / Karyawan
-      if (rateLima.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Gaji / Karyawan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateLimaData = rateLima.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.gaji || item.total_gaji || 0)),
-          String(item.jumlah_karyawan || item.total_karyawan || 0),
-          formatCurrency(Number(item.rate_gaji_per_karyawan) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Gaji', 'Jumlah Karyawan', 'Gaji / Karyawan']],
-          body: rateLimaData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 6: Rata-rata Biaya Operasional / Karyawan
-      if (rateEnam.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Biaya Operasional / Karyawan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateEnamData = rateEnam.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.beban_umum_operasional || item.total_beban_umum_operasional || 0)),
-          String(item.jumlah_karyawan || item.total_karyawan || 0),
-          formatCurrency(Number(item.rate_beban_umum_operasional_per_karyawan) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Beban Operasional', 'Jumlah Karyawan', 'Biaya Operasional / Karyawan']],
-          body: rateEnamData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Rate 7: Rata-rata Beban Tetap / Karyawan
-      if (rateTujuh.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Rata-rata Beban Tetap / Karyawan', 14, yPosition);
-        yPosition += 5;
-        
-        const rateTujuhData = rateTujuh.map(item => [
-          `${item.month || ''}/${item.year || ''}`,
-          formatCurrency(Number(item.penyusutan || item.total_penyusutan_aktiva || 0)),
-          String(item.jumlah_karyawan || item.total_karyawan || 0),
-          formatCurrency(Number(item.rate_penyusutan_aktiva_per_karyawan) || 0)
-        ]);
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Penyusutan Aktiva', 'Jumlah Karyawan', 'Beban Tetap / Karyawan']],
-          body: rateTujuhData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-        // Get final Y position after table
-        const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-        yPosition = finalY + 10;
-      }
-
-      // Ratio Section - only show if there's at least one ratio with data
-      const hasRatioData = rasioSatu.length > 0 || rasioDua.length > 0 || rasioTiga.length > 0;
-      
-      if (hasRatioData) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(11);
-        doc.text('Ratio Produksi', 14, yPosition);
-        yPosition += 6;
-
-        // Rasio 1: Ratio Pembiayaan / Realisasi Pokok
-        if (rasioSatu.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Ratio Pembiayaan / Realisasi Pokok', 14, yPosition);
-        yPosition += 5;
-        
-        const rasioSatuData = rasioSatu.map(item => {
-          const percentageValue = typeof item.pembiayaan_per_realisasi_pokok === 'string' 
-            ? parseFloat(item.pembiayaan_per_realisasi_pokok) 
-            : Number(item.pembiayaan_per_realisasi_pokok) || 0;
-          return [
-            `${item.month || ''}/${item.year || ''}`,
-            formatCurrency(Number(item.pembiayaan) || 0),
-            formatCurrency(Number(item.realisasi_pokok) || 0),
-            formatPercentage(percentageValue)
-          ];
-        });
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Pembiayaan', 'Realisasi Pokok', 'Pembiayaan / Realisasi Pokok']],
-          body: rasioSatuData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-          // Get final Y position after table
-          const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-          yPosition = finalY + 10;
-        }
-
-        // Rasio 2: Ratio Kn /T Kemacetan / Pembiayaan
-        if (rasioDua.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Ratio Kn /T Kemacetan / Pembiayaan', 14, yPosition);
-        yPosition += 5;
-        
-        const rasioDuaData = rasioDua.map(item => {
-          const percentageValue = typeof item.rasio_kemacetan_pembiayaan === 'string' 
-            ? parseFloat(item.rasio_kemacetan_pembiayaan) 
-            : Number(item.rasio_kemacetan_pembiayaan) || 0;
-          return [
-            `${item.month || ''}/${item.year || ''}`,
-            formatCurrency(Number(item.cadangan_piutang) || 0),
-            formatCurrency(Number(item.tambahan) || 0),
-            formatPercentage(percentageValue)
-          ];
-        });
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Kenaikan Macet', 'Pembiayaan', 'Ratio Kemacetan / Pembiayaan']],
-          body: rasioDuaData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-          // Get final Y position after table
-          const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-          yPosition = finalY + 10;
-        }
-
-        // Rasio 3: Ratio Mark up / Pembiayaan
-        if (rasioTiga.length > 0) {
-        if (yPosition > 180) {
-          doc.addPage();
-          yPosition = 20;
-        }
-        doc.setFontSize(10);
-        doc.text('Ratio Mark up / Pembiayaan', 14, yPosition);
-        yPosition += 5;
-        
-        const rasioTigaData = rasioTiga.map(item => {
-          const percentageValue = typeof item.rasio_markup === 'string' 
-            ? parseFloat(item.rasio_markup) 
-            : Number(item.rasio_markup) || 0;
-          return [
-            `${item.month || ''}/${item.year || ''}`,
-            formatCurrency(Number(item.total_markup) || 0),
-            formatCurrency(Number(item.pembiayaan) || 0),
-            formatPercentage(percentageValue)
-          ];
-        });
-
-        autoTable(doc, {
-          head: [['Bulan / Tahun', 'Total Markup', 'Pembiayaan', 'Ratio Markup']],
-          body: rasioTigaData,
-          startY: yPosition,
-          styles: { fontSize: 8 },
-          headStyles: { fillColor: [220, 220, 220], textColor: [0, 0, 0] },
-        });
-          // Get final Y position after table
-          const finalY = (doc as any).lastAutoTable?.finalY || yPosition + 50;
-          yPosition = finalY + 10;
-        }
-      }
-    });
-
-    // Save the PDF
-    const fileName = `Laporan_Satuan_Pengukuran_${selectedYear.value || 'All'}_${selectedMonth.value || 'All'}.pdf`;
-    doc.save(fileName);
-    
-    // Show success notification
-    notifySuccess({ 
-      title: 'Berhasil', 
-      msg: 'PDF berhasil diunduh. File tersimpan di folder Downloads.' 
-    });
-  } catch (error) {
-    console.error('Error generating PDF:', error);
-    const errorMessage = error instanceof Error 
-      ? error.message 
-      : 'Terjadi kesalahan saat membuat PDF. Silakan coba lagi atau hubungi administrator.';
-    
-    notifyError({ 
-      title: 'Error Generate PDF', 
-      msg: errorMessage 
-    });
-  }
-  /* eslint-enable @typescript-eslint/no-explicit-any */
 };
 
 watch([selectedYear, selectedMonth, selectedEntityId], () => {
@@ -894,7 +500,6 @@ watch([selectedYear, selectedMonth, selectedEntityId], () => {
   if (selectedEntityId.value && year && month) {
     isGlobalLoading.value = true;
     fetchRateList(year, month);
-    fetchRatioList(year, month);
   }
 });
 
@@ -905,7 +510,6 @@ onMounted(() => {
   if (selectedEntityId.value && year && month) {
     isGlobalLoading.value = true;
     fetchRateList(year, month);
-    fetchRatioList(year, month);
   }
 });
 </script>
@@ -913,6 +517,7 @@ onMounted(() => {
 <style scoped>
 .container {
   width: 100%;
+  min-width: 0;
   margin: 0 auto;
   padding: 20px;
 }
@@ -930,12 +535,57 @@ onMounted(() => {
   margin: 0;
 }
 
+.filter-info-section {
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.filter-info-section h3 {
+  margin-bottom: 12px;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.filter-info-section .range-info {
+  margin: 0;
+  padding: 12px;
+  background-color: #eff6ff;
+  border-left: 4px solid #3b82f6;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  color: #1e40af;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-info-section .range-info i {
+  font-size: 1rem;
+}
+
+.download-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.btn-download-pdf {
+  background-color: #dc2626;
+}
+.btn-download-pdf:hover:not(:disabled) {
+  background-color: #b91c1c;
+}
+
 .btn-download {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background-color: #dc2626;
+  background-color: #53ab20;
   color: white;
   border: none;
   border-radius: 8px;
@@ -972,6 +622,7 @@ onMounted(() => {
 }
 
 .entity-section {
+  min-width: 0;
   margin-bottom: 40px;
   padding: 20px;
   background-color: #fff;
@@ -990,6 +641,10 @@ onMounted(() => {
 
 .table-section {
   margin-top: 20px;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .section-title {
@@ -1001,6 +656,10 @@ onMounted(() => {
 
 .table-wrapper {
   margin-bottom: 24px;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .table-title {
@@ -1014,6 +673,10 @@ onMounted(() => {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 16px;
+}
+
+.laporan-bulanan {
+  min-width: max-content;
 }
 
 .data-table th,
@@ -1046,5 +709,61 @@ onMounted(() => {
   text-align: center;
   color: #6b7280;
   font-style: italic;
+}
+
+/* Tabel laporan bulanan: No, Uraian, Jan–Des + horizontal scroll, kolom pertama fixed */
+.laporan-bulanan .col-no {
+  width: 48px;
+  min-width: 48px;
+  text-align: center;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #f9fafb;
+}
+.laporan-bulanan .col-uraian {
+  min-width: 180px;
+  text-align: left;
+  position: sticky;
+  left: 48px;
+  z-index: 2;
+  background: #f9fafb;
+  /* Shadow di tepi kanan kolom Uraian (inset = tidak terpotong overflow) */
+  box-shadow: inset -10px 0 16px -4px rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+.laporan-bulanan tbody td.col-no {
+  text-align: center;
+  background: #fff;
+  z-index: 2;
+}
+.laporan-bulanan tbody td.col-uraian {
+  text-align: left;
+  background: #fff;
+  z-index: 2;
+  box-shadow: inset -10px 0 16px -4px rgba(0, 0, 0, 0.15);
+  border-right: 1px solid rgba(0, 0, 0, 0.08);
+}
+.laporan-bulanan thead th.col-no {
+  z-index: 3;
+}
+.laporan-bulanan thead th.col-uraian {
+  z-index: 3;
+}
+.laporan-bulanan tbody tr:hover td.col-no,
+.laporan-bulanan tbody tr:hover td.col-uraian {
+  background: #f3f4f6;
+}
+.laporan-bulanan tbody td.subheader {
+  font-weight: 600;
+  background: #f3f4f6 !important;
+}
+.laporan-bulanan .col-bulan {
+  min-width: 100px;
+  text-align: right;
+}
+.laporan-bulanan .col-r {
+  min-width: 72px;
+  text-align: right;
 }
 </style>

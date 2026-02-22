@@ -78,8 +78,16 @@ body {
   margin-top: 70px;
   display: flex;
   flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  max-width: calc(100vw - 300px);
+  overflow-x: hidden;
   background: #f8fafc;
   min-height: calc(100vh - 70px);
+}
+
+.main-content > * {
+  min-width: 0;
 }
 
 /* Scrollbar Styling */

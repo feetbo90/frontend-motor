@@ -204,6 +204,11 @@ export const formatCurrency = (amount: number) => {
   }).format(amount);
 };
 
+export const formatNumber = (amount: number) => {
+  return new Intl.NumberFormat("id-ID", {
+    style: "decimal"
+  }).format(amount);
+};
 // percentage
 export const formatPercentage = (value: number) => {
   return new Intl.NumberFormat("id-ID", {

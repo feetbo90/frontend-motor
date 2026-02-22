@@ -10,9 +10,7 @@ import ProfitLostView from '@/views/ProfitLostView.vue'
 import ResidualValueReserveView from '@/views/ResidualValueReserveView.vue'
 import ResourcesView from '@/views/ResourcesView.vue'
 import UnitOfMeasurementView from '@/views/UnitOfMeasurementView.vue'
-import RangeUnitOfMeasurementView from '@/views/RangeUnitOfMeasurementView.vue'
 import LaporanView from '@/views/LaporanView.vue'
-import LaporanRangeView from '@/views/LaporanRangeView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 // Type definition untuk route meta
@@ -80,12 +78,12 @@ const routes = [
     component: UnitOfMeasurementView,
     meta: { title: 'Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG','PUSAT'] }
   },
-  {
-    path: '/range-satuan-pengukuran',
-    name: 'range-satuan-pengukuran',
-    component: RangeUnitOfMeasurementView,
-    meta: { title: 'Range Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG','PUSAT'] }
-  },
+  // {
+  //   path: '/range-satuan-pengukuran',
+  //   name: 'range-satuan-pengukuran',
+  //   component: RangeUnitOfMeasurementView,
+  //   meta: { title: 'Range Satuan Pengukuran', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG','PUSAT'] }
+  // },
   {
     path: '/export',
     name: 'export',
@@ -104,12 +102,12 @@ const routes = [
     component: LaporanView,
     meta: { title: 'Laporan', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
   },
-  {
-    path: '/laporan-range',
-    name: 'laporan-range',
-    component: LaporanRangeView,
-    meta: { title: 'Laporan Range', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
-  }
+  // {
+  //   path: '/laporan-range',
+  //   name: 'laporan-range',
+  //   component: LaporanRangeView,
+  //   meta: { title: 'Laporan Range', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
+  // }
 ]
 
 
