@@ -18,27 +18,34 @@
       <h3>Filter Laporan</h3>
       <p class="range-info">
         <i class="fas fa-info-circle"></i>
-        Tahun, bulan, dan satuan kerja diambil dari filter di sidebar. Pastikan ketiga filter sudah dipilih agar data laporan tampil.
+        Tahun, bulan, dan satuan kerja diambil dari filter di sidebar. Pastikan ketiga filter sudah
+        dipilih agar data laporan tampil.
       </p>
     </div>
 
     <div v-if="loading" class="loading">Loading...</div>
-    <div v-if="!loading&&apiData.entityIds.length < 1" class="empty-container">
+    <div v-if="!loading && apiData.entityIds.length < 1" class="empty-container">
       <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
       <p class="empty">Data satuan pengukuran tidak ditemukan!</p>
     </div>
     <div v-else>
       <div v-for="entity in apiData.entityIds" :key="entity.id" class="entity-section">
         <h3 class="entity-title">{{ entity.name }} ({{ entity.type }})</h3>
-        
+
         <!-- Tabel laporan: No, Uraian, kolom bulan + R mengikuti visibleMonthEnds (selectedMonth atau 1–12) -->
         <div class="table-section">
           <div class="table-wrapper">
             <table class="data-table laporan-bulanan">
               <thead>
                 <tr>
-                  <th class="col-no">No.</th>
-                  <th class="col-uraian">Uraian</th>
+                  <th class="col-no" rowspan="2">No.</th>
+                  <th class="col-uraian" rowspan="2">Uraian</th>
+                  <th class="col-year-value" :colspan="visibleMonthEnds.length * 2">
+                    Tahun {{ selectedYear || "—" }}
+                  </th>
+                  <th class="col-jumlah" rowspan="2">Jumlah</th>
+                </tr>
+                <tr>
                   <template v-for="m in visibleMonthEnds" :key="m">
                     <th class="col-bulan">{{ MONTH_NAMES[m - 1] }}</th>
                     <th class="col-r">R{{ m }}</th>
@@ -51,27 +58,55 @@
                   <td class="col-uraian">{{ row.uraian }}</td>
                   <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
                     <td class="col-bulan">
-                      <template v-if="row.config && 'type' in row.config && row.config.type === 'unit_count'">
+                      <template
+                        v-if="
+                          row.config && 'type' in row.config && row.config.type === 'unit_count'
+                        "
+                      >
                         {{ getUnitCount(ratesRatiosData) }}
                       </template>
                       <template v-else-if="row.config && 'key' in row.config">
-                           {{ formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.monthField)) }}
+                        {{
+                          formatNumber(
+                            getMonthlyValueByKey(
+                              ratesRatiosData,
+                              entity.name,
+                              monthEnd,
+                              row.config.key,
+                              row.config.monthField,
+                            ),
+                          )
+                        }}
                       </template>
                       <template v-else>—</template>
                     </td>
                     <td class="col-r">
-                      {{ getRKey(row.config) != null && getRFieldForMonth(row.config, monthEnd) ? formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, getRKey(row.config)!, getRFieldForMonth(row.config, monthEnd)!)) : "—" }}
+                      {{
+                        getRKey(row.config) != null && getRFieldForMonth(row.config, monthEnd)
+                          ? formatNumber(
+                              getMonthlyValueByKey(
+                                ratesRatiosData,
+                                entity.name,
+                                monthEnd,
+                                getRKey(row.config)!,
+                                getRFieldForMonth(row.config, monthEnd)!,
+                              ),
+                            )
+                          : "—"
+                      }}
                     </td>
                   </template>
+                  <td class="col-jumlah">{{ getUraianRowRSum(entity.name, row) }}</td>
                 </tr>
                 <!-- Subheader: Tingkat Produksi -->
                 <tr>
                   <td class="col-no">No.</td>
-                  <td  class="col-uraian subheader">Tingkat Produksi</td>
+                  <td class="col-uraian subheader">Tingkat Produksi</td>
                   <template v-for="monthEnd in visibleMonthEnds" :key="'h-' + monthEnd">
                     <td class="col-bulan"></td>
                     <td class="col-r"></td>
                   </template>
+                  <td class="col-jumlah"></td>
                 </tr>
                 <tr v-for="row in TINGKAT_PRODUKSI_ROWS" :key="'tp-' + row.no">
                   <td class="col-no">{{ row.no }}</td>
@@ -79,9 +114,24 @@
                   <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
                     <td class="col-bulan">-</td>
                     <td class="col-r">
-                      {{ row.config ? formatNumber(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.rField)) : '-' }}
+                      {{
+                        row.config
+                          ? formatNumber(
+                              getMonthlyValueByKey(
+                                ratesRatiosData,
+                                entity.name,
+                                monthEnd,
+                                row.config.key,
+                                row.config.rField,
+                              ),
+                            )
+                          : "-"
+                      }}
                     </td>
                   </template>
+                  <td class="col-jumlah">{{
+                    row.config ? getTingkatRowRSum(entity.name, row) : "—"
+                  }}</td>
                 </tr>
                 <!-- Subheader: Ratio Produksi -->
                 <tr>
@@ -91,6 +141,7 @@
                     <td class="col-bulan"></td>
                     <td class="col-r"></td>
                   </template>
+                  <td class="col-jumlah"></td>
                 </tr>
                 <tr v-for="row in RATIO_PRODUKSI_ROWS" :key="'rp-' + row.no">
                   <td class="col-no">{{ row.no }}</td>
@@ -98,9 +149,26 @@
                   <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
                     <td class="col-bulan">-</td>
                     <td class="col-r">
-                      {{ row.config ? formatPercentage(Number(getMonthlyValueByKey(ratesRatiosData, entity.name, monthEnd, row.config.key, row.config.rField))) : '-' }}
+                      {{
+                        row.config
+                          ? formatPercentage(
+                              Number(
+                                getMonthlyValueByKey(
+                                  ratesRatiosData,
+                                  entity.name,
+                                  monthEnd,
+                                  row.config.key,
+                                  row.config.rField,
+                                ),
+                              ),
+                            )
+                          : "-"
+                      }}
                     </td>
                   </template>
+                  <td class="col-jumlah">{{
+                    row.config ? getRatioRowRSum(entity.name, row) : "—"
+                  }}</td>
                 </tr>
               </tbody>
             </table>
@@ -123,10 +191,7 @@ import {
   selectedMonth,
   selectedYear,
 } from "@/stores/globalState";
-import type {
-  ProductRateData,
-  ProductRatesRatiosData,
-} from "@/types/productRate";
+import type { ProductRateData, ProductRatesRatiosData } from "@/types/productRate";
 import type { RateOrRatioKey } from "@/utils/productRateMapper";
 import {
   getMonthlyValueByKey,
@@ -156,8 +221,18 @@ const loading = ref(false);
 const ratesRatiosData = ref<ProductRatesRatiosData | null>(null);
 
 const MONTH_NAMES = [
-  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
-  "Juli", "Agustus", "September", "Oktober", "November", "Desember",
+  "Januari",
+  "Februari",
+  "Maret",
+  "April",
+  "Mei",
+  "Juni",
+  "Juli",
+  "Agustus",
+  "September",
+  "Oktober",
+  "November",
+  "Desember",
 ] as const;
 
 /** Bulan yang ditampilkan di tabel: 1..selectedMonth jika ada filter bulan, otherwise 1..12 */
@@ -179,20 +254,21 @@ const rMax = computed(() => {
   return Math.min(maxMonth, 11);
 });
 
-/** Kolom untuk export Excel: No., Uraian, lalu tiap bulan (nama bulan + R1, R2, ...) */
+/** Kolom untuk export Excel: No., Uraian, lalu tiap bulan (nama bulan + R1, R2, ...), Jumlah */
 const excelColumns = computed(() => {
   const cols: string[] = ["No.", "Uraian"];
   visibleMonthEnds.value.forEach((m) => {
     cols.push(MONTH_NAMES[m - 1]);
     cols.push(`R${m}`);
   });
+  cols.push("Jumlah");
   return cols;
 });
 
 /** Nama file export Excel */
 const excelFileName = computed(
   () =>
-    `Laporan_Satuan_Pengukuran_${selectedYear.value || "All"}_${selectedMonth.value || "All"}.xlsx`
+    `Laporan_Satuan_Pengukuran_${selectedYear.value || "All"}_${selectedMonth.value || "All"}.xlsx`,
 );
 
 /** Per entity: judul + baris data. Export: judul di atas, lalu header (No., Uraian, Januari, R1...), lalu data */
@@ -231,29 +307,22 @@ const excelDataByEntity = computed(() => {
             entityName,
             monthEnd,
             row.config.key,
-            row.config.monthField
+            row.config.monthField,
           );
-          cells.push(
-            formatNumber(val)
-          );
+          cells.push(formatNumber(val));
         } else {
           cells.push("—");
         }
         const rKey = getRKey(row.config);
         const rField = getRFieldForMonth(row.config, monthEnd);
         if (rKey != null && rField) {
-          const v = getMonthlyValueByKey(
-            dataSource,
-            entityName,
-            monthEnd,
-            rKey,
-            rField
-          );
+          const v = getMonthlyValueByKey(dataSource, entityName, monthEnd, rKey, rField);
           cells.push(formatNumber(v));
         } else {
           cells.push("—");
         }
       });
+      cells.push(getUraianRowRSum(entityName, row));
       rows.push(makeRow(cells));
     });
 
@@ -271,10 +340,11 @@ const excelDataByEntity = computed(() => {
           entityName,
           monthEnd,
           row.config.key,
-          row.config.rField
+          row.config.rField,
         );
         cells.push(formatNumber(val));
       });
+      cells.push(getTingkatRowRSum(entityName, row));
       rows.push(makeRow(cells));
     });
 
@@ -292,10 +362,11 @@ const excelDataByEntity = computed(() => {
           entityName,
           monthEnd,
           row.config.key,
-          row.config.rField
+          row.config.rField,
         );
         cells.push(formatPercentage(Number(val)));
       });
+      cells.push(getRatioRowRSum(entityName, row));
       rows.push(makeRow(cells));
     });
 
@@ -328,9 +399,9 @@ async function downloadExcelWithStyle() {
     }
   };
 
-  const applyDataRowAlignment = (
-    row: { eachCell: (cb: (cell: unknown, colNumber: number) => void) => void }
-  ) => {
+  const applyDataRowAlignment = (row: {
+    eachCell: (cb: (cell: unknown, colNumber: number) => void) => void;
+  }) => {
     row.eachCell((cell: unknown, colNumber: number) => {
       const c = cell as { alignment?: { horizontal?: string } };
       if (colNumber >= 3) {
@@ -341,6 +412,8 @@ async function downloadExcelWithStyle() {
     });
   };
 
+  const yearLabel = `Tahun ${selectedYear.value || "—"}`;
+
   blocks.forEach((block) => {
     // 1. Baris judul entity (di atas header), colspan 2 (No. + Uraian)
     const titleRowValues = cols.map((_, i) => (i === 0 ? block.title : ""));
@@ -349,13 +422,41 @@ async function downloadExcelWithStyle() {
     ws.mergeCells(titleRow.number, 1, titleRow.number, 2);
     applyBorderToRow(titleRow.number);
 
-    // 2. Baris header tabel: No., Uraian, Januari, R1, ...
-    const headerRow = ws.addRow(cols);
-    headerRow.font = { bold: true };
+    // 2a. Baris header pertama: No., Uraian, Tahun YYYY (merge kolom bulan), Jumlah
+    const header1Values: (string | number)[] = ["No.", "Uraian", yearLabel];
+    for (let i = 3; i < cols.length - 1; i++) header1Values.push("");
+    header1Values.push("Jumlah");
+    const headerRow1 = ws.addRow(header1Values);
+    headerRow1.font = { bold: true };
+    if (cols.length > 4) {
+      ws.mergeCells(headerRow1.number, 3, headerRow1.number, cols.length - 1);
+    }
+    applyBorderToRow(headerRow1.number);
+    ws.getCell(headerRow1.number, 1).alignment = { horizontal: "left" };
+    ws.getCell(headerRow1.number, 2).alignment = { horizontal: "left" };
+    ws.getCell(headerRow1.number, 3).alignment = { horizontal: "center" };
+    ws.getCell(headerRow1.number, cols.length).alignment = { horizontal: "center" };
+
+    // 2b. Baris header kedua: kosong di No./Uraian/Jumlah, lalu Januari, R1, ...
+    const header2Values: (string | number)[] = ["", ""];
+    for (let i = 2; i < cols.length - 1; i++) header2Values.push(cols[i]);
+    header2Values.push("");
+    const headerRow2 = ws.addRow(header2Values);
+    headerRow2.font = { bold: true };
     cols.forEach((_, colIndex) => {
-      const cell = ws.getCell(headerRow.number, colIndex + 1);
+      const cell = ws.getCell(headerRow2.number, colIndex + 1);
       cell.alignment = { horizontal: colIndex >= 2 ? "right" : "left" };
       cell.border = thinBorder;
+    });
+
+    // Merge vertikal (rowspan 2): No., Uraian, dan Jumlah
+    ws.mergeCells(headerRow1.number, 1, headerRow2.number, 1);
+    ws.mergeCells(headerRow1.number, 2, headerRow2.number, 2);
+    ws.mergeCells(headerRow1.number, cols.length, headerRow2.number, cols.length);
+    [1, 2, cols.length].forEach((col) => {
+      const cell = ws.getCell(headerRow1.number, col);
+      const align = { ...(cell.alignment || {}), vertical: "middle" as const };
+      cell.alignment = align;
     });
 
     // 3. Baris data (subheader Tingkat Produksi & Ratio Produksi: colspan 2 + bold)
@@ -394,36 +495,242 @@ async function downloadExcelWithStyle() {
 }
 
 type RowConfig =
-  | { key: RateOrRatioKey; monthField: string;  rFieldBase?: string }
-  | { type: 'unit_count'; rKey?: RateOrRatioKey; rFieldBase?: string };
+  | { key: RateOrRatioKey; monthField: string; rFieldBase?: string }
+  | { type: "unit_count"; rKey?: RateOrRatioKey; rFieldBase?: string };
 
 /** Field untuk kolom R(monthEnd): rFieldBase + min(monthEnd, rMax) */
 function getRFieldForMonth(config: RowConfig | undefined, monthEnd: number): string | undefined {
-  if (!config || !('rFieldBase' in config) || !config.rFieldBase) return undefined;
+  if (!config || !("rFieldBase" in config) || !config.rFieldBase) return undefined;
   return config.rFieldBase + String(Math.min(monthEnd, rMax.value));
+}
+
+/** Jumlah nilai kolom bulan + kolom R untuk baris Uraian */
+function getUraianRowRSum(
+  entityName: string,
+  row: { config?: RowConfig },
+): string {
+  const data = ratesRatiosData.value;
+  if (!data) return "—";
+  if (!row.config) return "—";
+  let sum = 0;
+  for (const monthEnd of visibleMonthEnds.value) {
+    // Nilai kolom bulan (Januari, Februari, ...)
+    if ("type" in row.config && row.config.type === "unit_count") {
+      sum += getUnitCount(data);
+    } else if ("key" in row.config) {
+      const vMonth = getMonthlyValueByKey(
+        data,
+        entityName,
+        monthEnd,
+        row.config.key,
+        row.config.monthField,
+      );
+      if (typeof vMonth === "number" && !Number.isNaN(vMonth)) sum += vMonth;
+    }
+    // Nilai kolom R (R1, R2, ...)
+    const rKey = getRKey(row.config);
+    const rField = getRFieldForMonth(row.config, monthEnd);
+    if (rKey != null && rField) {
+      const vR = getMonthlyValueByKey(
+        data,
+        entityName,
+        monthEnd,
+        rKey,
+        rField,
+      );
+      if (typeof vR === "number" && !Number.isNaN(vR)) sum += vR;
+    }
+  }
+  return formatNumber(sum);
+}
+
+/** Jumlah nilai R untuk baris Tingkat Produksi */
+function getTingkatRowRSum(
+  entityName: string,
+  row: { config: TingkatProduksiConfig },
+): string {
+  const data = ratesRatiosData.value;
+  if (!data) return "—";
+  let sum = 0;
+  for (const monthEnd of visibleMonthEnds.value) {
+    const v = getMonthlyValueByKey(
+      data,
+      entityName,
+      monthEnd,
+      row.config.key,
+      row.config.rField,
+    );
+    if (typeof v === "number" && !Number.isNaN(v)) sum += v;
+  }
+  return formatNumber(sum);
+}
+
+/** Jumlah nilai R untuk baris Ratio Produksi */
+function getRatioRowRSum(
+  entityName: string,
+  row: { config: TingkatProduksiConfig },
+): string {
+  const data = ratesRatiosData.value;
+  if (!data) return "—";
+  let sum = 0;
+  for (const monthEnd of visibleMonthEnds.value) {
+    const v = getMonthlyValueByKey(
+      data,
+      entityName,
+      monthEnd,
+      row.config.key,
+      row.config.rField,
+    );
+    if (typeof v === "number" && !Number.isNaN(v)) sum += Number(v);
+  }
+  return formatNumber(sum);
 }
 
 /** 19 baris uraian sesuai gambar laporan. Kolom R1–R11 pakai average_*_r1 … average_*_r11. */
 const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
-  { no: 1, uraian: "Pembiayaan", config: { key: "rate_satu", monthField: "pembiayaan_bulan_ini", rFieldBase: "average_pembiayaan_r" } },
-  { no: 2, uraian: "Penjualan", config: { key: "rate_dua", monthField: "penjualan_bulan_ini", rFieldBase: "average_penjualan_r" } },
-  { no: 3, uraian: "Unit Penjualan", config: { key: "rate_dua", monthField: "unit_penjualan_bulan_ini", rFieldBase: "average_unit_penjualan_r" } },
-  { no: 4, uraian: "Pendapatan Mark Up", config: { key: "rate_empat", monthField: "markup_bulan_ini", rFieldBase: "average_markup_r" } },
+  {
+    no: 1,
+    uraian: "Pembiayaan",
+    config: {
+      key: "rate_satu",
+      monthField: "pembiayaan_bulan_ini",
+      rFieldBase: "average_pembiayaan_r",
+    },
+  },
+  {
+    no: 2,
+    uraian: "Penjualan",
+    config: {
+      key: "rate_dua",
+      monthField: "penjualan_bulan_ini",
+      rFieldBase: "average_penjualan_r",
+    },
+  },
+  {
+    no: 3,
+    uraian: "Unit Penjualan",
+    config: {
+      key: "rate_dua",
+      monthField: "unit_penjualan_bulan_ini",
+      rFieldBase: "average_unit_penjualan_r",
+    },
+  },
+  {
+    no: 4,
+    uraian: "Pendapatan Mark Up",
+    config: { key: "rate_empat", monthField: "markup_bulan_ini", rFieldBase: "average_markup_r" },
+  },
   { no: 5, uraian: "Pendapatan Adminitrasi" },
-  { no: 6, uraian: "Pendapatan Bunga", config: { key: "ratio_empat", monthField: "realisasi_bunga_bulan_ini", rFieldBase: "average_realisasi_bunga_r" } },
+  {
+    no: 6,
+    uraian: "Pendapatan Bunga",
+    config: {
+      key: "ratio_empat",
+      monthField: "realisasi_bunga_bulan_ini",
+      rFieldBase: "average_realisasi_bunga_r",
+    },
+  },
   { no: 7, uraian: "Pendapatan Denda" },
-  { no: 8, uraian: "Pendapatan Lain lain", config: { key: "ratio_tujuh", monthField: "jumlah_pendapatan_lain_bulan_ini", rFieldBase: "average_jumlah_pendapatan_lain_r" } },
-  { no: 9, uraian: "Jumlah Pendapatan", config: { key: "ratio_tujuh", monthField: "jumlah_pendapatan_bulan_ini", rFieldBase: "average_jumlah_pendapatan_r" } },
-  { no: 10, uraian: "Karyawan", config: { key: "rate_lima", monthField: "karyawan_bulan_ini", rFieldBase: "average_karyawan_r" } },
-  { no: 11, uraian: "Gaji Karyawan", config: { key: "rate_lima", monthField: "gaji_bulan_ini", rFieldBase: "average_gaji_r" } },
-  { no: 12, uraian: "Biaya Operasional", config: { key: "rate_enam", monthField: "operasional_bulan_ini", rFieldBase: "average_operasional_r" } },
-  { no: 13, uraian: "Penyusutan Inventaris", config: { key: "rate_delapan", monthField: "penyusutan_bulan_ini", rFieldBase: "average_penyusutan_r" } },
-  { no: 14, uraian: "Satuan Kerja", config: { type: "unit_count", rKey: "rate_delapan", rFieldBase: "average_satuan_kerja_r" } },
-  { no: 15, uraian: "Cad. PH/Peny Stock", config: { key: "rate_sembilan", monthField: "beban_gabungan_bulan_ini", rFieldBase: "average_beban_gabungan_r" } },
-  { no: 16, uraian: "Laba/Rugi", config: { key: "rate_sepuluh", monthField: "kumulatif_bulan_ini", rFieldBase: "average_kumulatif_r" } },
-  { no: 17, uraian: "Realisasi Pokok", config: { key: "ratio_satu", monthField: "realisasi_pokok_bulan_ini", rFieldBase: "average_realisasi_pokok_r" } },
-  { no: 18, uraian: "Kenaikan/T Macet", config: { key: "ratio_dua", monthField: "macet_lama_bulan_ini", rFieldBase: "average_macet_lama_r" } },
-  { no: 19, uraian: "Saldo Pokok Piutang Akhir", config: { key: "ratio_empat", monthField: "saldo_akhir_bulan_ini", rFieldBase: "average_saldo_akhir_r" } },
+  {
+    no: 8,
+    uraian: "Pendapatan Lain lain",
+    config: {
+      key: "ratio_tujuh",
+      monthField: "jumlah_pendapatan_lain_bulan_ini",
+      rFieldBase: "average_jumlah_pendapatan_lain_r",
+    },
+  },
+  {
+    no: 9,
+    uraian: "Jumlah Pendapatan",
+    config: {
+      key: "ratio_tujuh",
+      monthField: "jumlah_pendapatan_bulan_ini",
+      rFieldBase: "average_jumlah_pendapatan_r",
+    },
+  },
+  {
+    no: 10,
+    uraian: "Karyawan",
+    config: {
+      key: "rate_lima",
+      monthField: "karyawan_bulan_ini",
+      rFieldBase: "average_karyawan_r",
+    },
+  },
+  {
+    no: 11,
+    uraian: "Gaji Karyawan",
+    config: { key: "rate_lima", monthField: "gaji_bulan_ini", rFieldBase: "average_gaji_r" },
+  },
+  {
+    no: 12,
+    uraian: "Biaya Operasional",
+    config: {
+      key: "rate_enam",
+      monthField: "operasional_bulan_ini",
+      rFieldBase: "average_operasional_r",
+    },
+  },
+  {
+    no: 13,
+    uraian: "Penyusutan Inventaris",
+    config: {
+      key: "rate_delapan",
+      monthField: "penyusutan_bulan_ini",
+      rFieldBase: "average_penyusutan_r",
+    },
+  },
+  {
+    no: 14,
+    uraian: "Satuan Kerja",
+    config: { type: "unit_count", rKey: "rate_delapan", rFieldBase: "average_satuan_kerja_r" },
+  },
+  {
+    no: 15,
+    uraian: "Cad. PH/Peny Stock",
+    config: {
+      key: "rate_sembilan",
+      monthField: "beban_gabungan_bulan_ini",
+      rFieldBase: "average_beban_gabungan_r",
+    },
+  },
+  {
+    no: 16,
+    uraian: "Laba/Rugi",
+    config: {
+      key: "rate_sepuluh",
+      monthField: "kumulatif_bulan_ini",
+      rFieldBase: "average_kumulatif_r",
+    },
+  },
+  {
+    no: 17,
+    uraian: "Realisasi Pokok",
+    config: {
+      key: "ratio_satu",
+      monthField: "realisasi_pokok_bulan_ini",
+      rFieldBase: "average_realisasi_pokok_r",
+    },
+  },
+  {
+    no: 18,
+    uraian: "Kenaikan/T Macet",
+    config: {
+      key: "ratio_dua",
+      monthField: "macet_lama_bulan_ini",
+      rFieldBase: "average_macet_lama_r",
+    },
+  },
+  {
+    no: 19,
+    uraian: "Saldo Pokok Piutang Akhir",
+    config: {
+      key: "ratio_empat",
+      monthField: "saldo_akhir_bulan_ini",
+      rFieldBase: "average_saldo_akhir_r",
+    },
+  },
 ];
 
 /** Config Tingkat Produksi: hanya isi kolom R1–R12 (key + rField) */
@@ -431,40 +738,128 @@ type TingkatProduksiConfig = { key: RateOrRatioKey; rField: string };
 
 /** 11 baris Tingkat Produksi sesuai gambar laporan */
 const TINGKAT_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksiConfig }[] = [
-  { no: 1, uraian: "Rata-rata Pembiayaan / Unit Penjualan", config: { key: "rate_satu", rField: "pembiayaan_per_unit_penjualan" } },
-  { no: 2, uraian: "Rata-rata Penjualan / Unit Penjualan", config: { key: "rate_dua", rField: "penjualan_per_unit_penjualan" } },
-  { no: 3, uraian: "Rata-rata Penjualan / Karyawan", config: { key: "rate_tiga", rField: "penjualan_per_karyawan" } },
-  { no: 4, uraian: "Rata-rata Mark up / Karyawan", config: { key: "rate_empat", rField: "markup_per_karyawan" } },
-  { no: 5, uraian: "Rata-rata Gaji / Karyawan", config: { key: "rate_lima", rField: "gaji_per_karyawan" } },
-  { no: 6, uraian: "Rata-rata Biaya Operasional / Karyawan", config: { key: "rate_enam", rField: "operasional_per_karyawan" } },
-  { no: 7, uraian: "Rata-rata Penyusutan Inventaris / Karyawan", config: { key: "rate_tujuh", rField: "penyusutan_per_karyawan" } },
-  { no: 8, uraian: "Rata-rata Penyusutan Inventaris / Satuan Kerja", config: { key: "rate_delapan", rField: "penyusutan_per_satuan_kerja" } },
-  { no: 9, uraian: "Rata-rata Cad PH dan Peny Stock / Satuan Kerja", config: { key: "rate_sembilan", rField: "beban_gabungan_per_satuan_kerja" } },
-  { no: 10, uraian: "Rata-rata Laba/rugi nett / Satuan Kerja", config: { key: "rate_sepuluh", rField: "kumulatif_per_satuan_kerja" } },
-  { no: 11, uraian: "Rata-rata Laba/rugi nett / Karyawan", config: { key: "rate_sebelas", rField: "kumulatif_per_karyawan" } },
+  {
+    no: 1,
+    uraian: "Rata-rata Pembiayaan / Unit Penjualan",
+    config: { key: "rate_satu", rField: "pembiayaan_per_unit_penjualan" },
+  },
+  {
+    no: 2,
+    uraian: "Rata-rata Penjualan / Unit Penjualan",
+    config: { key: "rate_dua", rField: "penjualan_per_unit_penjualan" },
+  },
+  {
+    no: 3,
+    uraian: "Rata-rata Penjualan / Karyawan",
+    config: { key: "rate_tiga", rField: "penjualan_per_karyawan" },
+  },
+  {
+    no: 4,
+    uraian: "Rata-rata Mark up / Karyawan",
+    config: { key: "rate_empat", rField: "markup_per_karyawan" },
+  },
+  {
+    no: 5,
+    uraian: "Rata-rata Gaji / Karyawan",
+    config: { key: "rate_lima", rField: "gaji_per_karyawan" },
+  },
+  {
+    no: 6,
+    uraian: "Rata-rata Biaya Operasional / Karyawan",
+    config: { key: "rate_enam", rField: "operasional_per_karyawan" },
+  },
+  {
+    no: 7,
+    uraian: "Rata-rata Penyusutan Inventaris / Karyawan",
+    config: { key: "rate_tujuh", rField: "penyusutan_per_karyawan" },
+  },
+  {
+    no: 8,
+    uraian: "Rata-rata Penyusutan Inventaris / Satuan Kerja",
+    config: { key: "rate_delapan", rField: "penyusutan_per_satuan_kerja" },
+  },
+  {
+    no: 9,
+    uraian: "Rata-rata Cad PH dan Peny Stock / Satuan Kerja",
+    config: { key: "rate_sembilan", rField: "beban_gabungan_per_satuan_kerja" },
+  },
+  {
+    no: 10,
+    uraian: "Rata-rata Laba/rugi nett / Satuan Kerja",
+    config: { key: "rate_sepuluh", rField: "kumulatif_per_satuan_kerja" },
+  },
+  {
+    no: 11,
+    uraian: "Rata-rata Laba/rugi nett / Karyawan",
+    config: { key: "rate_sebelas", rField: "kumulatif_per_karyawan" },
+  },
 ];
 
 /** 11 baris Ratio Produksi (hanya kolom R1–R12, nilai sebagai persentase) */
 const RATIO_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksiConfig }[] = [
-  { no: 1, uraian: "Ratio Pembiayaan / Realisasi Pokok", config: { key: "ratio_satu", rField: "pembiayaan_per_realisasi_pokok" } },
-  { no: 2, uraian: "Ratio Kn /T macet / Pembiayaan", config: { key: "ratio_dua", rField: "rasio_kemacetan_pembiayaan" } },
-  { no: 3, uraian: "Ratio Mark up / Pembiayaan", config: { key: "ratio_tiga", rField: "rasio_markup" } },
-  { no: 4, uraian: "Ratio Pendapatan Bunga / So. Piutang Pokok Akhir", config: { key: "ratio_empat", rField: "rasio_realisasi_bunga_per_total_piutang" } },
-  { no: 5, uraian: "Ratio Mark up / Jumlah Pendapatan", config: { key: "ratio_lima", rField: "rasio_markup_per_jumlah_pendapatan" } },
-  { no: 6, uraian: "Ratio Pendapatan Bunga / Jumlah Pendapatan", config: { key: "ratio_enam", rField: "rasio_pendapatan_bunga_per_jumlah_pendapatan" } },
-  { no: 7, uraian: "Ratio Pendapatan Lainnya / Jumlah Pendapatan", config: { key: "ratio_tujuh", rField: "rasio_pendapatan_lainnya_per_jumlah_pendapatan" } },
-  { no: 8, uraian: "Ratio Gaji / Pendapatan", config: { key: "ratio_delapan", rField: "rasio_gaji_per_pendapatan" } },
-  { no: 9, uraian: "Ratio Biaya Operasional / Pendapatan", config: { key: "ratio_sembilan", rField: "rasio_beban_operasional_per_pendapatan" } },
-  { no: 10, uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan", config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_aktiva_per_jumlah_pendapatan" } },
-  { no: 11, uraian: "Ratio Biaya Cad PH dan Peny Stock / Pendapatan", config: { key: "ratio_sebelas", rField: "rasio_cadangan_piutang_per_jumlah_pendapatan" } },
+  {
+    no: 1,
+    uraian: "Ratio Pembiayaan / Realisasi Pokok",
+    config: { key: "ratio_satu", rField: "pembiayaan_per_realisasi_pokok" },
+  },
+  {
+    no: 2,
+    uraian: "Ratio Kn /T macet / Pembiayaan",
+    config: { key: "ratio_dua", rField: "rasio_kemacetan_pembiayaan" },
+  },
+  {
+    no: 3,
+    uraian: "Ratio Mark up / Pembiayaan",
+    config: { key: "ratio_tiga", rField: "rasio_markup" },
+  },
+  {
+    no: 4,
+    uraian: "Ratio Pendapatan Bunga / So. Piutang Pokok Akhir",
+    config: { key: "ratio_empat", rField: "rasio_realisasi_bunga_per_total_piutang" },
+  },
+  {
+    no: 5,
+    uraian: "Ratio Mark up / Jumlah Pendapatan",
+    config: { key: "ratio_lima", rField: "rasio_markup_per_jumlah_pendapatan" },
+  },
+  {
+    no: 6,
+    uraian: "Ratio Pendapatan Bunga / Jumlah Pendapatan",
+    config: { key: "ratio_enam", rField: "rasio_pendapatan_bunga_per_jumlah_pendapatan" },
+  },
+  {
+    no: 7,
+    uraian: "Ratio Pendapatan Lainnya / Jumlah Pendapatan",
+    config: { key: "ratio_tujuh", rField: "rasio_pendapatan_lainnya_per_jumlah_pendapatan" },
+  },
+  {
+    no: 8,
+    uraian: "Ratio Gaji / Pendapatan",
+    config: { key: "ratio_delapan", rField: "rasio_gaji_per_pendapatan" },
+  },
+  {
+    no: 9,
+    uraian: "Ratio Biaya Operasional / Pendapatan",
+    config: { key: "ratio_sembilan", rField: "rasio_beban_operasional_per_pendapatan" },
+  },
+  {
+    no: 10,
+    uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan",
+    config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_aktiva_per_jumlah_pendapatan" },
+  },
+  {
+    no: 11,
+    uraian: "Ratio Biaya Cad PH dan Peny Stock / Pendapatan",
+    config: { key: "ratio_sebelas", rField: "rasio_cadangan_piutang_per_jumlah_pendapatan" },
+  },
 ];
 
 /** Key untuk kolom R: config.key atau config.rKey (unit_count) */
 function getRKey(config: RowConfig | undefined): RateOrRatioKey | undefined {
   if (!config) return undefined;
-  if ('rFieldBase' in config && config.rFieldBase) {
-    if ('key' in config) return config.key;
-    if ('rKey' in config) return config.rKey;
+  if ("rFieldBase" in config && config.rFieldBase) {
+    if ("key" in config) return config.key;
+    if ("rKey" in config) return config.rKey;
   }
   return undefined;
 }
@@ -479,7 +874,7 @@ const fetchRateList = async (year: number | undefined, month: number | undefined
       branch_id: branchId,
     });
     if (response.success) {
-      console.log(mapRatesRatiosToProductRateData(response),'xxx')
+      console.log(mapRatesRatiosToProductRateData(response), "xxx");
       apiData.value = mapRatesRatiosToProductRateData(response);
       ratesRatiosData.value = response;
     } else {
@@ -749,6 +1144,10 @@ onMounted(() => {
 }
 .laporan-bulanan thead th.col-uraian {
   z-index: 3;
+  text-align: center;
+}
+.laporan-bulanan .col-year-value {
+  text-align: center;
 }
 .laporan-bulanan tbody tr:hover td.col-no,
 .laporan-bulanan tbody tr:hover td.col-uraian {
@@ -764,6 +1163,10 @@ onMounted(() => {
 }
 .laporan-bulanan .col-r {
   min-width: 72px;
+  text-align: right;
+}
+.laporan-bulanan .col-jumlah {
+  min-width: 90px;
   text-align: right;
 }
 </style>
