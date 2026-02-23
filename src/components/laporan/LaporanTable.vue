@@ -504,7 +504,7 @@ function getRFieldForMonth(config: RowConfig | undefined, monthEnd: number): str
   return config.rFieldBase + String(Math.min(monthEnd, rMax.value));
 }
 
-/** Jumlah nilai kolom bulan + kolom R untuk baris Uraian */
+/** Jumlah nilai kolom bulan (Januari, Februari, ...) untuk baris Uraian */
 function getUraianRowRSum(
   entityName: string,
   row: { config?: RowConfig },
@@ -514,7 +514,6 @@ function getUraianRowRSum(
   if (!row.config) return "—";
   let sum = 0;
   for (const monthEnd of visibleMonthEnds.value) {
-    // Nilai kolom bulan (Januari, Februari, ...)
     if ("type" in row.config && row.config.type === "unit_count") {
       sum += getUnitCount(data);
     } else if ("key" in row.config) {
@@ -526,19 +525,6 @@ function getUraianRowRSum(
         row.config.monthField,
       );
       if (typeof vMonth === "number" && !Number.isNaN(vMonth)) sum += vMonth;
-    }
-    // Nilai kolom R (R1, R2, ...)
-    const rKey = getRKey(row.config);
-    const rField = getRFieldForMonth(row.config, monthEnd);
-    if (rKey != null && rField) {
-      const vR = getMonthlyValueByKey(
-        data,
-        entityName,
-        monthEnd,
-        rKey,
-        rField,
-      );
-      if (typeof vR === "number" && !Number.isNaN(vR)) sum += vR;
     }
   }
   return formatNumber(sum);
