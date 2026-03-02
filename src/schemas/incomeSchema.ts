@@ -8,6 +8,7 @@ export const incomeSchema = z.object({
   diskonBunga: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Diskon Bunga tidak boleh negatif" }),
   denda: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Denda tidak boleh negatif" }),
   administrasi: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Administrasi tidak boleh negatif" }),
+  pendapatanLain: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Pendapatan Lain tidak boleh negatif" }),
   jumlahPendapatan: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Jumlah Pendapatan tidak boleh negatif" }),
 })
 

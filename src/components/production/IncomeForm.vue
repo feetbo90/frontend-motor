@@ -180,6 +180,26 @@
                         placeholder="0"
                         :error="errors.administrasi"
                         format="currency"
+                        @keydown.enter.prevent="focusNextInput('pendapatan-lain')"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="pendapatan-lain">
+                        <i class="fas fa-wallet icon"></i>
+                        Pendapatan Lain
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="pendapatan-lain"
+                        label=""
+                        type="number"
+                        v-model="formData.pendapatan_lain"
+                        placeholder="0"
+                        :error="errors.pendapatanLain"
+                        format="currency"
                         @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
@@ -327,6 +347,7 @@ const defaultSalesData: IncomeFrm = {
   diskon_bunga: 0,
   denda: 0,
   administrasi: 0,
+  pendapatan_lain: 0,
   jumlah_pendapatan: 0,
 };
 
@@ -338,6 +359,7 @@ const errors = ref<Record<keyof IncomeSchema, string>>({
   diskonBunga: "",
   denda: "",
   administrasi: "",
+  pendapatanLain: "",
   jumlahPendapatan: "",
 });
 // Auto-calculate Markup Jumlah when Markup Kontan or Markup Kredit changes
@@ -359,16 +381,19 @@ watch(
     () => formData.value.diskon_bunga,
     () => formData.value.denda,
     () => formData.value.administrasi,
+    () => formData.value.pendapatan_lain,
   ],
-  ([markupJumlah, realisasiBunga, diskonBunga, denda, administrasi]) => {
+  ([markupJumlah, realisasiBunga, diskonBunga, denda, administrasi, pendapatanLain]) => {
     const markup = safeNumber(markupJumlah);
     const bunga = safeNumber(realisasiBunga);
     const diskon = safeNumber(diskonBunga);
     const dendaAmount = safeNumber(denda);
     const admin = safeNumber(administrasi);
+    const otherIncome = safeNumber(pendapatanLain);
 
-    // Formula: markup_jumlah + realisasi_bunga - diskon_bunga + denda + administrasi
-    formData.value.jumlah_pendapatan = markup + bunga - diskon + dendaAmount + admin;
+    // Formula: markup_jumlah + realisasi_bunga - diskon_bunga + denda + administrasi + pendapatan_lain
+    formData.value.jumlah_pendapatan =
+      markup + bunga - diskon + dendaAmount + admin + otherIncome;
   },
   { immediate: false },
 );
@@ -416,6 +441,7 @@ function validateForm(): boolean {
     markupJumlah: safeNumber(formData.value.markup_jumlah),
     realisasiBunga: safeNumber(formData.value.realisasi_bunga),
     diskonBunga: safeNumber(formData.value.diskon_bunga),
+    pendapatanLain: safeNumber(formData.value.pendapatan_lain),
     administrasi: safeNumber(formData.value.administrasi),
     denda: safeNumber(formData.value.denda),
     jumlahPendapatan: safeNumber(formData.value.jumlah_pendapatan),
@@ -494,6 +520,7 @@ function editRow(id: number): void {
     diskon_bunga: Number(row.diskon_bunga),
     denda: Number(row.denda),
     administrasi: Number(row.administrasi),
+     pendapatan_lain: Number(row.pendapatan_lain),
     jumlah_pendapatan: Number(row.jumlah_pendapatan),
     year: row.year,
     month: row.month,

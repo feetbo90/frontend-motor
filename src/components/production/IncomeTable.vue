@@ -143,6 +143,12 @@
                         formatCurrency(safeNumber(item.row.denda))
                       }}</span>
                     </span>
+                    <span class="income-item">
+                      <span class="income-label">Pend. Lain:</span>
+                      <span class="income-value">{{
+                        formatCurrency(safeNumber(item.row.pendapatan_lain))
+                      }}</span>
+                    </span>
                     <span class="income-item negative">
                       <span class="income-label">Diskon:</span>
                       <span class="income-value"

@@ -10,6 +10,7 @@ export interface IncomePayload {
   diskon_bunga: number;
   denda: number;
   administrasi: number;
+  pendapatan_lain: number;
   jumlah_pendapatan: number;
 }
 
@@ -27,6 +28,7 @@ export interface IncomeData {
   diskon_bunga: string;
   denda: string;
   administrasi: string;
+  pendapatan_lain: string;
   jumlah_pendapatan: string;
   created_at: Date;
   updated_at: Date;

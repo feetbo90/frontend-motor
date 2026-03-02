@@ -50,6 +50,7 @@ export const produksiData = ref({
     diskon_bunga: 0,
     denda: 0,
     administrasi: 0,
+    pendapatan_lain: 0,
     jumlah_pendapatan: 0,
     year: currentDate.year,
     month: currentDate.month,
