@@ -23,8 +23,8 @@
       </p>
     </div>
 
-    <div v-if="loading" class="loading">Loading...</div>
-    <div v-if="!loading && apiData.entityIds.length < 1" class="empty-container">
+    <div v-if="showLoading" class="loading">Loading...</div>
+    <div v-else-if="apiData.entityIds.length < 1" class="empty-container">
       <img src="/images/empty.png" alt="Empty State" width="400" height="400" />
       <p class="empty">Data satuan pengukuran tidak ditemukan!</p>
     </div>
@@ -129,9 +129,9 @@
                       }}
                     </td>
                   </template>
-                  <td class="col-jumlah">{{
-                    row.config ? getTingkatRowRSum(entity.name, row) : "—"
-                  }}</td>
+                  <td class="col-jumlah">
+                    {{ row.config ? getTingkatRowRSum(entity.name, row) : "—" }}
+                  </td>
                 </tr>
                 <!-- Subheader: Ratio Produksi -->
                 <tr>
@@ -147,7 +147,6 @@
                   <td class="col-no">{{ row.no }}</td>
                   <td class="col-uraian">{{ row.uraian }}</td>
                   <template v-for="monthEnd in visibleMonthEnds" :key="monthEnd">
-                    <td class="col-bulan">-</td>
                     <td class="col-r">
                       {{
                         row.config
@@ -165,10 +164,11 @@
                           : "-"
                       }}
                     </td>
+                    <td class="col-bulan">-</td>
                   </template>
-                  <td class="col-jumlah">{{
-                    row.config ? getRatioRowRSum(entity.name, row) : "—"
-                  }}</td>
+                  <td class="col-jumlah">
+                    {{ row.config ? getRatioRowRSum(entity.name, row) : "—" }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -216,6 +216,9 @@ const apiData = ref<ProductRateData>({
 });
 
 const loading = ref(false);
+
+// Hanya tampilkan loading ketika belum ada data sama sekali
+const showLoading = computed(() => loading.value && apiData.value.entityIds.length < 1);
 
 /** Raw response rates-ratios untuk tabel bulanan (pembiayaan_bulan_ini dll per month_end) */
 const ratesRatiosData = ref<ProductRatesRatiosData | null>(null);
@@ -356,7 +359,6 @@ const excelDataByEntity = computed(() => {
     RATIO_PRODUKSI_ROWS.forEach((row) => {
       const cells: (string | number)[] = [row.no, row.uraian];
       months.forEach((monthEnd) => {
-        cells.push("-");
         const val = getMonthlyValueByKey(
           dataSource,
           entityName,
@@ -364,7 +366,9 @@ const excelDataByEntity = computed(() => {
           row.config.key,
           row.config.rField,
         );
+        // Persentase di kolom bulan, kolom R diisi tanda "-"
         cells.push(formatPercentage(Number(val)));
+        cells.push("-");
       });
       cells.push(getRatioRowRSum(entityName, row));
       rows.push(makeRow(cells));
@@ -505,10 +509,7 @@ function getRFieldForMonth(config: RowConfig | undefined, monthEnd: number): str
 }
 
 /** Jumlah nilai kolom bulan (Januari, Februari, ...) untuk baris Uraian */
-function getUraianRowRSum(
-  entityName: string,
-  row: { config?: RowConfig },
-): string {
+function getUraianRowRSum(entityName: string, row: { config?: RowConfig }): string {
   const data = ratesRatiosData.value;
   if (!data) return "—";
   if (!row.config) return "—";
@@ -531,42 +532,24 @@ function getUraianRowRSum(
 }
 
 /** Jumlah nilai R untuk baris Tingkat Produksi */
-function getTingkatRowRSum(
-  entityName: string,
-  row: { config: TingkatProduksiConfig },
-): string {
+function getTingkatRowRSum(entityName: string, row: { config: TingkatProduksiConfig }): string {
   const data = ratesRatiosData.value;
   if (!data) return "—";
   let sum = 0;
   for (const monthEnd of visibleMonthEnds.value) {
-    const v = getMonthlyValueByKey(
-      data,
-      entityName,
-      monthEnd,
-      row.config.key,
-      row.config.rField,
-    );
+    const v = getMonthlyValueByKey(data, entityName, monthEnd, row.config.key, row.config.rField);
     if (typeof v === "number" && !Number.isNaN(v)) sum += v;
   }
   return formatNumber(sum);
 }
 
 /** Jumlah nilai R untuk baris Ratio Produksi */
-function getRatioRowRSum(
-  entityName: string,
-  row: { config: TingkatProduksiConfig },
-): string {
+function getRatioRowRSum(entityName: string, row: { config: TingkatProduksiConfig }): string {
   const data = ratesRatiosData.value;
   if (!data) return "—";
   let sum = 0;
   for (const monthEnd of visibleMonthEnds.value) {
-    const v = getMonthlyValueByKey(
-      data,
-      entityName,
-      monthEnd,
-      row.config.key,
-      row.config.rField,
-    );
+    const v = getMonthlyValueByKey(data, entityName, monthEnd, row.config.key, row.config.rField);
     if (typeof v === "number" && !Number.isNaN(v)) sum += Number(v);
   }
   return formatNumber(sum);
@@ -606,7 +589,15 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
     uraian: "Pendapatan Mark Up",
     config: { key: "rate_empat", monthField: "markup_bulan_ini", rFieldBase: "average_markup_r" },
   },
-  { no: 5, uraian: "Pendapatan Adminitrasi" },
+  {
+    no: 5,
+    uraian: "Pendapatan Adminitrasi",
+    config: {
+      key: "rate_satu",
+      monthField: "pendapatan_administrasi",
+      rFieldBase: "average_pendapatan_administrasi_r",
+    },
+  },
   {
     no: 6,
     uraian: "Pendapatan Bunga",
@@ -616,7 +607,15 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
       rFieldBase: "average_realisasi_bunga_r",
     },
   },
-  { no: 7, uraian: "Pendapatan Denda" },
+  {
+    no: 7,
+    uraian: "Pendapatan Denda",
+    config: {
+      key: "rate_satu",
+      monthField: "pendapatan_denda",
+      rFieldBase: "average_pendapatan_denda_r",
+    },
+  },
   {
     no: 8,
     uraian: "Pendapatan Lain lain",
@@ -641,7 +640,6 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
     config: {
       key: "rate_lima",
       monthField: "karyawan_bulan_ini",
-      rFieldBase: "average_karyawan_r",
     },
   },
   {
@@ -670,7 +668,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 14,
     uraian: "Satuan Kerja",
-    config: { type: "unit_count", rKey: "rate_delapan", rFieldBase: "average_satuan_kerja_r" },
+    config: { key: "rate_delapan", monthField: "total_satuan_kerja" },
   },
   {
     no: 15,
