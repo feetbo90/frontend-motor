@@ -563,7 +563,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
     config: {
       key: "rate_satu",
       monthField: "pembiayaan_bulan_ini",
-      rFieldBase: "average_pembiayaan_r",
+      rFieldBase: "average_unit_pembiayaan_r",
     },
   },
   {
