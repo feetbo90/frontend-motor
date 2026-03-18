@@ -824,7 +824,7 @@ const RATIO_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksi
   {
     no: 9,
     uraian: "Ratio Biaya Operasional / Pendapatan",
-    config: { key: "ratio_sembilan", rField: "rasio_beban_operasional_per_pendapatan" },
+    config: { key: "ratio_sembilan", rField: "rasio_operasional_per_pendapatan" },
   },
   {
     no: 10,
