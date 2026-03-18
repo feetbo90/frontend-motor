@@ -39,7 +39,7 @@
                   :allowEmpty="true"
                 />
               </div>
-              
+
               <!-- Filter Bulan - Sembunyikan di halaman range-satuan-pengukuran -->
               <div v-if="!isRangeSatuanPengukuran" class="filter-group">
                 <FormSelect
@@ -179,7 +179,13 @@
           </li>
 
           <!-- Satuan Pengukuran - Sub Menu (header sejajar dengan nav-link lain) -->
-          <li v-if="canAccessRoute('/satuan-pengukuran') || canAccessRoute('/range-satuan-pengukuran') || canAccessRoute('/laporan')">
+          <li
+            v-if="
+              canAccessRoute('/satuan-pengukuran') ||
+              canAccessRoute('/range-satuan-pengukuran') ||
+              canAccessRoute('/laporan')
+            "
+          >
             <div class="nav-submenu" :class="{ 'is-open': openSubmenus['satuan-pengukuran'] }">
               <button
                 type="button"
@@ -190,7 +196,10 @@
               >
                 <i class="fas fa-ruler-combined"></i>
                 <span>Satuan Pengukuran</span>
-                <i class="fas fa-chevron-down nav-submenu-arrow" :class="{ rotated: openSubmenus['satuan-pengukuran'] }"></i>
+                <i
+                  class="fas fa-chevron-down nav-submenu-arrow"
+                  :class="{ rotated: openSubmenus['satuan-pengukuran'] }"
+                ></i>
               </button>
               <transition name="submenu">
                 <div v-show="openSubmenus['satuan-pengukuran']" class="nav-submenu-body">
@@ -199,7 +208,11 @@
                       <router-link
                         to="/satuan-pengukuran"
                         class="nav-submenu-link"
-                        :class="{ active: $route.name === 'satuan-pengukuran' || $route.name === 'range-satuan-pengukuran' }"
+                        :class="{
+                          active:
+                            $route.name === 'satuan-pengukuran' ||
+                            $route.name === 'range-satuan-pengukuran',
+                        }"
                       >
                         <span class="nav-submenu-link-dot"></span>
                         <span>Satuan Pengukuran</span>
@@ -209,7 +222,9 @@
                       <router-link
                         to="/laporan"
                         class="nav-submenu-link"
-                        :class="{ active: $route.name === 'laporan' || $route.name === 'laporan-range' }"
+                        :class="{
+                          active: $route.name === 'laporan' || $route.name === 'laporan-range',
+                        }"
                       >
                         <span class="nav-submenu-link-dot"></span>
                         <span>Laporan</span>
@@ -221,8 +236,8 @@
             </div>
           </li>
 
-            <!-- Import with access -->
-            <li v-if="canAccessRoute('/import')">
+          <!-- Import with access -->
+          <li v-if="canAccessRoute('/import')">
             <router-link
               to="/import"
               class="nav-link"
@@ -230,6 +245,16 @@
             >
               <i class="fas fa-file-import"></i>
               <span>Impor</span>
+            </router-link>
+          </li>
+          <li v-if="canAccessRoute('/export')">
+            <router-link
+              to="/export"
+              class="nav-link"
+              :class="{ active: $route.name === 'export' }"
+            >
+              <i class="fas fa-file-export"></i>
+              <span>Export</span>
             </router-link>
           </li>
         </ul>
@@ -268,13 +293,18 @@ const user = computed(() => authStore.user.value);
 
 // Check if current route is range-satuan-pengukuran or laporan-range
 const isRangeSatuanPengukuran = computed(() => {
-  return route.name === 'range-satuan-pengukuran' || route.name === 'laporan-range';
+  return route.name === "range-satuan-pengukuran" || route.name === "laporan-range";
 });
 
 // Submenu "Satuan Pengukuran" header active state
 const isSatuanSubmenuActive = computed(() => {
   const name = route.name as string;
-  return ['satuan-pengukuran', 'range-satuan-pengukuran', 'laporan', 'laporan-range'].includes(name);
+  return [
+    "satuan-pengukuran",
+    "range-satuan-pengukuran",
+    "laporan",
+    "laporan-range",
+  ].includes(name);
 });
 
 // Helper function to check if user can access specific route
@@ -296,8 +326,8 @@ const isFilterOpen = ref(false);
 
 // Sub menu state
 const openSubmenus = ref<Record<string, boolean>>({
-  'satuan-pengukuran': false,
-  'laporan': false,
+  "satuan-pengukuran": false,
+  laporan: false,
 });
 
 // Toggle sub menu
@@ -309,14 +339,14 @@ const toggleSubmenu = (menuKey: string) => {
 watch(
   () => route.name,
   (routeName) => {
-    if (routeName === 'satuan-pengukuran' || routeName === 'range-satuan-pengukuran') {
-      openSubmenus.value['satuan-pengukuran'] = true;
+    if (routeName === "satuan-pengukuran" || routeName === "range-satuan-pengukuran") {
+      openSubmenus.value["satuan-pengukuran"] = true;
     }
-    if (routeName === 'laporan' || routeName === 'laporan-range') {
-      openSubmenus.value['laporan'] = true;
+    if (routeName === "laporan" || routeName === "laporan-range") {
+      openSubmenus.value["laporan"] = true;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // Computed property untuk filter cabang berdasarkan user.entity_id
@@ -1061,7 +1091,9 @@ const toggleFilters = () => {
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 500;
-  transition: color 0.2s ease, background 0.2s ease;
+  transition:
+    color 0.2s ease,
+    background 0.2s ease;
   margin-left: -0.25rem;
 }
 
@@ -1071,7 +1103,9 @@ const toggleFilters = () => {
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
-  transition: background 0.2s ease, transform 0.2s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease;
 }
 
 .nav-submenu-link:hover {
@@ -1097,7 +1131,9 @@ const toggleFilters = () => {
 /* Submenu transition */
 .submenu-enter-active,
 .submenu-leave-active {
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
   overflow: hidden;
 }
 
