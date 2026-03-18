@@ -829,12 +829,12 @@ const RATIO_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksi
   {
     no: 10,
     uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan",
-    config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_aktiva_per_jumlah_pendapatan" },
+    config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_per_pendapatan" },
   },
   {
     no: 11,
     uraian: "Ratio Biaya Cad PH dan Peny Stock / Pendapatan",
-    config: { key: "ratio_sebelas", rField: "rasio_cadangan_piutang_per_jumlah_pendapatan" },
+    config: { key: "ratio_sebelas", rField: "rasio_cadangan_per_pendapatan" },
   },
 ];
 
