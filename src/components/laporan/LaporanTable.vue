@@ -702,7 +702,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
     uraian: "Kenaikan/T Macet",
     config: {
       key: "ratio_dua",
-      monthField: "macet_lama_bulan_ini",
+      monthField: "kenaikan_macet_lama",
       rFieldBase: "average_macet_lama_r",
     },
   },
