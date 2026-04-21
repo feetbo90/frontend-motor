@@ -35,7 +35,7 @@ export const postResources: AddResources = async (payload) => {
     const { notifySuccess, notifyError } = useNotification()
     try {
         const { data } = await axios.post('sumber-daya', payload)
-        notifySuccess({ title: 'Success Message', msg: data.message || 'Data sumber daya berhasil ditambah' })
+        // notifySuccess({ title: 'Success Message', msg: data.message || 'Data sumber daya berhasil ditambah' })
         return data
     } catch (error: unknown) {
         let message = 'Gagal menyimpan data sumber daya.'
@@ -54,7 +54,7 @@ export const putResources: UpdateResources = async (id, payload) => {
     const { notifySuccess, notifyError } = useNotification()
     try {
         const { data } = await axios.put(`/sumber-daya/${id}`, payload)
-        notifySuccess({ title: 'Success Message', msg: data.message || 'Data sumber daya berhasil diubah' })
+        // notifySuccess({ title: 'Success Message', msg: data.message || 'Data sumber daya berhasil diubah' })
         return data
     } catch (error: unknown) {
         let message = 'Gagal mengubah data sumber daya.'
