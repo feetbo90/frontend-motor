@@ -130,6 +130,10 @@
                       <span class="staff-value">{{ format(item.row.pimpinan) }}</span>
                     </span>
                     <span class="staff-item">
+                      <span class="staff-label">Jumlah Unit:</span>
+                      <span class="staff-value">{{ format(item.row.jumlah_unit) }}</span>
+                    </span>
+                    <span class="staff-item">
                       <span class="staff-label">Kasir:</span>
                       <span class="staff-value">{{ format(item.row.kasir) }}</span>
                     </span>

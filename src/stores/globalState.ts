@@ -153,6 +153,7 @@ export const sumberDayaData = ref({
   jumlah_karyawan: 0,
   formasi_tenaga: 0,
   pimpinan: 0,
+  jumlah_unit: 0,
   kasir: 0,
   administrasi: 0,
   pdl: 0,

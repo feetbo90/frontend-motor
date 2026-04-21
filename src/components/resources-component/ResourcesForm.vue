@@ -61,7 +61,19 @@
                     </td>
                     <td class="field-input">
                       <FormField id="pimpinan" label="" type="number" v-model="formData.pimpinan" placeholder="0"
-                        :error="errors.pimpinan" @keydown.enter.prevent="focusNextInput('kasir')" />
+                        :error="errors.pimpinan" @keydown.enter.prevent="focusNextInput('jumlah-unit')" />
+                    </td>
+                  </tr>
+                  <tr class="table-row staff-row">
+                    <td class="field-label">
+                      <label for="jumlah-unit">
+                        <i class="fas fa-cubes icon"></i>
+                        Jumlah Unit
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="jumlah-unit" label="" type="number" v-model="formData.jumlah_unit" placeholder="0"
+                        :error="errors.jumlahUnit" @keydown.enter.prevent="focusNextInput('kasir')" />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -296,6 +308,7 @@ const defaultSalesData: ResourcesFrm = {
   jumlah_karyawan: 0,
   formasi_tenaga: 0,
   pimpinan: 0,
+  jumlah_unit: 0,
   kasir: 0,
   administrasi: 0,
   pdl: 0,
@@ -311,6 +324,7 @@ const errors = ref<Record<keyof ResourcesSchema, string>>({
   jumlahKaryawan: "",
   formasiTenaga: "",
   pimpinan: "",
+  jumlahUnit: "",
   kasir: "",
   administrasi: "",
   pdl: "",
@@ -360,6 +374,7 @@ function validateForm(): boolean {
     jumlahKaryawan: safeNumber(formData.value.jumlah_karyawan),
     formasiTenaga: safeNumber(formData.value.formasi_tenaga),
     pimpinan: safeNumber(formData.value.pimpinan),
+    jumlahUnit: safeNumber(formData.value.jumlah_unit),
     kasir: safeNumber(formData.value.kasir),
     administrasi: safeNumber(formData.value.administrasi),
     pdl: safeNumber(formData.value.pdl),
@@ -447,6 +462,7 @@ function editRow(id: number) {
       jumlah_karyawan: row.jumlah_karyawan,
       formasi_tenaga: row.formasi_tenaga,
       pimpinan: row.pimpinan,
+      jumlah_unit: row.jumlah_unit,
       kasir: row.kasir,
       administrasi: row.administrasi,
       pdl: row.pdl,

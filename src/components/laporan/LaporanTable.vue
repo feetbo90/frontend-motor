@@ -640,6 +640,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
     config: {
       key: "rate_lima",
       monthField: "karyawan_bulan_ini",
+      rFieldBase: "average_karyawan_r",
     },
   },
   {
@@ -668,7 +669,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 14,
     uraian: "Satuan Kerja",
-    config: { key: "rate_delapan", monthField: "total_satuan_kerja" },
+    config: { key: "rate_delapan", monthField: "total_satuan_kerja", rFieldBase: "average_satuan_kerja_r" },
   },
   {
     no: 15,
