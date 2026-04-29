@@ -82,7 +82,19 @@
                     </td>
                     <td class="field-input">
                       <FormField id="mutasi-masuk" label="" type="number" v-model="formData.mutasi_masuk"
-                        placeholder="0" :error="errors.mutasiMasuk" @keydown.enter.prevent="focusNextInput('mutasi-keluar')" />
+                        placeholder="0" :error="errors.mutasiMasuk" @keydown.enter.prevent="focusNextInput('mutasi-masuk-data')" />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="mutasi-masuk-data">
+                        <i class="fas fa-database icon"></i>
+                        Mutasi Masuk Data
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="mutasi-masuk-data" label="" type="number" v-model="formData.mutasi_masuk_data"
+                        placeholder="0" :error="errors.mutasiMasukData" @keydown.enter.prevent="focusNextInput('mutasi-keluar')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -94,7 +106,19 @@
                     </td>
                     <td class="field-input">
                       <FormField id="mutasi-keluar" label="" type="number" v-model="formData.mutasi_keluar"
-                        placeholder="0" :error="errors.mutasiKeluar" @keydown.enter.prevent="focusNextInput('terjual')" />
+                        placeholder="0" :error="errors.mutasiKeluar" @keydown.enter.prevent="focusNextInput('mutasi-keluar-data')" />
+                    </td>
+                  </tr>
+                  <tr class="table-row">
+                    <td class="field-label">
+                      <label for="mutasi-keluar-data">
+                        <i class="fas fa-database icon"></i>
+                        Mutasi Keluar Data
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField id="mutasi-keluar-data" label="" type="number" v-model="formData.mutasi_keluar_data"
+                        placeholder="0" :error="errors.mutasiKeluarData" @keydown.enter.prevent="focusNextInput('terjual')" />
                     </td>
                   </tr>
                   <tr class="table-row">
@@ -263,7 +287,9 @@ const defaultSalesData: StockCirculationFrm = {
   pembelian_tambahan: 0,
   pembelian_tambahan_data: 0,
   mutasi_masuk: 0,
+  mutasi_masuk_data: 0,
   mutasi_keluar: 0,
+  mutasi_keluar_data: 0,
   terjual: 0,
   terjual_data: 0,
   unit_akhir: 0,
@@ -276,7 +302,9 @@ const errors = ref<Record<keyof StockCirculationSchema, string>>({
   pembelianTambahan: "",
   pembelianTambahanData: "",
   mutasiMasuk: "",
+  mutasiMasukData: "",
   mutasiKeluar: "",
+  mutasiKeluarData: "",
   terjual: "",
   terjualData: "",
   unitAkhir: "",
@@ -310,15 +338,24 @@ watch(
   [
     () => formData.value.unit_awal_data,
     () => formData.value.pembelian_tambahan_data,
+    () => formData.value.mutasi_masuk_data,
+    () => formData.value.mutasi_keluar_data,
     () => formData.value.terjual_data,
   ],
   () => {
     const unitAwalData = safeNumber(formData.value.unit_awal_data);
     const pembelianTambahanData = safeNumber(formData.value.pembelian_tambahan_data);
+    const mutasiMasukData = safeNumber(formData.value.mutasi_masuk_data);
+    const mutasiKeluarData = safeNumber(formData.value.mutasi_keluar_data);
     const terjualData = safeNumber(formData.value.terjual_data);
 
-    // Calculate unit akhir data: unit awal data + pembelian tambahan data - terjual data
-    formData.value.unit_akhir_data = unitAwalData + pembelianTambahanData - terjualData;
+    // Sama seperti unit_akhir: + mutasi masuk − mutasi keluar − terjual (jalur data)
+    formData.value.unit_akhir_data =
+      unitAwalData +
+      pembelianTambahanData +
+      mutasiMasukData -
+      mutasiKeluarData -
+      terjualData;
   },
   { immediate: true },
 );
@@ -365,7 +402,9 @@ function validateForm(): boolean {
     pembelianTambahan: safeNumber(formData.value.pembelian_tambahan),
     pembelianTambahanData: safeNumber(formData.value.pembelian_tambahan_data),
     mutasiMasuk: safeNumber(formData.value.mutasi_masuk),
+    mutasiMasukData: safeNumber(formData.value.mutasi_masuk_data),
     mutasiKeluar: safeNumber(formData.value.mutasi_keluar),
+    mutasiKeluarData: safeNumber(formData.value.mutasi_keluar_data),
     terjual: safeNumber(formData.value.terjual),
     terjualData: safeNumber(formData.value.terjual_data),
     unitAkhir: safeNumber(formData.value.unit_akhir),
@@ -442,7 +481,9 @@ function editRow(id: number): void {
     pembelian_tambahan: Number(row.pembelian_tambahan),
     pembelian_tambahan_data: Number(row.pembelian_tambahan_data),
     mutasi_masuk: Number(row.mutasi_masuk),
+    mutasi_masuk_data: Number(row.mutasi_masuk_data ?? 0),
     mutasi_keluar: Number(row.mutasi_keluar),
+    mutasi_keluar_data: Number(row.mutasi_keluar_data ?? 0),
     terjual: Number(row.terjual),
     terjual_data: Number(row.terjual_data),
     unit_akhir: Number(row.unit_akhir),
