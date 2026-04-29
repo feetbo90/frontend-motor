@@ -58,28 +58,30 @@
                 </p>
               </div>
 
-              <div class="filter-group">
-                <FormSelect
-                  id="cabang"
-                  label="Cabang"
-                  v-model="selectedCabang"
-                  placeholder="Pilih Cabang"
-                  :options="cabangOptions"
-                  :allowEmpty="true"
-                />
-              </div>
+              <template v-if="!hasRole('PUSAT')">
+                <div class="filter-group">
+                  <FormSelect
+                    id="cabang"
+                    label="Cabang"
+                    v-model="selectedCabang"
+                    placeholder="Pilih Cabang"
+                    :options="cabangOptions"
+                    :allowEmpty="true"
+                  />
+                </div>
 
-              <div class="filter-group">
-                <FormSelect
-                  id="unit"
-                  label="Unit"
-                  v-model="selectedUnit"
-                  placeholder="Pilih Unit"
-                  :options="unitOptions"
-                  :allowEmpty="true"
-                  :disabled="!selectedCabang"
-                />
-              </div>
+                <div class="filter-group">
+                  <FormSelect
+                    id="unit"
+                    label="Unit"
+                    v-model="selectedUnit"
+                    placeholder="Pilih Unit"
+                    :options="unitOptions"
+                    :allowEmpty="true"
+                    :disabled="!selectedCabang"
+                  />
+                </div>
+              </template>
 
               <button @click="resetFilters" class="reset-button" type="button">
                 <i class="fas fa-redo"></i>
@@ -424,8 +426,8 @@ const unitOptions = computed(() => {
   }));
 });
 
-// Watch selectedCabang untuk reset selectedUnit ketika cabang berubah
-watch(selectedCabang, () => {
+// Saat cabang, tahun, atau bulan berubah: sinkronkan entity cabang dan reset unit
+watch([selectedCabang, selectedYear, selectedMonth], () => {
   selectedEntityId.value = Number(
     cabangsData.value.find((cabang) => cabang.name === selectedCabang.value)?.id || undefined,
   );
@@ -481,7 +483,10 @@ const resetFilters = () => {
 };
 
 onMounted(() => {
-  fetchCabangs();
+  // PUSAT tidak punya filter cabang/unit di sidebar; data cabang tidak dipakai
+  if (!hasRole("PUSAT")) {
+    fetchCabangs();
+  }
 });
 
 const toggleFilters = () => {

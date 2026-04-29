@@ -181,6 +181,7 @@
 </template>
 
 <script setup lang="ts">
+import { useRole } from "@/composables/useRole";
 import { getProductRatesRatios } from "@/services/productRateService";
 import { useAuthStore } from "@/stores/auth";
 import {
@@ -202,6 +203,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import ExcelJS from "exceljs";
 
 const authStore = useAuthStore();
+const { hasRole } = useRole();
 const apiData = ref<ProductRateData>({
   success: false,
   entity_id: "",
@@ -874,23 +876,21 @@ const fetchRateList = async (year: number | undefined, month: number | undefined
   }
 };
 
-watch([selectedYear, selectedMonth, selectedEntityId], () => {
+const runFetchRatesIfPeriodSelected = () => {
   const year = selectedYear.value !== "" ? Number(selectedYear.value) : undefined;
   const month = selectedMonth.value !== "" ? Number(selectedMonth.value) : undefined;
-  if (selectedEntityId.value && year && month) {
-    isGlobalLoading.value = true;
-    fetchRateList(year, month);
-  }
-});
+  if (!year || !month) return;
+  // CABANG/UNIT: tunggu cabang/unit (entity) dipilih di sidebar
+  if (!hasRole("PUSAT") && !selectedEntityId.value) return;
+  isGlobalLoading.value = true;
+  fetchRateList(year, month);
+};
+
+watch([selectedYear, selectedMonth, selectedEntityId], runFetchRatesIfPeriodSelected);
 
 onMounted(() => {
   if (!authStore.user?.value) return;
-  const year = selectedYear.value !== "" ? Number(selectedYear.value) : undefined;
-  const month = selectedMonth.value !== "" ? Number(selectedMonth.value) : undefined;
-  if (selectedEntityId.value && year && month) {
-    isGlobalLoading.value = true;
-    fetchRateList(year, month);
-  }
+  runFetchRatesIfPeriodSelected();
 });
 </script>
 

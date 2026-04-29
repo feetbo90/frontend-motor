@@ -1,5 +1,6 @@
 import { isAxiosError, useAxios } from '@/composables/useAxios';
 import { useNotification } from '@/composables/useNotification';
+import { useAuthStore } from '@/stores/auth';
 import type { GetProductRateList, GetProductRatioList, GetProductRatesRatiosList, ParamsProductRate } from '@/types/productRate';
 
 export const getProductRate: GetProductRateList = async (
@@ -8,7 +9,7 @@ export const getProductRate: GetProductRateList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants`, { 
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants`, {
             params: {
                 year: params.year,
                 month: params.month,
@@ -36,16 +37,18 @@ export const getProductRatesRatios: GetProductRatesRatiosList = async (
 ) => {
     const axios = useAxios();
     const { notifyError } = useNotification();
+    const authStore = useAuthStore();
+    const isPusat = authStore.user.value?.entity_type === 'PUSAT';
+    const url = isPusat
+        ? 'rate-ratio/center/rates-ratios'
+        : `rate-ratio/${params.branch_id}/descendants/rates-ratios`;
     try {
-        const { data } = await axios.get(
-            `rate-ratio/${params.branch_id}/descendants/rates-ratios`,
-            {
-                params: {
-                    year: params.year,
-                    month: params.month,
-                },
-            }
-        );
+        const { data } = await axios.get(url, {
+            params: {
+                year: params.year,
+                month: params.month,
+            },
+        });
         return data;
     } catch (error: unknown) {
         let message = 'Gagal mendapatkan data rates ratios.';
@@ -65,7 +68,7 @@ export const getProductRatio: GetProductRatioList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, { 
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, {
             params: {
                 year: params.year,
                 month: params.month,
@@ -94,7 +97,7 @@ export const getProductRateRange: GetProductRateList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants/range`, { 
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/descendants/range`, {
             params: {
                 year: params.year,
                 month_start: params.month_start,
@@ -121,7 +124,7 @@ export const getProductRatioRange: GetProductRatioList = async (
     const axios = useAxios();
     const { notifyError } = useNotification()
     try {
-        const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, { 
+        const { data } = await axios.get(`rate-ratio/${params.branch_id}/ratio/descendants`, {
             params: {
                 year: params.year,
                 month_start: params.month_start,
