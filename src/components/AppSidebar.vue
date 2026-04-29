@@ -58,7 +58,7 @@
                 </p>
               </div>
 
-              <template v-if="!hasRole('PUSAT')">
+              <template v-if="!hasRole('PUSAT') && !hasRole('UNIT')">
                 <div class="filter-group">
                   <FormSelect
                     id="cabang"
@@ -266,7 +266,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from "vue";
+import { ref, computed, onMounted, watch, nextTick } from "vue";
 import { useRoute } from "vue-router";
 import {
   selectedCabang,
@@ -274,6 +274,7 @@ import {
   selectedYear,
   selectedUnit,
   selectedEntityId,
+  syncCabangUnitDefaultsFromEntities,
 } from "@/stores/globalState";
 import { useRole } from "@/composables/useRole";
 import { useDate } from "@/composables/useDate";
@@ -461,6 +462,8 @@ const fetchCabangs = async () => {
     if (response && response.data) {
       allCabangsData.value = response.data;
       // filteredCabangs computed akan otomatis update cabangs dan cabangsData
+      await nextTick();
+      await syncCabangUnitDefaultsFromEntities(authStore.user.value, response.data);
     }
   } catch (error) {
     console.error("Error fetching cabangs:", error);
@@ -472,7 +475,7 @@ const fetchCabangs = async () => {
 };
 
 // Fungsi untuk reset semua filter
-const resetFilters = () => {
+const resetFilters = async () => {
   selectedYear.value = "";
   // Hanya reset bulan jika bukan di halaman range-satuan-pengukuran
   if (!isRangeSatuanPengukuran.value) {
@@ -480,8 +483,14 @@ const resetFilters = () => {
   }
   selectedCabang.value = "";
   selectedUnit.value = "";
+  await nextTick();
+  if (
+    (hasRole("CABANG") || hasRole("UNIT")) &&
+    allCabangsData.value.length
+  ) {
+    await syncCabangUnitDefaultsFromEntities(authStore.user.value, allCabangsData.value);
+  }
 };
-
 onMounted(() => {
   // PUSAT tidak punya filter cabang/unit di sidebar; data cabang tidak dipakai
   if (!hasRole("PUSAT")) {

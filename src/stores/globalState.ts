@@ -1,5 +1,7 @@
-import { ref, computed } from "vue";
+import { ref, computed, nextTick } from "vue";
 import { useDate } from "@/composables/useDate";
+import type { User } from "@/types/auth-login.type";
+import type { Entities } from "@/types/entities.type";
 
 // Global state untuk filter periode
 
@@ -11,6 +13,39 @@ export const selectedMonth = ref<string | number>("");
 export const selectedCabang = ref("");
 export const selectedUnit = ref("");
 export const selectedEntityId = ref<number | undefined>(undefined);
+
+/**
+ * Default filter cabang/unit dari user CABANG atau UNIT (berdasarkan entity_id).
+ * Panggil setelah pohon cabang dari API tersedia dan, di UI, setelah `cabangsData` terisi (mis. `await nextTick()`).
+ */
+export async function syncCabangUnitDefaultsFromEntities(
+  user: User | null,
+  cabangs: Entities[],
+) {
+  if (!user?.entity_type || !cabangs.length) return;
+
+  const entityIdStr = String(user.entity_id);
+
+  if (user.entity_type === "CABANG") {
+    const cabang = cabangs.find((c) => c.id === entityIdStr);
+    if (!cabang) return;
+    selectedCabang.value = cabang.name;
+    selectedUnit.value = "";
+    return;
+  }
+
+  if (user.entity_type === "UNIT") {
+    for (const cabang of cabangs) {
+      const unit = cabang.units?.find((u) => u.id === entityIdStr);
+      if (unit) {
+        selectedCabang.value = cabang.name;
+        await nextTick();
+        selectedUnit.value = unit.name;
+        return;
+      }
+    }
+  }
+}
 
 // Dummy User information
 export const userInfo = ref({
