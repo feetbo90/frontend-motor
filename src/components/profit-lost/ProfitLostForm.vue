@@ -43,51 +43,11 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="table-row capital-row">
-                    <td class="field-label">
-                      <label for="modal">
-                        <i class="fas fa-coins icon"></i>
-                        Modal
-                      </label>
-                    </td>
-                    <td class="field-input">
-                      <FormField
-                        id="modal"
-                        label=""
-                        type="number"
-                        v-model="formData.modal"
-                        placeholder="0"
-                        :error="errors.modal"
-                        format="currency"
-                        @keydown.enter.prevent="focusNextInput('kumulatif')"
-                      />
-                    </td>
-                  </tr>
-                  <tr class="table-row earnings-row">
-                    <td class="field-label">
-                      <label for="kumulatif">
-                        <i class="fas fa-chart-line icon"></i>
-                        Kumulatif
-                      </label>
-                    </td>
-                    <td class="field-input">
-                      <FormField
-                        id="kumulatif"
-                        label=""
-                        type="number"
-                        v-model="formData.kumulatif"
-                        placeholder="0"
-                        :error="errors.kumulatif"
-                        format="currency"
-                        @keydown.enter.prevent="focusNextInput('bulan-ini')"
-                      />
-                    </td>
-                  </tr>
                   <tr class="table-row earnings-row">
                     <td class="field-label">
                       <label for="bulan-ini">
                         <i class="fas fa-calendar-alt icon"></i>
-                        Laba Rugi Bulan {{ monthName }}
+                         Laba / Rugi Bulan ini
                       </label>
                     </td>
                     <td class="field-input">
@@ -100,6 +60,26 @@
                         :error="errors.bulanIni"
                         format="currency"
                         :allowNegative="true"
+                        @keydown.enter.prevent="focusNextInput('kumulatif')"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row earnings-row">
+                    <td class="field-label">
+                      <label for="kumulatif">
+                        <i class="fas fa-chart-line icon"></i>
+                        Jumlah Laba / Rugi Kumulatif
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="kumulatif"
+                        label=""
+                        type="number"
+                        v-model="formData.kumulatif"
+                        placeholder="0"
+                        :error="errors.kumulatif"
+                        format="currency"
                         @keydown.enter.prevent="focusNextInput('penarikan')"
                       />
                     </td>
@@ -129,7 +109,7 @@
                     <td class="field-label">
                       <label for="penarikan">
                         <i class="fas fa-minus-circle icon"></i>
-                        Penarikan
+                        Penarikan Laba
                       </label>
                     </td>
                     <td class="field-input">
@@ -140,6 +120,26 @@
                         v-model="formData.penarikan"
                         placeholder="0"
                         :error="errors.penarikan"
+                        format="currency"
+                        @keydown.enter.prevent="focusNextInput('modal')"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row capital-row">
+                    <td class="field-label">
+                      <label for="modal">
+                        <i class="fas fa-coins icon"></i>
+                        Jumlah Modal
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="modal"
+                        label=""
+                        type="number"
+                        v-model="formData.modal"
+                        placeholder="0"
+                        :error="errors.modal"
                         format="currency"
                         @keydown.enter.prevent="focusSubmitButton"
                       />
@@ -271,16 +271,11 @@ const idSelected = ref<number | null>(null);
 const authStore = useAuthStore();
 const { notifySuccess } = useNotification();
 const showConfirmModal = ref(false);
-const { getMonthName } = useDate();
 const { submitButton, focusNextInput, focusSubmitButton } = useFormNavigation();
 
 const formData = computed({
   get: () => labaRugiData.value,
   set: (value: ProfitLostPayload) => emit("update:modelValue", value),
-});
-
-const monthName = computed(() => {
-  return getMonthName(Number(formData.value.month));
 });
 
 const { monthOptions, getYearOptions, getCurrentDate } = useDate();
