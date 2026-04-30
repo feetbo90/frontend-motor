@@ -503,6 +503,74 @@ export interface RatesRatiosUnitItem {
   ratio_sebelas?: RatesRatiosRatioItem[];
 }
 
+/** Blok rate/ratio bersarang di response PUSAT (center/rates-ratios). */
+export interface ProductRatesRatiosPusatRatesBlock {
+  rate_satu: RatesRatiosRateSatuItem[];
+  rate_dua: RatesRatiosRateDuaItem[];
+  rate_tiga: RatesRatiosRateTigaItem[];
+  rate_empat: RatesRatiosRateEmpatItem[];
+  rate_lima: RatesRatiosLimaItem[];
+  rate_enam: RatesRatiosEnamItem[];
+  rate_tujuh: RatesRatiosTujuhItem[];
+  rate_delapan?: RatesRatiosRateDelapanItem[];
+  rate_sembilan?: RatesRatiosRateSembilanItem[];
+  rate_sepuluh?: RatesRatiosRateSepuluhItem[];
+  rate_sebelas?: RatesRatiosRateSebelasItem[];
+}
+
+export interface ProductRatesRatiosPusatRatiosBlock {
+  ratio_satu?: RatesRatiosRatioItem[];
+  ratio_dua?: RatesRatiosRatioItem[];
+  ratio_tiga?: RatesRatiosRatioItem[];
+  ratio_empat?: RatesRatiosRatioItem[];
+  ratio_lima?: RatesRatiosRatioItem[];
+  ratio_enam?: RatesRatiosRatioItem[];
+  ratio_tujuh?: RatesRatiosRatioItem[];
+  ratio_delapan?: RatesRatiosRatioItem[];
+  ratio_sembilan?: RatesRatiosRatioItem[];
+  ratio_sepuluh?: RatesRatiosRatioItem[];
+  ratio_sebelas?: RatesRatiosRatioItem[];
+}
+
+export interface ProductRatesRatiosPusatCabangItem {
+  cabang_id: number;
+  cabang_name: string;
+  cabang_type: string;
+  parent_id?: string | null;
+  included_branch_ids?: number[];
+  included_unit_ids?: number[];
+  unit_count?: number;
+  rate: ProductRatesRatiosPusatRatesBlock;
+  ratio: ProductRatesRatiosPusatRatiosBlock;
+}
+
+export interface ProductRatesRatiosPusatUnitItem {
+  unit_id: number;
+  unit_name: string;
+  parent_id?: string;
+  rate: ProductRatesRatiosPusatRatesBlock;
+  ratio: ProductRatesRatiosPusatRatiosBlock;
+}
+
+/** Response endpoint rate-ratio/center/rates-ratios (role PUSAT). */
+export interface ProductRatesRatiosPusatData {
+  success?: boolean;
+  pusat_name: string;
+  pusat_type: string;
+  year: number;
+  selected_month: number;
+  included_pusat_ids?: number[];
+  included_cabang_ids?: number[];
+  included_unit_ids?: number[];
+  cabang_count?: number;
+  unit_count: number;
+  komentar?: string;
+  rate: ProductRatesRatiosPusatRatesBlock;
+  ratio: ProductRatesRatiosPusatRatiosBlock;
+  cabangs: ProductRatesRatiosPusatCabangItem[];
+  units: ProductRatesRatiosPusatUnitItem[];
+}
+
 export interface ProductRatesRatiosData {
   success?: boolean;
   entity_id: number;
@@ -540,4 +608,4 @@ export interface ProductRatesRatiosData {
 
 export type GetProductRatesRatiosList = (
   params: ParamsProductRate
-) => Promise<ProductRatesRatiosData>;
+) => Promise<ProductRatesRatiosData | ProductRatesRatiosPusatData>;

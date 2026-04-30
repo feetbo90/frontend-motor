@@ -59,7 +59,7 @@
               </div>
 
               <template v-if="!hasRole('PUSAT') && !hasRole('UNIT')">
-                <div class="filter-group">
+                <div v-if="!hasRole('CABANG')" class="filter-group">
                   <FormSelect
                     id="cabang"
                     label="Cabang"
@@ -78,7 +78,7 @@
                     placeholder="Pilih Unit"
                     :options="unitOptions"
                     :allowEmpty="true"
-                    :disabled="!selectedCabang"
+                    :disabled="!hasRole('CABANG') && !selectedCabang"
                   />
                 </div>
               </template>
@@ -358,7 +358,6 @@ const filteredCabangs = computed(() => {
   if (!currentUser || !allCabangsData.value.length) {
     return [];
   }
-
   // Jika user adalah PUSAT, tampilkan semua cabang
   if (currentUser.entity_type === "PUSAT" || !currentUser.entity_type) {
     return allCabangsData.value;
@@ -391,7 +390,6 @@ watch(
   },
   { immediate: true },
 );
-
 // Computed property untuk units berdasarkan selectedCabang
 const units = computed(() => {
   if (!selectedCabang.value) {

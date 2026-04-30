@@ -192,12 +192,18 @@ import {
   selectedMonth,
   selectedYear,
 } from "@/stores/globalState";
-import type { ProductRateData, ProductRatesRatiosData } from "@/types/productRate";
+import type {
+  ProductRateData,
+  ProductRatesRatiosData,
+} from "@/types/productRate";
 import type { RateOrRatioKey } from "@/utils/productRateMapper";
 import {
   getMonthlyValueByKey,
   getUnitCount,
+  isPusatRatesRatiosResponse,
+  mapPusatRatesRatiosToProductRateData,
   mapRatesRatiosToProductRateData,
+  normalizePusatRatesRatiosResponse,
 } from "@/utils/productRateMapper";
 import { computed, onMounted, ref, watch } from "vue";
 import ExcelJS from "exceljs";
@@ -850,7 +856,6 @@ function getRKey(config: RowConfig | undefined): RateOrRatioKey | undefined {
   }
   return undefined;
 }
-
 const fetchRateList = async (year: number | undefined, month: number | undefined) => {
   try {
     loading.value = true;
@@ -861,9 +866,13 @@ const fetchRateList = async (year: number | undefined, month: number | undefined
       branch_id: branchId,
     });
     if (response.success) {
-      console.log(mapRatesRatiosToProductRateData(response), "xxx");
-      apiData.value = mapRatesRatiosToProductRateData(response);
-      ratesRatiosData.value = response;
+      if (hasRole("PUSAT") && isPusatRatesRatiosResponse(response)) {
+        ratesRatiosData.value = normalizePusatRatesRatiosResponse(response);
+        apiData.value = mapPusatRatesRatiosToProductRateData(response);
+      } else {
+        apiData.value = mapRatesRatiosToProductRateData(response as ProductRatesRatiosData);
+        ratesRatiosData.value = response as ProductRatesRatiosData;
+      }
     } else {
       ratesRatiosData.value = null;
     }

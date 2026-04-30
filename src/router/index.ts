@@ -140,12 +140,12 @@ router.beforeEach((to, from, next) => {
   if (requiresAuth && !isAuthenticated) {
     // Redirect ke halaman login jika memerlukan auth tapi belum login
     next('/auth/login')
-     return 
+     return
   }
   if (to.path.startsWith('/auth') && isAuthenticated) {
     // Redirect ke dashboard jika sudah login tapi mencoba akses halaman login
     next('/')
-    return 
+    return
   }
   if (requiresAuth && isAuthenticated) {
     // Cek role-based access
@@ -154,7 +154,7 @@ router.beforeEach((to, from, next) => {
       // Redirect ke dashboard jika role tidak diizinkan
       console.warn(`Access denied: User role '${userRole}' not allowed for route '${to.path}'`)
       next('/')
-      return 
+      return
     }
   }
   next()

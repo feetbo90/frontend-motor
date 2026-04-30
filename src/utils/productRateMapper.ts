@@ -1,9 +1,227 @@
 import type {
   ProductRateData,
   ProductRatesRatiosData,
+  ProductRatesRatiosPusatData,
+  ProductRatesRatiosPusatRatesBlock,
+  ProductRatesRatiosPusatRatiosBlock,
   RatesRatiosRatioItem,
   RatesRatiosUnitItem,
 } from "@/types/productRate";
+
+function mergePusatNestedToUnitItem(
+  unit_id: number,
+  unit_name: string,
+  rate: ProductRatesRatiosPusatRatesBlock,
+  ratio: ProductRatesRatiosPusatRatiosBlock
+): RatesRatiosUnitItem {
+  return {
+    unit_id,
+    unit_name,
+    rate_satu: rate.rate_satu,
+    rate_dua: rate.rate_dua,
+    rate_tiga: rate.rate_tiga,
+    rate_empat: rate.rate_empat,
+    rate_lima: rate.rate_lima,
+    rate_enam: rate.rate_enam,
+    rate_tujuh: rate.rate_tujuh,
+    rate_delapan: rate.rate_delapan ?? [],
+    rate_sembilan: rate.rate_sembilan ?? [],
+    rate_sepuluh: rate.rate_sepuluh ?? [],
+    rate_sebelas: rate.rate_sebelas ?? [],
+    ratio_satu: ratio.ratio_satu ?? [],
+    ratio_dua: ratio.ratio_dua ?? [],
+    ratio_tiga: ratio.ratio_tiga ?? [],
+    ratio_empat: ratio.ratio_empat ?? [],
+    ratio_lima: ratio.ratio_lima ?? [],
+    ratio_enam: ratio.ratio_enam ?? [],
+    ratio_tujuh: ratio.ratio_tujuh ?? [],
+    ratio_delapan: ratio.ratio_delapan ?? [],
+    ratio_sembilan: ratio.ratio_sembilan ?? [],
+    ratio_sepuluh: ratio.ratio_sepuluh ?? [],
+    ratio_sebelas: ratio.ratio_sebelas ?? [],
+  };
+}
+
+/** Response center/rates-ratios punya pusat_name + cabangs + rate/ratio bersarang. */
+export function isPusatRatesRatiosResponse(
+  res: unknown
+): res is ProductRatesRatiosPusatData {
+  if (!res || typeof res !== "object") return false;
+  const o = res as Record<string, unknown>;
+  return (
+    typeof o.pusat_name === "string" &&
+    Array.isArray(o.cabangs) &&
+    o.rate != null &&
+    typeof o.rate === "object" &&
+    o.ratio != null &&
+    typeof o.ratio === "object"
+  );
+}
+
+/**
+ * Normalisasi response PUSAT ke bentuk ProductRatesRatiosData
+ * agar getRatesForEntity / getMonthlyValueByKey tetap dipakai.
+ */
+export function normalizePusatRatesRatiosResponse(
+  res: ProductRatesRatiosPusatData
+): ProductRatesRatiosData {
+  const pusatId = res.included_pusat_ids?.[0] ?? 0;
+  const cabangUnits: RatesRatiosUnitItem[] = (res.cabangs ?? []).map((c) =>
+    mergePusatNestedToUnitItem(c.cabang_id, c.cabang_name, c.rate, c.ratio)
+  );
+  const leafUnits: RatesRatiosUnitItem[] = (res.units ?? []).map((u) =>
+    mergePusatNestedToUnitItem(u.unit_id, u.unit_name, u.rate, u.ratio)
+  );
+
+  return {
+    success: res.success,
+    entity_id: pusatId,
+    entity_name: res.pusat_name,
+    entity_type: res.pusat_type,
+    year: res.year,
+    selected_month: res.selected_month,
+    included_branch_ids: res.included_cabang_ids ?? [],
+    unit_count: res.unit_count,
+    komentar: res.komentar,
+    rate_satu: res.rate.rate_satu,
+    rate_dua: res.rate.rate_dua,
+    rate_tiga: res.rate.rate_tiga,
+    rate_empat: res.rate.rate_empat,
+    rate_lima: res.rate.rate_lima,
+    rate_enam: res.rate.rate_enam,
+    rate_tujuh: res.rate.rate_tujuh,
+    rate_delapan: res.rate.rate_delapan ?? [],
+    rate_sembilan: res.rate.rate_sembilan ?? [],
+    rate_sepuluh: res.rate.rate_sepuluh ?? [],
+    rate_sebelas: res.rate.rate_sebelas ?? [],
+    ratio_satu: res.ratio.ratio_satu,
+    ratio_dua: res.ratio.ratio_dua,
+    ratio_tiga: res.ratio.ratio_tiga,
+    ratio_empat: res.ratio.ratio_empat,
+    ratio_lima: res.ratio.ratio_lima,
+    ratio_enam: res.ratio.ratio_enam,
+    ratio_tujuh: res.ratio.ratio_tujuh,
+    ratio_delapan: res.ratio.ratio_delapan,
+    ratio_sembilan: res.ratio.ratio_sembilan,
+    ratio_sepuluh: res.ratio.ratio_sepuluh,
+    ratio_sebelas: res.ratio.ratio_sebelas,
+    units: [...cabangUnits, ...leafUnits],
+  };
+}
+
+/**
+ * Map response PUSAT ke ProductRateData: entityIds = Pusat → cabang → unit;
+ * rate/ratio per nama entitas.
+ */
+export function mapPusatRatesRatiosToProductRateData(
+  res: ProductRatesRatiosPusatData
+): ProductRateData {
+  const cabangs = res.cabangs ?? [];
+  const units = res.units ?? [];
+  const entityIds = [
+    {
+      id: String(res.included_pusat_ids?.[0] ?? ""),
+      type: res.pusat_type,
+      name: res.pusat_name,
+    },
+    ...cabangs.map((c) => ({
+      id: String(c.cabang_id),
+      type: c.cabang_type,
+      name: c.cabang_name,
+    })),
+    ...units.map((u) => ({
+      id: String(u.unit_id),
+      type: "UNIT" as const,
+      name: u.unit_name,
+    })),
+  ];
+
+  const rate_satu: ProductRateData["rate_satu"] = {};
+  const rate_dua: ProductRateData["rate_dua"] = {};
+  const rate_tiga: ProductRateData["rate_tiga"] = {};
+  const rate_empat: ProductRateData["rate_empat"] = {};
+  const rate_lima: ProductRateData["rate_lima"] = {};
+  const rate_enam: ProductRateData["rate_enam"] = {};
+  const rate_tujuh: ProductRateData["rate_tujuh"] = {};
+  const rate_delapan: NonNullable<ProductRateData["rate_delapan"]> = {};
+  const rate_sembilan: NonNullable<ProductRateData["rate_sembilan"]> = {};
+  const rate_sepuluh: NonNullable<ProductRateData["rate_sepuluh"]> = {};
+  const rate_sebelas: NonNullable<ProductRateData["rate_sebelas"]> = {};
+
+  type RatioMap = { [unitName: string]: RatesRatiosRatioItem[] };
+  const ratio_satu: RatioMap = {};
+  const ratio_dua: RatioMap = {};
+  const ratio_tiga: RatioMap = {};
+  const ratio_empat: RatioMap = {};
+  const ratio_lima: RatioMap = {};
+  const ratio_enam: RatioMap = {};
+  const ratio_tujuh: RatioMap = {};
+  const ratio_delapan: RatioMap = {};
+  const ratio_sembilan: RatioMap = {};
+  const ratio_sepuluh: RatioMap = {};
+  const ratio_sebelas: RatioMap = {};
+
+  const assignFromNested = (
+    name: string,
+    rate: ProductRatesRatiosPusatRatesBlock,
+    ratio: ProductRatesRatiosPusatRatiosBlock
+  ) => {
+    rate_satu[name] = rate.rate_satu;
+    rate_dua[name] = rate.rate_dua;
+    rate_tiga[name] = rate.rate_tiga;
+    rate_empat[name] = rate.rate_empat;
+    rate_lima[name] = rate.rate_lima;
+    rate_enam[name] = rate.rate_enam;
+    rate_tujuh[name] = rate.rate_tujuh;
+    rate_delapan[name] = rate.rate_delapan ?? [];
+    rate_sembilan[name] = rate.rate_sembilan ?? [];
+    rate_sepuluh[name] = rate.rate_sepuluh ?? [];
+    rate_sebelas[name] = rate.rate_sebelas ?? [];
+    ratio_satu[name] = ratio.ratio_satu ?? [];
+    ratio_dua[name] = ratio.ratio_dua ?? [];
+    ratio_tiga[name] = ratio.ratio_tiga ?? [];
+    ratio_empat[name] = ratio.ratio_empat ?? [];
+    ratio_lima[name] = ratio.ratio_lima ?? [];
+    ratio_enam[name] = ratio.ratio_enam ?? [];
+    ratio_tujuh[name] = ratio.ratio_tujuh ?? [];
+    ratio_delapan[name] = ratio.ratio_delapan ?? [];
+    ratio_sembilan[name] = ratio.ratio_sembilan ?? [];
+    ratio_sepuluh[name] = ratio.ratio_sepuluh ?? [];
+    ratio_sebelas[name] = ratio.ratio_sebelas ?? [];
+  };
+
+  assignFromNested(res.pusat_name, res.rate, res.ratio);
+  cabangs.forEach((c) => assignFromNested(c.cabang_name, c.rate, c.ratio));
+  units.forEach((u) => assignFromNested(u.unit_name, u.rate, u.ratio));
+
+  return {
+    success: res.success,
+    entity_id: String(res.included_pusat_ids?.[0] ?? ""),
+    entityIds,
+    rate_satu,
+    rate_dua,
+    rate_tiga,
+    rate_empat,
+    rate_lima,
+    rate_enam,
+    rate_tujuh,
+    rate_delapan,
+    rate_sembilan,
+    rate_sepuluh,
+    rate_sebelas,
+    ratio_satu,
+    ratio_dua,
+    ratio_tiga,
+    ratio_empat,
+    ratio_lima,
+    ratio_enam,
+    ratio_tujuh,
+    ratio_delapan,
+    ratio_sembilan,
+    ratio_sepuluh,
+    ratio_sebelas,
+  };
+}
 
 /**
  * Transform response endpoint rates-ratios ke bentuk ProductRateData
@@ -14,8 +232,8 @@ export function mapRatesRatiosToProductRateData(
 ): ProductRateData {
   const entityType = res.entity_type;
   const units = res.units ?? [];
-  // Hanya res.entity_type === "CABANG" yang bertipe CABANG, selain itu UNIT. Semua unit selalu UNIT.
-  const rootEntityType = entityType === "CABANG" ? "CABANG" : "UNIT";
+  const rootEntityType =
+    entityType === "CABANG" ? "CABANG" : entityType === "PUSAT" ? "PUSAT" : "UNIT";
   const entityIds =
     units.length > 0
       ? [
