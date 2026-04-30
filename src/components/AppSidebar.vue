@@ -70,7 +70,7 @@
                   />
                 </div>
 
-                <div class="filter-group">
+                <div v-if="!hasRole('CABANG')" class="filter-group">
                   <FormSelect
                     id="unit"
                     label="Unit"
@@ -78,7 +78,7 @@
                     placeholder="Pilih Unit"
                     :options="unitOptions"
                     :allowEmpty="true"
-                    :disabled="!hasRole('CABANG') && !selectedCabang"
+                    :disabled="!selectedCabang"
                   />
                 </div>
               </template>
