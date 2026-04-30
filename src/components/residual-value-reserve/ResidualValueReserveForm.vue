@@ -171,7 +171,7 @@
                         <span class="final-total-badge">Total</span>
                       </label>
                     </td>
-                    <!-- <td class="field-input">
+                    <td class="field-input">
                       <FormField
                         id="total-reserves"
                         label=""
@@ -180,9 +180,8 @@
                         placeholder="0"
                         :error="errors.totalReserves"
                         format="currency"
-                        :readonly="true"
                       />
-                    </td> -->
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -273,7 +272,7 @@ import type {
   ResidualValueReserveFrm,
   ResidualValueReservePayload,
 } from "@/types/residual-value-reserve.type";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onActivated, onMounted, ref, watch } from "vue";
 import ConfirmModal from "../ui/ConfirmModal.vue";
 import ResidualValueReserveTable from "./ResidualValueReserveTable.vue";
 
@@ -317,7 +316,7 @@ const defaultSalesData: ResidualValueReserveFrm = {
   cadangan_stock: 0,
   cadangan_stock_data: 0,
   // net_receivables: 0,
-  // total_reserves: 0,
+  total_reserves: 0,
 };
 
 const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
@@ -327,7 +326,7 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
   cadanganStock: "",
   cadanganStockData: "",
   // netReceivables: "",
-  // totalReserves: "",
+  totalReserves: "",
 });
 
 // Watch for auto calculation - Net Receivables Reserve
@@ -354,7 +353,7 @@ watch(
     const cadanganPiutang = safeNumber(formData.value.cadangan_piutang);
     const macetReal = safeNumber(formData.value.macet_real);
 
-    formData.value.surplus_devist = cadanganPiutang- macetReal
+    formData.value.surplus_devist = cadanganPiutang - macetReal;
   },
   { immediate: true },
 );
@@ -376,13 +375,6 @@ const fetchList = async (page = 1) => {
   }
 };
 
-onMounted(async () => {
-  if (!authStore.user?.value) return;
-  isGlobalLoading.value = true;
-  emit("update:modelValue", { ...defaultSalesData });
-  fetchList(currentPage.value);
-});
-
 const goToPage = (page: number) => {
   if (page >= 1 && page <= totalPages.value) {
     fetchList(page);
@@ -402,7 +394,7 @@ function validateForm(): boolean {
     cadanganStock: safeNumber(formData.value.cadangan_stock),
     cadanganStockData: safeNumber(formData.value.cadangan_stock_data),
     // netReceivables: safeNumber(formData.value.net_receivables),
-    // totalReserves: safeNumber(formData.value.total_reserves),
+    totalReserves: safeNumber(formData.value.total_reserves),
   });
 
   if (!result.success) {
@@ -445,7 +437,28 @@ function handleReset(): void {
   cadanganData.value = { ...defaultSalesData };
   isEditing.value = false;
   idSelected.value = null;
+  errors.value = {
+    cadanganPiutang: "",
+    macetReal: "",
+    surplusDevist: "",
+    cadanganStock: "",
+    cadanganStockData: "",
+    totalReserves: "",
+  };
 }
+
+onMounted(async () => {
+  if (!authStore.user?.value) return;
+  isGlobalLoading.value = true;
+  // Form terikat ke cadanganData (global); emit tidak terhubung dari view — reset langsung.
+  handleReset();
+  await fetchList(currentPage.value);
+});
+
+/** Jika route di-cache (keep-alive), reset form setiap kembali ke halaman ini. */
+onActivated(() => {
+  handleReset();
+});
 
 function editRow(id: number): void {
   if (!id) return; // jaga-jaga id tidak valid
@@ -476,7 +489,7 @@ function editRow(id: number): void {
     cadangan_stock: Number(row.cadangan_stock),
     cadangan_stock_data: Number(row.cadangan_stock_data),
     // net_receivables: Number(row.net_receivables || 0),
-    // total_reserves: Number(row.total_reserves || 0),
+    total_reserves: Number(row.total_reserves || 0),
     year: row.year,
     month: row.month,
   };

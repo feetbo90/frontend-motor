@@ -9,6 +9,7 @@ export interface ResidualValueReservePayload {
   surplus_devist: number,
   cadangan_stock: number,
   cadangan_stock_data: number,
+  total_reserves: number,
 }
 
 export type ResidualValueReserveFrm = Omit<ResidualValueReservePayload, "branch_id">;
@@ -27,6 +28,7 @@ export interface ResidualValueReserveData {
   updated_at: Date;
   version: string;
   is_active: boolean;
+  total_reserves: number;
 }
 export interface ParamResidualValueReserveList {
   branch_id: number | undefined;

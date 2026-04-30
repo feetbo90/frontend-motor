@@ -54,17 +54,20 @@
           <thead>
             <tr class="table-header-row">
               <th class="table-th index-col">#</th>
-              <th class="table-th">Period</th>
-              <th class="table-th amount-col receivables-col">Receivables Reserve</th>
-              <th class="table-th amount-col performance-col">Performance</th>
-              <th class="table-th amount-col stock-col">Stock Reserve</th>
-              <th class="table-th actions-col">Actions</th>
+              <th class="table-th period-col">Periode</th>
+              <th class="table-th amount-col field-col col-piutang">Cadangan Piutang</th>
+              <th class="table-th amount-col field-col col-macet">Macet Real</th>
+              <th class="table-th amount-col field-col col-surplus">Surplus Devisit</th>
+              <th class="table-th amount-col field-col col-cad-stock">Cadangan Stock</th>
+              <th class="table-th amount-col field-col col-cad-stock-data">Cadangan Stock Data</th>
+              <th class="table-th amount-col field-col col-total">Total Cadangan &amp; Nilai Sisa</th>
+              <th class="table-th actions-col">Aksi</th>
             </tr>
           </thead>
           <tbody>
             <!-- Empty State -->
             <tr v-if="visibleEntries.length === 0" class="empty-row">
-              <td colspan="6" class="empty-cell">
+              <td colspan="9" class="empty-cell">
                 <div class="empty-state">
                   <svg
                     class="empty-icon"
@@ -100,58 +103,40 @@
                   <span class="period-year">{{ item.row.year }}</span>
                 </div>
               </td>
-              <td class="table-td amount-cell receivables-cell">
-                <div class="receivables-data">
-                  <div class="receivables-breakdown">
-                    <span class="receivables-item">
-                      <span class="receivables-label">Cadangan:</span>
-                      <span class="receivables-value">{{
-                        formatCurrency(safeNumber(item.row.cadangan_piutang))
-                      }}</span>
-                    </span>
-                    <span class="receivables-item">
-                      <span class="receivables-label">Macet Real:</span>
-                      <span class="receivables-value">{{
-                        formatCurrency(safeNumber(item.row.macet_real))
-                      }}</span>
-                    </span>
-                  </div>
-                </div>
+              <td class="table-td amount-cell col-piutang">
+                <span class="amount-value">{{
+                  formatCurrency(safeNumber(item.row.cadangan_piutang))
+                }}</span>
               </td>
-              <td class="table-td amount-cell performance-cell">
-                <div class="performance-data">
-                  <div class="performance-breakdown">
-                    <span class="performance-item">
-                      <span class="performance-label">Surplus/Deficit:</span>
-                      <span
-                        class="performance-value"
-                        :class="{
-                          'negative-value': safeNumber(item.row.surplus_devist) < 0,
-                          'positive-value': safeNumber(item.row.surplus_devist) > 0,
-                        }"
-                        >{{ formatCurrency(safeNumber(item.row.surplus_devist)) }}</span
-                      >
-                    </span>
-                  </div>
-                </div>
+              <td class="table-td amount-cell col-macet">
+                <span class="amount-value">{{
+                  formatCurrency(safeNumber(item.row.macet_real))
+                }}</span>
               </td>
-              <td class="table-td amount-cell stock-cell">
-                <div class="stock-data">
-                  <div class="stock-breakdown">
-                    <span class="stock-item">
-                      <span class="stock-label">Cadangan Stok:</span>
-                      <span class="stock-value">{{
-                        formatCurrency(safeNumber(item.row.cadangan_stock))
-                      }}</span>
-                    </span>
-                    <span class="stock-item">
-                      <span class="stock-label">Stok Data:</span>
-                      <span class="stock-value">{{
-                        formatCurrency(safeNumber(item.row.cadangan_stock_data))
-                      }}</span>
-                    </span>
-                  </div>
-                </div>
+              <td class="table-td amount-cell col-surplus">
+                <span
+                  class="amount-value"
+                  :class="{
+                    'negative-value': safeNumber(item.row.surplus_devist) < 0,
+                    'positive-value': safeNumber(item.row.surplus_devist) > 0,
+                  }"
+                  >{{ formatCurrency(safeNumber(item.row.surplus_devist)) }}</span
+                >
+              </td>
+              <td class="table-td amount-cell col-cad-stock">
+                <span class="amount-value">{{
+                  formatCurrency(safeNumber(item.row.cadangan_stock))
+                }}</span>
+              </td>
+              <td class="table-td amount-cell col-cad-stock-data">
+                <span class="amount-value">{{
+                  formatCurrency(safeNumber(item.row.cadangan_stock_data))
+                }}</span>
+              </td>
+              <td class="table-td amount-cell col-total">
+                <span class="amount-value amount-value--total">{{
+                  formatCurrency(rowTotalCadanganNilaiSisa(item.row))
+                }}</span>
               </td>
               <td class="table-td actions-cell">
                 <div class="action-buttons">
@@ -243,6 +228,19 @@ function safeNumber(n: unknown): number {
   return Number.isFinite(num) ? num : 0;
 }
 
+/** Selaras form: total = surplus (piutang − macet) + cadangan stock + cadangan stock data; atau total_reserves dari API jika ada. */
+function rowTotalCadanganNilaiSisa(row: ResidualValueReserveData): number {
+  const ext = row as ResidualValueReserveData & { total_reserves?: number };
+  if (ext.total_reserves != null && Number.isFinite(Number(ext.total_reserves))) {
+    return safeNumber(ext.total_reserves);
+  }
+  return (
+    safeNumber(row.surplus_devist) +
+    safeNumber(row.cadangan_stock) +
+    safeNumber(row.cadangan_stock_data)
+  );
+}
+
 function formatCurrency(n: number): string {
   return new Intl.NumberFormat(props.numberFormatLocale, {
     style: "currency",
@@ -325,15 +323,32 @@ function formatCurrency(n: number): string {
   text-align: center;
 }
 
-.amount-col {
-  min-width: 200px;
+.period-col {
+  min-width: 100px;
 }
 
-.receivables-col {
+.amount-col {
+  min-width: 128px;
+}
+
+.field-col {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.35;
+}
+
+.col-piutang,
+.col-macet,
+.col-surplus,
+.col-cad-stock,
+.col-cad-stock-data,
+.col-total {
   position: relative;
 }
 
-.receivables-col::before {
+.col-piutang::before {
   content: "";
   position: absolute;
   left: 0;
@@ -343,25 +358,17 @@ function formatCurrency(n: number): string {
   background: linear-gradient(180deg, #3b82f6, #1d4ed8);
 }
 
-.performance-col {
-  position: relative;
-}
-
-.performance-col::before {
+.col-macet::before {
   content: "";
   position: absolute;
   left: 0;
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, #10b981, #059669);
+  background: linear-gradient(180deg, #ef4444, #dc2626);
 }
 
-.stock-col {
-  position: relative;
-}
-
-.stock-col::before {
+.col-surplus::before {
   content: "";
   position: absolute;
   left: 0;
@@ -369,6 +376,36 @@ function formatCurrency(n: number): string {
   bottom: 0;
   width: 4px;
   background: linear-gradient(180deg, #f59e0b, #d97706);
+}
+
+.col-cad-stock::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #8b5cf6, #7c3aed);
+}
+
+.col-cad-stock-data::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #7c3aed, #6d28d9);
+}
+
+.col-total::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, #64748b, #475569);
 }
 
 .actions-col {
@@ -435,90 +472,17 @@ function formatCurrency(n: number): string {
   color: #6b7280;
 }
 
-/* Receivables Cell */
-.receivables-cell {
-  position: relative;
-}
-
-.receivables-cell::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #3b82f6, #1d4ed8);
-}
-
-.receivables-data {
+.amount-value {
+  display: block;
   padding-left: 12px;
-}
-
-.receivables-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.receivables-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.receivables-label {
-  font-size: 13px;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.receivables-value {
   font-weight: 500;
   color: #111827;
+  font-variant-numeric: tabular-nums;
 }
 
-/* Performance Cell */
-.performance-cell {
-  position: relative;
-}
-
-.performance-cell::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #10b981, #059669);
-}
-
-.performance-data {
-  padding-left: 12px;
-}
-
-.performance-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.performance-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.performance-label {
-  font-size: 13px;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.performance-value {
-  font-weight: 500;
-  color: #111827;
+.amount-value--total {
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .positive-value {
@@ -527,49 +491,6 @@ function formatCurrency(n: number): string {
 
 .negative-value {
   color: #dc2626;
-}
-
-/* Stock Cell */
-.stock-cell {
-  position: relative;
-}
-
-.stock-cell::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, #f59e0b, #d97706);
-}
-
-.stock-data {
-  padding-left: 12px;
-}
-
-.stock-breakdown {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.stock-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-}
-
-.stock-label {
-  font-size: 13px;
-  color: #6b7280;
-  white-space: nowrap;
-}
-
-.stock-value {
-  font-weight: 500;
-  color: #111827;
 }
 
 /* Actions Cell */
@@ -663,15 +584,7 @@ function formatCurrency(n: number): string {
   }
 
   .amount-col {
-    min-width: 180px;
-  }
-
-  .performance-col {
-    min-width: 160px;
-  }
-
-  .stock-col {
-    min-width: 180px;
+    min-width: 112px;
   }
 }
 
@@ -711,9 +624,7 @@ function formatCurrency(n: number): string {
     gap: 12px;
   }
 
-  .receivables-data,
-  .performance-data,
-  .stock-data {
+  .amount-value {
     font-size: 13px;
   }
 
@@ -728,7 +639,7 @@ function formatCurrency(n: number): string {
   }
 
   .modern-table {
-    min-width: 800px;
+    min-width: 1100px;
   }
 }
 </style>

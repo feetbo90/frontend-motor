@@ -175,6 +175,7 @@ export const labaRugiData = ref({
 
 // Data untuk cadangan
 export const cadanganData = ref({
+  total_reserves: 0,
   cadangan_piutang: 0,
   macet_real: 0,
   surplus_devist: 0,
