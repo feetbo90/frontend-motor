@@ -9,6 +9,7 @@ export interface ResourcesPayload {
     jumlah_unit: number,
     kasir: number,
     administrasi: number,
+    mekanik: number,
     pdl: number,
     formasi_kurang: number,
     kontrak_kantor: number,
@@ -31,6 +32,8 @@ export interface ResourcesData {
     jumlah_unit: number,
     kasir: number,
     administrasi: number,
+    /** Opsional untuk baris lama dari API sebelum field mekanik ada. */
+    mekanik?: number,
     pdl: number,
     formasi_kurang: number,
     kontrak_kantor: number,

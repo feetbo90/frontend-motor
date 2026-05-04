@@ -112,8 +112,34 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField id="administrasi" label="" type="number" v-model="formData.administrasi"
-                        placeholder="0" :error="errors.administrasi" @keydown.enter.prevent="focusNextInput('pdl')" />
+                      <FormField
+                        id="administrasi"
+                        label=""
+                        type="number"
+                        v-model="formData.administrasi"
+                        placeholder="0"
+                        :error="errors.administrasi"
+                        @keydown.enter.prevent="focusNextInput('mekanik')"
+                      />
+                    </td>
+                  </tr>
+                  <tr class="table-row staff-row">
+                    <td class="field-label">
+                      <label for="mekanik">
+                        <i class="fas fa-wrench icon"></i>
+                        Mekanik
+                      </label>
+                    </td>
+                    <td class="field-input">
+                      <FormField
+                        id="mekanik"
+                        label=""
+                        type="number"
+                        v-model="formData.mekanik"
+                        placeholder="0"
+                        :error="errors.mekanik"
+                        @keydown.enter.prevent="focusNextInput('pdl')"
+                      />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -327,6 +353,7 @@ const defaultSalesData: ResourcesFrm = {
   jumlah_unit: 0,
   kasir: 0,
   administrasi: 0,
+  mekanik: 0,
   pdl: 0,
   formasi_kurang: 0,
   kontrak_kantor: 0,
@@ -343,6 +370,7 @@ const errors = ref<Record<keyof ResourcesSchema, string>>({
   jumlahUnit: "",
   kasir: "",
   administrasi: "",
+  mekanik: "",
   pdl: "",
   formasiKurang: "",
   kontrakKantor: "",
@@ -393,6 +421,7 @@ function validateForm(): boolean {
     jumlahUnit: safeNumber(formData.value.jumlah_unit),
     kasir: safeNumber(formData.value.kasir),
     administrasi: safeNumber(formData.value.administrasi),
+    mekanik: safeNumber(formData.value.mekanik),
     pdl: safeNumber(formData.value.pdl),
     formasiKurang: safeNumber(formData.value.formasi_kurang),
     kontrakKantor: safeNumber(formData.value.kontrak_kantor),
@@ -481,6 +510,7 @@ function editRow(id: number) {
       jumlah_unit: row.jumlah_unit,
       kasir: row.kasir,
       administrasi: row.administrasi,
+      mekanik: Number(row.mekanik ?? 0),
       pdl: row.pdl,
       formasi_kurang: row.formasi_kurang,
       kontrak_kantor: row.kontrak_kantor,

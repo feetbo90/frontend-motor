@@ -7,6 +7,7 @@ export const resourcesSchema = z.object({
   jumlahUnit: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Jumlah Unit tidak boleh negatif" }),
   kasir: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Kasir tidak boleh negatif" }),
   administrasi: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Administrasi tidak boleh negatif" }),
+  mekanik: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Mekanik tidak boleh negatif" }),
   pdl: z.number().refine(n => !isNaN(n) && n >= 0, { message: "PDL tidak boleh negatif" }),
   formasiKurang: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Formasi Kurang tidak boleh negatif" }),
   kontrakKantor: z.number().refine(n => !isNaN(n) && n >= 0, { message: "Kontrak Kantor tidak boleh negatif" }),

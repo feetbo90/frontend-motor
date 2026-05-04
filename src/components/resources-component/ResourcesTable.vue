@@ -142,6 +142,10 @@
                       <span class="staff-value">{{ format(item.row.administrasi) }}</span>
                     </span>
                     <span class="staff-item">
+                      <span class="staff-label">Mekanik:</span>
+                      <span class="staff-value">{{ format(item.row.mekanik ?? 0) }}</span>
+                    </span>
+                    <span class="staff-item">
                       <span class="staff-label">PDL:</span>
                       <span class="staff-value">{{ format(item.row.pdl) }}</span>
                     </span>

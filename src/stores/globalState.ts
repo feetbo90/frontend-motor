@@ -194,6 +194,7 @@ export const sumberDayaData = ref({
   jumlah_unit: 0,
   kasir: 0,
   administrasi: 0,
+  mekanik: 0,
   pdl: 0,
   formasi_kurang: 0,
   kontrak_kantor: 0,
