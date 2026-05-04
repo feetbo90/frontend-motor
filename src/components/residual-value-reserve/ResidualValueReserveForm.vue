@@ -139,10 +139,11 @@
                         v-model="formData.cadangan_stock"
                         placeholder="0"
                         :error="errors.cadanganStock"
-                        @keydown.enter.prevent="focusNextInput('cadangan-stock-data')"
+                        @keydown.enter.prevent="focusSubmitButton"
                       />
                     </td>
                   </tr>
+                  <!--
                   <tr class="table-row inventory-row">
                     <td class="field-label">
                       <label for="cadangan-stock-data">
@@ -176,13 +177,15 @@
                         id="total-reserves"
                         label=""
                         type="number"
-                        v-model="formData.total_reserves"
+                        :model-value="computedTotalCadanganNilaiSisa"
                         placeholder="0"
-                        :error="errors.totalReserves"
+                        :error="null"
                         format="currency"
+                        :readonly="true"
                       />
                     </td>
                   </tr>
+                  -->
                 </tbody>
               </table>
             </div>
@@ -315,8 +318,6 @@ const defaultSalesData: ResidualValueReserveFrm = {
   surplus_devist: 0,
   cadangan_stock: 0,
   cadangan_stock_data: 0,
-  // net_receivables: 0,
-  total_reserves: 0,
 };
 
 const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
@@ -324,9 +325,7 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
   macetReal: "",
   surplusDevist: "",
   cadanganStock: "",
-  cadanganStockData: "",
-  // netReceivables: "",
-  totalReserves: "",
+  //cadanganStockData: "",
 });
 
 // Watch for auto calculation - Net Receivables Reserve
@@ -386,15 +385,24 @@ function safeNumber(n: unknown): number {
   return Number.isFinite(num) ? num : 0;
 }
 
+/** Dipakai saat baris Total di-uncomment (lihat komentar HTML di template). */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars -- dipakai di blok template yang saat ini dikomentari
+const computedTotalCadanganNilaiSisa = computed(() => {
+  const v = formData.value;
+  return (
+    safeNumber(v.surplus_devist) +
+    safeNumber(v.cadangan_stock) +
+    safeNumber(v.cadangan_stock_data)
+  );
+});
+
 function validateForm(): boolean {
   const result = residualValueReserveSchema.safeParse({
     cadanganPiutang: safeNumber(formData.value.cadangan_piutang),
     macetReal: safeNumber(formData.value.macet_real),
     surplusDevist: safeNumber(formData.value.surplus_devist),
     cadanganStock: safeNumber(formData.value.cadangan_stock),
-    cadanganStockData: safeNumber(formData.value.cadangan_stock_data),
-    // netReceivables: safeNumber(formData.value.net_receivables),
-    totalReserves: safeNumber(formData.value.total_reserves),
+    //cadanganStockData: safeNumber(formData.value.cadangan_stock_data),
   });
 
   if (!result.success) {
@@ -411,7 +419,7 @@ async function handleSave(): Promise<void> {
   // ✅ Validasi dulu
   const isValid = validateForm();
   if (!isValid) return; // ✅ stop kalau invalid
-
+console.log(formData.value);
   isGlobalLoading.value = true;
   try {
     const payload: ResidualValueReservePayload = {
@@ -442,8 +450,7 @@ function handleReset(): void {
     macetReal: "",
     surplusDevist: "",
     cadanganStock: "",
-    cadanganStockData: "",
-    totalReserves: "",
+    //cadanganStockData: "",
   };
 }
 
@@ -488,8 +495,6 @@ function editRow(id: number): void {
     surplus_devist: Number(row.surplus_devist),
     cadangan_stock: Number(row.cadangan_stock),
     cadangan_stock_data: Number(row.cadangan_stock_data),
-    // net_receivables: Number(row.net_receivables || 0),
-    total_reserves: Number(row.total_reserves || 0),
     year: row.year,
     month: row.month,
   };

@@ -9,7 +9,7 @@ export interface ResidualValueReservePayload {
   surplus_devist: number,
   cadangan_stock: number,
   cadangan_stock_data: number,
-  total_reserves: number,
+  // total_reserves: number,
 }
 
 export type ResidualValueReserveFrm = Omit<ResidualValueReservePayload, "branch_id">;

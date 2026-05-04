@@ -60,11 +60,20 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField id="pimpinan" label="" type="number" v-model="formData.pimpinan" placeholder="0"
-                        :error="errors.pimpinan" @keydown.enter.prevent="focusNextInput('jumlah-unit')" />
+                      <FormField
+                        id="pimpinan"
+                        label=""
+                        type="number"
+                        v-model="formData.pimpinan"
+                        placeholder="0"
+                        :error="errors.pimpinan"
+                        @keydown.enter.prevent="
+                          focusNextInput(isCabangRole ? 'jumlah-unit' : 'kasir')
+                        "
+                      />
                     </td>
                   </tr>
-                  <tr class="table-row staff-row">
+                  <tr v-if="isCabangRole" class="table-row staff-row">
                     <td class="field-label">
                       <label for="jumlah-unit">
                         <i class="fas fa-cubes icon"></i>
@@ -72,8 +81,15 @@
                       </label>
                     </td>
                     <td class="field-input">
-                      <FormField id="jumlah-unit" label="" type="number" v-model="formData.jumlah_unit" placeholder="0"
-                        :error="errors.jumlahUnit" @keydown.enter.prevent="focusNextInput('kasir')" />
+                      <FormField
+                        id="jumlah-unit"
+                        label=""
+                        type="number"
+                        v-model="formData.jumlah_unit"
+                        placeholder="0"
+                        :error="errors.jumlahUnit"
+                        @keydown.enter.prevent="focusNextInput('kasir')"
+                      />
                     </td>
                   </tr>
                   <tr class="table-row staff-row">
@@ -132,7 +148,7 @@
                       <td class="field-label">
                         <label for="kontrak-kantor">
                           <i class="fas fa-building icon"></i>
-                          Kontrak Kantor (bulan)
+                          Sisa Kontrak Kantor (hari)
                         </label>
                       </td>
                       <td class="field-input">
