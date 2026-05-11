@@ -292,7 +292,7 @@ watch(
 );
 */
 
-watch(
+/* watch(
   [
     () => formData.value.jumlah_kas_macet,
     () => formData.value.bon_karyawan,
@@ -310,6 +310,8 @@ watch(
   },
   { immediate: true },
 );
+*/
+
 const fetchList = async () => {
   try {
     isGlobalLoading.value = true;
