@@ -138,7 +138,7 @@
                     </td>
                     <td class="field-input">
                       <FormField id="saldo-akhir" label="" type="number" v-model="formData.saldo_akhir" placeholder="0"
-                        :error="errors.saldoAkhir" format="currency" :readonly="true" />
+                        :error="errors.saldoAkhir" format="currency" />
                     </td>
                   </tr>
                 </tbody>
