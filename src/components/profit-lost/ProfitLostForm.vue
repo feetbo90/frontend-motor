@@ -80,6 +80,7 @@
                         placeholder="0"
                         :error="errors.kumulatif"
                         format="currency"
+                        :allowNegative="true"
                         @keydown.enter.prevent="focusNextInput('penarikan')"
                       />
                     </td>
