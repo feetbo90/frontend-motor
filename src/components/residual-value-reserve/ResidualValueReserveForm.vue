@@ -120,6 +120,7 @@
                         placeholder="0"
                         :error="errors.surplusDevist"
                         format="currency"
+                        :allowNegative="true"
                         @keydown.enter.prevent="focusNextInput('cadangan-stock')"
                       />
                     </td>
@@ -342,7 +343,7 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
 // );
 
 // Watch for auto surplus devisit - Total Reserves
-watch(
+/*watch(
   [
     () => formData.value.cadangan_piutang,
     () => formData.value.surplus_devist,
@@ -356,6 +357,7 @@ watch(
   },
   { immediate: true },
 );
+*/
 
 const fetchList = async (page = 1) => {
   try {

@@ -270,8 +270,8 @@ const errors = ref<Record<keyof CashFlowSchema, string>>({
 // Auto-calculation watchers
 const kasTunai = computed(() => safeNumber(formData.value.kas_tunai));
 const rekeningBank = computed(() => safeNumber(formData.value.rekening_bank));
-const jumlahKasMacet = computed(() => safeNumber(formData.value.jumlah_kas_macet));
-const jumlahKasLancar = computed(() => safeNumber(formData.value.jumlah_kas_lancar));
+//const jumlahKasMacet = computed(() => safeNumber(formData.value.jumlah_kas_macet));
+//const jumlahKasLancar = computed(() => safeNumber(formData.value.jumlah_kas_lancar));
 
 // Watch for kas lancar calculation
 watch(
@@ -283,13 +283,14 @@ watch(
 );
 
 // Watch for saldo akhir calculation
-watch(
+/* watch(
   [jumlahKasLancar, jumlahKasMacet],
   () => {
     formData.value.saldo_akhir = Math.max(0, jumlahKasLancar.value - jumlahKasMacet.value);
   },
   { immediate: true },
 );
+*/
 
 watch(
   [
