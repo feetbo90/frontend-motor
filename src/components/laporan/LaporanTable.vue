@@ -188,7 +188,6 @@ import {
   formatNumber,
   formatPercentage,
   isGlobalLoading,
-  selectedEntityId,
   selectedMonth,
   selectedYear,
 } from "@/stores/globalState";
@@ -856,10 +855,11 @@ function getRKey(config: RowConfig | undefined): RateOrRatioKey | undefined {
   }
   return undefined;
 }
+
 const fetchRateList = async (year: number | undefined, month: number | undefined) => {
   try {
     loading.value = true;
-    const branchId = selectedEntityId.value ? Number(selectedEntityId.value) : undefined;
+    const branchId = authStore.user?.value?.entity_id;
     const response = await getProductRatesRatios({
       year,
       month,
@@ -889,13 +889,16 @@ const runFetchRatesIfPeriodSelected = () => {
   const year = selectedYear.value !== "" ? Number(selectedYear.value) : undefined;
   const month = selectedMonth.value !== "" ? Number(selectedMonth.value) : undefined;
   if (!year || !month) return;
-  // CABANG/UNIT: tunggu cabang/unit (entity) dipilih di sidebar
-  if (!hasRole("PUSAT") && !selectedEntityId.value) return;
+  // CABANG/UNIT: butuh entity_id user (bukan filter sidebar)
+  if (!hasRole("PUSAT")) {
+    const eid = authStore.user?.value?.entity_id;
+    if (eid === undefined || eid === null) return;
+  }
   isGlobalLoading.value = true;
   fetchRateList(year, month);
 };
 
-watch([selectedYear, selectedMonth, selectedEntityId], runFetchRatesIfPeriodSelected);
+watch([selectedYear, selectedMonth], runFetchRatesIfPeriodSelected);
 
 onMounted(() => {
   if (!authStore.user?.value) return;

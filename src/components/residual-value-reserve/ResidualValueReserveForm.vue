@@ -343,7 +343,7 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
 // );
 
 // Watch for auto surplus devisit - Total Reserves
-/*watch(
+watch(
   [
     () => formData.value.cadangan_piutang,
     () => formData.value.surplus_devist,
@@ -357,7 +357,7 @@ const errors = ref<Record<keyof ResidualValueReserveSchema, string>>({
   },
   { immediate: true },
 );
-*/
+
 
 const fetchList = async (page = 1) => {
   try {

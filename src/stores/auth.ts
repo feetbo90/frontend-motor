@@ -1,5 +1,6 @@
 import type { User } from '@/types/auth-login.type'
 import { ref, computed, readonly } from 'vue'
+import { syncSelectedEntityIdFromUser } from '@/stores/globalState'
 
 // State
 const isAuthenticated = ref(false)
@@ -30,6 +31,7 @@ export const useAuthStore = () => {
     isAuthenticated.value = false
     user.value = null
     token.value = null
+    syncSelectedEntityIdFromUser(null)
 
     // Hapus data dari localStorage
     localStorage.removeItem('auth_token')
@@ -81,4 +83,5 @@ export const useAuthStore = () => {
 export const initializeAuth = async (): Promise<void> => {
   const authStore = useAuthStore()
   authStore.checkAuth()
+  syncSelectedEntityIdFromUser(authStore.user.value)
 }

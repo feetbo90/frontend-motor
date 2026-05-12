@@ -14,6 +14,15 @@ export const selectedCabang = ref("");
 export const selectedUnit = ref("");
 export const selectedEntityId = ref<number | undefined>(undefined);
 
+/** Cabang/UNIT: branch_id untuk API mengikuti user.entity_id. PUSAT: tidak di-set di sini (pilih manual). */
+export function syncSelectedEntityIdFromUser(user: User | null): void {
+  if (!user) {
+    selectedEntityId.value = undefined;
+    return;
+  }
+    selectedEntityId.value = user.entity_id;
+}
+
 /**
  * Default filter cabang/unit dari user CABANG atau UNIT (berdasarkan entity_id).
  * Panggil setelah pohon cabang dari API tersedia dan, di UI, setelah `cabangsData` terisi (mis. `await nextTick()`).
@@ -22,6 +31,7 @@ export async function syncCabangUnitDefaultsFromEntities(
   user: User | null,
   cabangs: Entities[],
 ) {
+  syncSelectedEntityIdFromUser(user);
   if (!user?.entity_type || !cabangs.length) return;
 
   const entityIdStr = String(user.entity_id);
