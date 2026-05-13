@@ -257,11 +257,11 @@ const visibleMonthEnds = computed(() => {
   return Array.from({ length: max }, (_, i) => i + 1);
 });
 
-/** Maks indeks R mengikuti visibleMonthEnds (selectedMonth), cap 11 karena API hanya _r1.._r11 */
+/** Maks indeks R mengikuti visibleMonthEnds (selectedMonth), cap 12 karena API punya _r1.._r12 */
 const rMax = computed(() => {
   const arr = visibleMonthEnds.value;
   const maxMonth = arr.length ? arr[arr.length - 1] : 12;
-  return Math.min(maxMonth, 11);
+  return Math.min(maxMonth, 12);
 });
 
 /** Kolom untuk export Excel: No., Uraian, lalu tiap bulan (nama bulan + R1, R2, ...), Jumlah */
@@ -562,7 +562,7 @@ function getRatioRowRSum(entityName: string, row: { config: TingkatProduksiConfi
   return formatNumber(sum);
 }
 
-/** 19 baris uraian sesuai gambar laporan. Kolom R1–R11 pakai average_*_r1 … average_*_r11. */
+/** 19 baris uraian sesuai gambar laporan. Kolom R1–R12 pakai average_*_r1 … average_*_r12. */
 const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 1,
