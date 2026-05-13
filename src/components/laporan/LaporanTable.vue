@@ -867,8 +867,12 @@ const fetchRateList = async (year: number | undefined, month: number | undefined
     });
     if (response.success) {
       if (hasRole("PUSAT") && isPusatRatesRatiosResponse(response)) {
-        ratesRatiosData.value = normalizePusatRatesRatiosResponse(response);
-        apiData.value = mapPusatRatesRatiosToProductRateData(response);
+        ratesRatiosData.value = normalizePusatRatesRatiosResponse(response, {
+          includeChildren: false,
+        });
+        apiData.value = mapPusatRatesRatiosToProductRateData(response, {
+          includeChildren: false,
+        });
       } else {
         apiData.value = mapRatesRatiosToProductRateData(response as ProductRatesRatiosData);
         ratesRatiosData.value = response as ProductRatesRatiosData;

@@ -58,20 +58,30 @@ export function isPusatRatesRatiosResponse(
   );
 }
 
+type PusatRatesRatiosMapperOptions = {
+  includeChildren?: boolean;
+};
+
 /**
  * Normalisasi response PUSAT ke bentuk ProductRatesRatiosData
  * agar getRatesForEntity / getMonthlyValueByKey tetap dipakai.
  */
 export function normalizePusatRatesRatiosResponse(
-  res: ProductRatesRatiosPusatData
+  res: ProductRatesRatiosPusatData,
+  options: PusatRatesRatiosMapperOptions = {}
 ): ProductRatesRatiosData {
+  const includeChildren = options.includeChildren ?? true;
   const pusatId = res.included_pusat_ids?.[0] ?? 0;
-  const cabangUnits: RatesRatiosUnitItem[] = (res.cabangs ?? []).map((c) =>
-    mergePusatNestedToUnitItem(c.cabang_id, c.cabang_name, c.rate, c.ratio)
-  );
-  const leafUnits: RatesRatiosUnitItem[] = (res.units ?? []).map((u) =>
-    mergePusatNestedToUnitItem(u.unit_id, u.unit_name, u.rate, u.ratio)
-  );
+  const cabangUnits: RatesRatiosUnitItem[] = includeChildren
+    ? (res.cabangs ?? []).map((c) =>
+        mergePusatNestedToUnitItem(c.cabang_id, c.cabang_name, c.rate, c.ratio)
+      )
+    : [];
+  const leafUnits: RatesRatiosUnitItem[] = includeChildren
+    ? (res.units ?? []).map((u) =>
+        mergePusatNestedToUnitItem(u.unit_id, u.unit_name, u.rate, u.ratio)
+      )
+    : [];
 
   return {
     success: res.success,
@@ -114,10 +124,13 @@ export function normalizePusatRatesRatiosResponse(
  * rate/ratio per nama entitas.
  */
 export function mapPusatRatesRatiosToProductRateData(
-  res: ProductRatesRatiosPusatData
+  res: ProductRatesRatiosPusatData,
+  options: PusatRatesRatiosMapperOptions = {}
 ): ProductRateData {
-  const cabangs = res.cabangs ?? [];
-  const units = res.units ?? [];
+  console.log("res", res);
+  const includeChildren = options.includeChildren ?? true;
+  const cabangs = includeChildren ? (res.cabangs ?? []) : [];
+  const units = includeChildren ? (res.units ?? []) : [];
   const entityIds = [
     {
       id: String(res.included_pusat_ids?.[0] ?? ""),

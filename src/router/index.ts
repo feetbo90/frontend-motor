@@ -100,7 +100,7 @@ const routes = [
     path: '/laporan',
     name: 'laporan',
     component: LaporanView,
-    meta: { title: 'Laporan', requiresAuth: true, allowedRoles: [ 'PUSAT'] }
+    meta: { title: 'Laporan', requiresAuth: true, allowedRoles: ['UNIT', 'CABANG', 'PUSAT'] }
   },
   // {
   //   path: '/laporan-range',
