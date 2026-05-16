@@ -121,6 +121,7 @@
                         :error="errors.bebanUmumOperasional"
                         format="currency"
                         :readonly="true"
+                        @keydown.enter.prevent="focusNextInput('penyusutan-aktiva')"
                       />
                     </td>
                   </tr>
@@ -161,6 +162,7 @@
                         :error="errors.cadanganPiutang"
                         format="currency"
                         @keydown.enter.prevent="focusNextInput('cadangan-stock')"
+                        :allowNegative="true"
                       />
                     </td>
                   </tr>
