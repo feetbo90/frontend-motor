@@ -130,7 +130,7 @@
                     </td>
                   </template>
                   <td class="col-jumlah">
-                    {{ row.config ? getTingkatRowRSum(entity.name, row) : "—" }}
+                    <!-- {{ row.config ? getTingkatRowRSum(entity.name, row) : "—" }} -->
                   </td>
                 </tr>
                 <!-- Subheader: Ratio Produksi -->
@@ -167,7 +167,7 @@
                     <td class="col-bulan">-</td>
                   </template>
                   <td class="col-jumlah">
-                    {{ row.config ? getRatioRowRSum(entity.name, row) : "—" }}
+                    {{ row.config ? getRatioProduksiJumlah(entity.name, row) : "—" }}
                   </td>
                 </tr>
               </tbody>
@@ -377,7 +377,7 @@ const excelDataByEntity = computed(() => {
         cells.push(formatPercentage(Number(val)));
         cells.push("-");
       });
-      cells.push(getRatioRowRSum(entityName, row));
+      cells.push(getRatioProduksiJumlah(entityName, row));
       rows.push(makeRow(cells));
     });
 
@@ -515,11 +515,23 @@ function getRFieldForMonth(config: RowConfig | undefined, monthEnd: number): str
   return config.rFieldBase + String(Math.min(monthEnd, rMax.value));
 }
 
-/** Jumlah nilai kolom bulan (Januari, Februari, ...) untuk baris Uraian */
-function getUraianRowRSum(entityName: string, row: { config?: RowConfig }): string {
+type UraianRow = { no: number; uraian: string; config?: RowConfig; skipJumlah?: boolean };
+
+type RatioProduksiJumlahFormula = { numerator: number; denominator: number };
+
+type RatioProduksiRow = {
+  no: number;
+  uraian: string;
+  config: TingkatProduksiConfig;
+  jumlahFormula: RatioProduksiJumlahFormula;
+};
+
+/** Total nilai kolom bulan untuk baris Uraian (dipakai hitung Jumlah & rumus ratio) */
+function getUraianRowJumlahNumeric(entityName: string, uraianNo: number): number {
+  const row = URAIAN_ROWS.find((r) => r.no === uraianNo);
+  if (!row?.config) return 0;
   const data = ratesRatiosData.value;
-  if (!data) return "—";
-  if (!row.config) return "—";
+  if (!data) return 0;
   let sum = 0;
   for (const monthEnd of visibleMonthEnds.value) {
     if ("type" in row.config && row.config.type === "unit_count") {
@@ -535,7 +547,13 @@ function getUraianRowRSum(entityName: string, row: { config?: RowConfig }): stri
       if (typeof vMonth === "number" && !Number.isNaN(vMonth)) sum += vMonth;
     }
   }
-  return formatNumber(sum);
+  return sum;
+}
+
+/** Jumlah nilai kolom bulan (Januari, Februari, ...) untuk baris Uraian */
+function getUraianRowRSum(entityName: string, row: UraianRow): string {
+  if (row.skipJumlah) return "";
+  return formatNumber(getUraianRowJumlahNumeric(entityName, row.no));
 }
 
 /** Jumlah nilai R untuk baris Tingkat Produksi */
@@ -550,20 +568,19 @@ function getTingkatRowRSum(entityName: string, row: { config: TingkatProduksiCon
   return formatNumber(sum);
 }
 
-/** Jumlah nilai R untuk baris Ratio Produksi */
-function getRatioRowRSum(entityName: string, row: { config: TingkatProduksiConfig }): string {
-  const data = ratesRatiosData.value;
-  if (!data) return "—";
-  let sum = 0;
-  for (const monthEnd of visibleMonthEnds.value) {
-    const v = getMonthlyValueByKey(data, entityName, monthEnd, row.config.key, row.config.rField);
-    if (typeof v === "number" && !Number.isNaN(v)) sum += Number(v);
-  }
-  return formatNumber(sum);
+/** Jumlah Ratio Produksi = jumlah uraian pembilang / jumlah uraian penyebut (format persen) */
+function getRatioProduksiJumlah(entityName: string, row: RatioProduksiRow): string {
+  const { numerator, denominator } = row.jumlahFormula;
+  const num = getUraianRowJumlahNumeric(entityName, numerator);
+  const den = getUraianRowJumlahNumeric(entityName, denominator);
+  if (!den) return formatPercentage(0);
+  const ratioPercent = (num / den) * 100;
+  if (!Number.isFinite(ratioPercent)) return formatPercentage(0);
+  return formatPercentage(ratioPercent);
 }
 
 /** 19 baris uraian sesuai gambar laporan. Kolom R1–R12 pakai average_*_r1 … average_*_r12. */
-const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
+const URAIAN_ROWS: UraianRow[] = [
   {
     no: 1,
     uraian: "Pembiayaan",
@@ -644,6 +661,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 10,
     uraian: "Karyawan",
+    skipJumlah: true,
     config: {
       key: "rate_lima",
       monthField: "karyawan_bulan_ini",
@@ -676,6 +694,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 14,
     uraian: "Satuan Kerja",
+    skipJumlah: true,
     config: { key: "rate_delapan", monthField: "total_satuan_kerja", rFieldBase: "average_satuan_kerja_r" },
   },
   {
@@ -717,6 +736,7 @@ const URAIAN_ROWS: { no: number; uraian: string; config?: RowConfig }[] = [
   {
     no: 19,
     uraian: "Saldo Pokok Piutang Akhir",
+    skipJumlah: true,
     config: {
       key: "ratio_empat",
       monthField: "saldo_akhir_bulan_ini",
@@ -788,61 +808,74 @@ const TINGKAT_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduk
 ];
 
 /** 11 baris Ratio Produksi (hanya kolom R1–R12, nilai sebagai persentase) */
-const RATIO_PRODUKSI_ROWS: { no: number; uraian: string; config: TingkatProduksiConfig }[] = [
+/** Kolom Jumlah = jumlah uraian pembilang / jumlah uraian penyebut (no. baris Uraian) */
+const RATIO_PRODUKSI_ROWS: RatioProduksiRow[] = [
   {
     no: 1,
     uraian: "Ratio Pembiayaan / Realisasi Pokok",
     config: { key: "ratio_satu", rField: "pembiayaan_per_realisasi_pokok" },
+    jumlahFormula: { numerator: 1, denominator: 17 },
   },
   {
     no: 2,
     uraian: "Ratio Kn /T macet / Pembiayaan",
     config: { key: "ratio_dua", rField: "rasio_kemacetan_pembiayaan" },
+    jumlahFormula: { numerator: 18, denominator: 1 },
   },
   {
     no: 3,
     uraian: "Ratio Mark up / Pembiayaan",
     config: { key: "ratio_tiga", rField: "rasio_markup" },
+    jumlahFormula: { numerator: 4, denominator: 1 },
   },
   {
     no: 4,
     uraian: "Ratio Pendapatan Bunga / So. Piutang Pokok Akhir",
     config: { key: "ratio_empat", rField: "rasio_realisasi_bunga_per_total_piutang" },
+    jumlahFormula: { numerator: 6, denominator: 19 },
   },
   {
     no: 5,
     uraian: "Ratio Mark up / Jumlah Pendapatan",
     config: { key: "ratio_lima", rField: "rasio_markup_per_jumlah_pendapatan" },
+    jumlahFormula: { numerator: 4, denominator: 9 },
   },
   {
     no: 6,
     uraian: "Ratio Pendapatan Bunga / Jumlah Pendapatan",
     config: { key: "ratio_enam", rField: "rasio_pendapatan_bunga_per_jumlah_pendapatan" },
+    jumlahFormula: { numerator: 6, denominator: 9 },
   },
   {
     no: 7,
     uraian: "Ratio Pendapatan Lainnya / Jumlah Pendapatan",
     config: { key: "ratio_tujuh", rField: "rasio_pendapatan_lainnya_per_jumlah_pendapatan" },
+    jumlahFormula: { numerator: 0, denominator: 0 },//TODO: belum ditentukan
   },
   {
     no: 8,
     uraian: "Ratio Gaji / Pendapatan",
     config: { key: "ratio_delapan", rField: "rasio_gaji_per_pendapatan" },
+    jumlahFormula: { numerator: 11, denominator: 9 },
   },
   {
     no: 9,
     uraian: "Ratio Biaya Operasional / Pendapatan",
     config: { key: "ratio_sembilan", rField: "rasio_operasional_per_pendapatan" },
+    jumlahFormula: { numerator: 12, denominator: 9 },
   },
   {
     no: 10,
     uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan",
     config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_per_pendapatan" },
+    jumlahFormula: { numerator: 13
+      , denominator: 9 },
   },
   {
     no: 11,
     uraian: "Ratio Biaya Cad PH dan Peny Stock / Pendapatan",
     config: { key: "ratio_sebelas", rField: "rasio_cadangan_per_pendapatan" },
+    jumlahFormula: { numerator: 15, denominator: 9 },
   },
 ];
 
