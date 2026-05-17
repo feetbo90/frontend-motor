@@ -850,7 +850,7 @@ const RATIO_PRODUKSI_ROWS: RatioProduksiRow[] = [
     no: 7,
     uraian: "Ratio Pendapatan Lainnya / Jumlah Pendapatan",
     config: { key: "ratio_tujuh", rField: "rasio_pendapatan_lainnya_per_jumlah_pendapatan" },
-    jumlahFormula: { numerator: 0, denominator: 0 },//TODO: belum ditentukan
+    jumlahFormula: { numerator: 8, denominator: 9 },
   },
   {
     no: 8,
@@ -868,8 +868,7 @@ const RATIO_PRODUKSI_ROWS: RatioProduksiRow[] = [
     no: 10,
     uraian: "Ratio Biaya Penyusutan inventaris / Pendapatan",
     config: { key: "ratio_sepuluh", rField: "rasio_penyusutan_per_pendapatan" },
-    jumlahFormula: { numerator: 13
-      , denominator: 9 },
+    jumlahFormula: { numerator: 13, denominator: 9 },
   },
   {
     no: 11,
